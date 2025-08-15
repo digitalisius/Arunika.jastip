@@ -210,6 +210,25 @@
             max-height: 80vh;
             border-radius: 0.5rem;
         }
+
+        .shopee-btn {
+            background-color: #FF5722;
+            color: white;
+            padding: 0.5rem 1rem;
+            font-size: 0.75rem;
+            font-weight: bold;
+            border-radius: 9999px;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.25rem;
+            width: 100%;
+            margin-top: 0.5rem;
+        }
+        .shopee-btn:hover {
+            background-color: #E64A19;
+        }
     </style>
 </head>
 <body class="bg-gray-900 text-gray-200 p-4 md:p-8">
@@ -385,8 +404,8 @@
                 <p class="mb-2 text-sm font-medium">Langkah-langkah mudah untuk memesan:</p>
                 <ol class="list-decimal list-inside space-y-1 text-sm">
                     <li>Pilih produk & ukuran.</li>
-                    <li>Klik **"+ Tambah"** untuk menambahkannya ke keranjang.</li>
-                    <li>Selesai belanja, klik **"Pesan Sekarang via WhatsApp"**.</li>
+                    <li>Klik "+ 𝙏𝙖𝙢𝙗𝙖𝙝" untuk menambahkannya ke keranjang.</li>
+                    <li>Selesai belanja, klik "𝙋𝙚𝙨𝙖𝙣 𝙎𝙚𝙠𝙖𝙧𝙖𝙣𝙜 𝙑𝙞𝙖 𝙒𝙝𝙖𝙩𝙨𝙖𝙥𝙥".</li>
                     <li>Pesan pesanan Anda sudah terisi otomatis, tinggal kirim.</li>
                 </ol>
             </div>
@@ -410,7 +429,7 @@
                 <div class="flex items-center justify-center mb-4">
                     <h3 class="font-semibold text-sm product-name-best-seller px-4 py-1">Nama Produk</h3>
                 </div>
-                <p class="text-sm">menandakan bahwa produk tersebut adalah **produk terlaris** kami.</p>
+                <p class="text-sm">menandakan bahwa produk tersebut adalah "𝙋𝙧𝙤𝙙𝙪𝙠 𝙏𝙚𝙧𝙡𝙖𝙧𝙞𝙨" kami.</p>
             </div>
             <div class="mt-6">
                 <button id="ok-best-seller-info-btn" class="py-2 px-6 bg-blue-500 hover:bg-blue-600 text-white font-bold rounded-lg transition-colors">Ok</button>
@@ -538,12 +557,10 @@
                     ]
                 },
                 makanan: [
-                    { id: 'm01', name: 'Coming Soon', category: 'Makanan', price: 50000 },
-                    { id: 'm02', name: 'Nasi Goreng Spesial', category: 'Makanan', price: 35000 },
+                    { id: 'm01', name: 'Coming Soon', category: 'Makanan', price: 50000, shopeeLink: 'https://s.shopee.co.id/7fPeL43hU8' },
                 ],
                 minuman: [
-                    { id: 'd01', name: 'Jus Mangga Segar', category: 'Minuman', price: 15000 },
-                    { id: 'd02', name: 'Es Teh Manis', category: 'Minuman', price: 10000 },
+                    { id: 'd01', name: 'Carica ( 2 Dus Isi 12 Cup )', category: 'Minuman', price: 136000, shopeeLink: 'https://s.shopee.co.id/7fPeL43hU8' },
                 ]
             };
             
@@ -551,13 +568,7 @@
             // URL 'thumbUrl' harus berukuran kecil untuk tampilan awal.
             // URL 'fullUrl' adalah gambar asli berukuran besar untuk pop-up.
             const testimonials = [
-                { id: 1, thumbUrl: 'https://i.ibb.co/3sXf2g7/thumb1.jpg', fullUrl: 'https://i.ibb.co/3sXf2g7/full1.jpg' },
-                { id: 2, thumbUrl: 'https://i.ibb.co/zX5g0B8/thumb2.jpg', fullUrl: 'https://i.ibb.co/zX5g0B8/full2.jpg' },
-                { id: 3, thumbUrl: 'https://i.ibb.co/vYc6xS6/thumb3.jpg', fullUrl: 'https://i.ibb.co/vYc6xS6/full3.jpg' },
-                { id: 4, thumbUrl: 'https://i.ibb.co/L5Qx6y4/thumb4.jpg', fullUrl: 'https://i.ibb.co/L5Qx6y4/full4.jpg' },
-                { id: 5, thumbUrl: 'https://i.ibb.co/fQj9z7R/thumb5.jpg', fullUrl: 'https://i.ibb.co/fQj9z7R/full5.jpg' },
-                { id: 6, thumbUrl: 'https://i.ibb.co/0yJ4R6X/thumb6.jpg', fullUrl: 'https://i.ibb.co/0yJ4R6X/full6.jpg' },
-                { id: 7, thumbUrl: 'https://res.cloudinary.com/dtvmbvwtx/image/upload/w_120,h_120,c_fill/v1755237555/WhatsApp_Image_2025-08-15_at_12.57.35_neyvtz.jpg', fullUrl: 'https://res.cloudinary.com/dtvmbvwtx/image/upload/v1755237555/WhatsApp_Image_2025-08-15_at_12.57.35_neyvtz.jpg' }
+                { id: 1, thumbUrl: 'https://res.cloudinary.com/dtvmbvwtx/image/upload/w_120,h_120,c_fill/v1755237555/WhatsApp_Image_2025-08-15_at_12.57.35_neyvtz.jpg', fullUrl: 'https://res.cloudinary.com/dtvmbvwtx/image/upload/v1755237555/WhatsApp_Image_2025-08-15_at_12.57.35_neyvtz.jpg' }
             ];
 
             const allProducts = [
@@ -670,7 +681,7 @@
                 switch(category) {
                     case 'Kopi': return '☕';
                     case 'Makanan': return '🍔';
-                    case 'Minuman': return '🥤';
+                    case 'Minuman': return '�';
                     default: return '';
                 }
             }
@@ -701,12 +712,16 @@
                         </div>
                     `;
                 } else {
+                    const priceHtml = product.price ? `<p class="text-amber-500 font-bold text-xs sm:text-sm">Rp${product.price.toLocaleString('id-ID')}</p>` : '';
+                    const shopeeBtnHtml = product.shopeeLink ? `<a href="${product.shopeeLink}" target="_blank" class="shopee-btn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shopping-bag"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4H6z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>Beli di Shopee</a>` : '';
+
                     productActionsHtml = `
-                        <div class="product-actions-container flex flex-col md:flex-row items-center gap-2 w-full mt-2">
-                            <p class="text-amber-500 font-bold text-xs sm:text-sm">Rp${product.price.toLocaleString('id-ID')}</p>
+                        <div class="product-actions-container flex flex-col items-center gap-2 w-full mt-2">
+                            ${priceHtml}
                             <button data-id="${product.id}" class="add-to-cart-btn-single flex-shrink-0 bg-amber-600 hover:bg-amber-700 text-white font-bold py-2 px-4 text-sm rounded-full transition-colors duration-200 shadow-md">
                                 + Tambah
                             </button>
+                            ${shopeeBtnHtml}
                         </div>
                     `;
                 }
@@ -749,16 +764,18 @@
                             robustaListDiv.appendChild(createProductCard(product));
                         });
                     }
-                } else if (category === 'makanan') {
-                    products.makanan.forEach(product => {
-                        makananListDiv.appendChild(createProductCard(product));
-                    });
-                } else if (category === 'minuman') {
-                    products.minuman.forEach(product => {
-                        minumanListDiv.appendChild(createProductCard(product));
+                } else {
+                    // Filter products based on category
+                    const categoryProducts = allProducts.filter(p => p.category.toLowerCase() === category);
+                    categoryProducts.forEach(product => {
+                        if (category === 'makanan') {
+                            makananListDiv.appendChild(createProductCard(product));
+                        } else if (category === 'minuman') {
+                            minumanListDiv.appendChild(createProductCard(product));
+                        }
                     });
                 }
-
+                
                 // Reapply the current view setting
                 const activeView = document.querySelector('.product-list.list-view') ? 'list' : 'grid';
                 setView(activeView);
@@ -908,10 +925,29 @@
                     suggestionItemNameInput.value = '';
                     suggestionItemPriceInput.value = '';
                 } else {
-                    // Anda bisa menambahkan modal pop-up sederhana di sini
-                    alert('Harap isi nama barang atau estimasi harga terlebih dahulu.');
+                    // Menggunakan modal kustom sebagai pengganti alert
+                    showInfoModal('Info', 'Harap isi nama barang atau estimasi harga terlebih dahulu.');
                 }
             });
+            
+            function showInfoModal(title, message) {
+                const modal = document.getElementById('confirmation-modal');
+                const modalTitle = document.getElementById('modal-title');
+                const modalMessage = document.getElementById('modal-message');
+                const yesBtn = document.getElementById('yes-btn');
+                const noBtn = document.getElementById('no-btn');
+
+                modalTitle.textContent = title;
+                modalMessage.textContent = message;
+                yesBtn.classList.add('hidden');
+                noBtn.textContent = 'Ok';
+                noBtn.onclick = () => {
+                    modal.classList.add('hidden');
+                    resetConfirmationModal();
+                };
+                modal.classList.remove('hidden');
+            }
+
 
             function setView(view) {
                 const productLists = document.querySelectorAll('.product-list');
