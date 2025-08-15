@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JasTip Arunika</title>
+    <!-- Tailwind CSS untuk styling yang responsif dan modern -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f7f9fc;
+        }
+        .product-card {
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+            padding: 1rem;
+            position: relative;
+        }
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        
+        /* Gaya untuk modal popup */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+        .modal-container {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 1.5rem;
+            max-width: 90%;
+            width: 24rem;
+            text-align: center;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+
+        /* Gaya untuk nama produk best seller */
+        .product-name-best-seller {
+            display: inline-block;
+            background-color: #fcd34d;
+            color: #92400e;
+            font-weight: bold;
+            padding: 0.25rem 0.5rem;
+            border-radius: 9999px;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            font-size: 0.75rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        /* Gaya untuk mode list */
+        .list-view .product-list .product-card {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.75rem 1rem;
+        }
+        .list-view .product-card .icon-and-info {
+            display: flex;
+            align-items: center;
+            flex-grow: 1;
+            overflow: hidden;
+            flex-shrink: 1;
+        }
+        .list-view .product-card .icon-container {
+            font-size: 1.2rem;
+            margin-right: 0.5rem;
+            flex-shrink: 0;
+        }
+        .list-view .product-info {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            overflow: hidden;
+        }
+        .list-view .product-info h3 {
+            font-size: 0.875rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .list-view .product-actions-container {
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .list-view .product-actions-container select {
+            width: 8rem;
+            flex-shrink: 0;
+        }
+        .list-view .product-actions-container button {
+            width: 5rem;
+            height: 2.5rem;
+            padding: 0.5rem 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 0.75rem;
+        }
+
+        /* Gaya untuk mode grid */
+        .grid-view .product-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .grid-view .product-card .icon-container {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+        .grid-view .product-info {
+            width: 100%;
+            text-align: center;
+            margin-bottom: 0.5rem;
+        }
+        .grid-view .product-actions-container {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .grid-view .product-actions-container select {
+            width: 100%;
+            max-width: 12rem;
+        }
+        .grid-view .product-actions-container button {
+            width: 100%;
+            max-width: 12rem;
+            padding: 0.5rem 1rem;
+        }
+        #main-title {
+            font-family: 'Cinzel', serif;
+            font-size: 3rem;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800 p-4 md:p-8">
+
+    <!-- Kontainer utama dengan desain modern -->
+    <div class="max-w-4xl mx-auto bg-white p-6 md:p-10 rounded-3xl shadow-2xl">
+
+        <!-- Header toko -->
+        <header class="text-center mb-6">
+            <h1 id="main-title" class="font-extrabold text-gray-900 mb-2 tracking-tight">JasTip Arunika</h1>
+            <p class="text-lg text-gray-500">Melayani Titipan Anda dengan Sepenuh Hati</p>
+        </header>
+
+        <!-- Container untuk daftar produk -->
+        <div id="product-list-container">
+
+            <!-- Tombol untuk mengubah tampilan -->
+            <div class="flex justify-between items-center space-x-2 mb-4">
+                <button id="how-to-order-btn" class="py-2 px-4 bg-gray-200 text-gray-800 font-medium rounded-lg hover:bg-gray-300 transition-colors">
+                    Cara Pesan
+                </button>
+                <div class="flex space-x-2">
+                    <button id="grid-view-btn" class="p-2 rounded-lg bg-gray-200 text-gray-800 hover:bg-gray-300 transition-colors">
+                        <!-- Grid Icon -->
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-layout-grid"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M3 15h18"/><path d="M9 3v18"/><path d="M15 3v18"/></svg>
+                    </button>
+                    <button id="list-view-btn" class="p-2 rounded-lg bg-gray-200 text-gray-800 hover:bg-gray-300 transition-colors">
+                        <!-- List Icon -->
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-list"><line x1="8" x2="21" y1="6" y2="6"/><line x1="8" x2="21" y1="12" y2="12"/><line x1="8" x2="21" y1="18" y2="18"/><line x1="3" x2="3.01" y1="6" y2="6"/><line x1="3" x2="3.01" y1="12" y2="12"/><line x1="3" x2="3.01" y1="18" y2="18"/></svg>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Tombol info best seller baru -->
+            <div class="flex justify-between items-center mb-4">
+                <button id="best-seller-info-btn" class="py-2 px-4 bg-gray-200 text-gray-800 font-medium rounded-lg hover:bg-gray-300 transition-colors text-sm">
+                    Info Best Seller
+                </button>
+            </div>
+
+            <!-- Kategori Kopi -->
+            <section class="mb-8">
+                <h2 class="text-2xl font-bold text-gray-900 mb-4">Kopi</h2>
+                <!-- Sub Kategori Arabika -->
+                <h3 class="text-xl font-semibold text-gray-800 mb-2 mt-4">Arabika</h3>
+                <div id="arabika-list" class="product-list grid-view grid grid-cols-2 lg:grid-cols-3 gap-4">
+                    <!-- Produk Arabika akan dimuat di sini -->
+                </div>
+                <!-- Sub Kategori Robusta -->
+                <h3 class="text-xl font-semibold text-gray-800 mb-2 mt-6">Robusta</h3>
+                <div id="robusta-list" class="product-list grid-view grid grid-cols-2 lg:grid-cols-3 gap-4">
+                    <!-- Produk Robusta akan dimuat di sini -->
+                </div>
+            </section>
+
+            <!-- Kategori Makanan dan Minuman Lainnya -->
+            <section class="mb-8">
+                <h2 class="text-2xl font-bold text-gray-900 mb-4">Makanan dan Minuman Lainnya</h2>
+                <div id="makanan-list" class="product-list grid-view grid grid-cols-2 lg:grid-cols-3 gap-4">
+                    <!-- Produk Makanan akan dimuat di sini -->
+                </div>
+                <div id="minuman-list" class="product-list grid-view grid grid-cols-2 lg:grid-cols-3 gap-4 mt-6">
+                    <!-- Produk Minuman akan dimuat di sini -->
+                </div>
+            </section>
+        </div>
+
+        <!-- Garis pemisah -->
+        <hr class="my-10 border-t-2 border-gray-200">
+
+        <!-- Keranjang Belanja -->
+        <div>
+            <h2 class="text-2xl font-bold text-gray-900 mb-4">Keranjang Anda</h2>
+            <div id="cart-items" class="space-y-4 mb-4">
+                <p id="empty-cart-message" class="text-gray-500 italic text-center p-4">Keranjang masih kosong.</p>
+            </div>
+            <div class="flex justify-between items-center font-bold text-xl text-gray-900 border-t-2 border-gray-200 pt-4">
+                <span>Total:</span>
+                <span id="cart-total">Rp0</span>
+            </div>
+
+            <!-- Tombol Pesan via WhatsApp -->
+            <button id="checkout-button" class="w-full mt-6 py-4 px-6 bg-green-600 hover:bg-green-700 text-white font-bold text-lg rounded-xl shadow-lg transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-green-600 focus:ring-opacity-50" style="display: none;">
+                Pesan Sekarang via WhatsApp
+            </button>
+        </div>
+    </div>
+
+    <!-- Modal Konfirmasi Produk -->
+    <div id="confirmation-modal" class="modal-overlay hidden">
+        <div class="modal-container">
+            <div class="flex justify-between items-center mb-4">
+                <h3 id="modal-title" class="text-lg font-semibold text-gray-900">Konfirmasi</h3>
+                <button id="close-confirmation-modal-btn" class="text-gray-400 hover:text-gray-600 focus:outline-none">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                </button>
+            </div>
+            <p id="modal-message" class="text-gray-700 mb-6">Apakah Anda yakin ingin menambahkan produk ini?</p>
+            <div id="modal-actions" class="flex justify-center space-x-4">
+                <button id="yes-btn" class="py-2 px-6 bg-green-500 hover:bg-green-600 text-white font-bold rounded-lg transition-colors">Ya</button>
+                <button id="no-btn" class="py-2 px-6 bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold rounded-lg transition-colors">Tidak</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Cara Pesan -->
+    <div id="how-to-order-modal" class="modal-overlay hidden">
+        <div class="modal-container">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-semibold text-gray-900">Cara Pesan</h3>
+                <button id="close-how-to-order-modal-btn" class="text-gray-400 hover:text-gray-600 focus:outline-none">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                </button>
+            </div>
+            <div class="text-left text-gray-700">
+                <p class="mb-2 text-sm font-medium">Langkah-langkah mudah untuk memesan:</p>
+                <ol class="list-decimal list-inside space-y-1 text-sm">
+                    <li>Pilih produk & ukuran.</li>
+                    <li>Klik **"+ Tambah"** untuk menambahkannya ke keranjang.</li>
+                    <li>Selesai belanja, klik **"Pesan Sekarang via WhatsApp"**.</li>
+                    <li>Pesan pesanan Anda sudah terisi otomatis, tinggal kirim.</li>
+                </ol>
+            </div>
+            <div class="mt-6">
+                <button id="ok-how-to-order-btn" class="py-2 px-6 bg-blue-500 hover:bg-blue-600 text-white font-bold rounded-lg transition-colors">Ok</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Info Best Seller -->
+    <div id="best-seller-info-modal" class="modal-overlay hidden">
+        <div class="modal-container">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-semibold text-gray-900">Info Best Seller</h3>
+                <button id="close-best-seller-info-modal-btn" class="text-gray-400 hover:text-gray-600 focus:outline-none">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                </button>
+            </div>
+            <div class="text-left text-gray-700">
+                <p class="mb-4 text-sm">Produk dengan nama yang diberi latar belakang kuning seperti ini:</p>
+                <div class="flex items-center justify-center mb-4">
+                    <h3 class="font-semibold text-sm product-name-best-seller px-4 py-1">Nama Produk</h3>
+                </div>
+                <p class="text-sm">menandakan bahwa produk tersebut adalah **produk terlaris** kami.</p>
+            </div>
+            <div class="mt-6">
+                <button id="ok-best-seller-info-btn" class="py-2 px-6 bg-blue-500 hover:bg-blue-600 text-white font-bold rounded-lg transition-colors">Ok</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer dengan Copyright -->
+    <footer class="mt-8 text-center text-gray-400 text-sm">
+        <p>Copyright &copy; by Arunika Group 2025</p>
+    </footer>
+
+    <!-- JavaScript untuk logika aplikasi -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+
+            const whatsappNumber = '6285640312607';
+            const titipFee = 25000;
+
+            const products = {
+                kopi: {
+                    arabika: [
+                        { id: 'k01', name: 'Full Wash Sindoro', category: 'Kopi', options: [
+                            { id: 'k01-100g', name: '100g', price: 30000 },
+                            { id: 'k01-250g', name: '250g', price: 70000 },
+                            { id: 'k01-500g', name: '500g', price: 125000 },
+                            { id: 'k01-1kg', name: '1kg', price: 240000 }
+                        ]},
+                        { id: 'k02', name: 'Full Wash Sumbing', category: 'Kopi', options: [
+                            { id: 'k02-100g', name: '100g', price: 30000 },
+                            { id: 'k02-250g', name: '250g', price: 70000 },
+                            { id: 'k02-500g', name: '500g', price: 125000 },
+                            { id: 'k02-1kg', name: '1kg', price: 240000 }
+                        ]},
+                        { id: 'k03', name: 'Natural', category: 'Kopi', options: [
+                            { id: 'k03-100g', name: '100g', price: 35000 },
+                            { id: 'k03-250g', name: '250g', price: 80000 },
+                            { id: 'k03-500g', name: '500g', price: 130000 },
+                            { id: 'k03-1kg', name: '1kg', price: 250000 }
+                        ]},
+                        { id: 'k04', name: 'Honey', category: 'Kopi', options: [
+                            { id: 'k04-100g', name: '100g', price: 35000 },
+                            { id: 'k04-250g', name: '250g', price: 80000 },
+                            { id: 'k04-500g', name: '500g', price: 130000 },
+                            { id: 'k04-1kg', name: '1kg', price: 250000 }
+                        ]},
+                        { id: 'k05', name: 'Yellow Caturra', category: 'Kopi', options: [
+                            { id: 'k05-100g', name: '100g', price: 35000 },
+                            { id: 'k05-250g', name: '250g', price: 80000 },
+                            { id: 'k05-500g', name: '500g', price: 130000 },
+                            { id: 'k05-1kg', name: '1kg', price: 250000 }
+                        ]},
+                        { id: 'k06', name: 'Peaberry / Lanang', category: 'Kopi', options: [
+                            { id: 'k06-100g', name: '100g', price: 35000 },
+                            { id: 'k06-250g', name: '250g', price: 80000 },
+                            { id: 'k06-500g', name: '500g', price: 130000 },
+                            { id: 'k06-1kg', name: '1kg', price: 250000 }
+                        ]},
+                        { id: 'k07', name: 'Wine', category: 'Kopi', isBestSeller: true, options: [
+                            { id: 'k07-100g', name: '100g', price: 40000 },
+                            { id: 'k07-250g', name: '250g', price: 85000 },
+                            { id: 'k07-500g', name: '500g', price: 150000 },
+                            { id: 'k07-1kg', name: '1kg', price: 300000 }
+                        ]},
+                        { id: 'k08', name: 'Kopi Luwak', category: 'Kopi', options: [
+                            { id: 'k08-100g', name: '100g', price: 70000 },
+                            { id: 'k08-250g', name: '250g', price: 150000 },
+                            { id: 'k08-500g', name: '500g', price: 300000 },
+                            { id: 'k08-1kg', name: '1kg', price: 600000 }
+                        ]},
+                        { id: 'k09', name: 'Blend Arabika & Robusta', category: 'Kopi', options: [
+                            { id: 'k09-100g', name: '100g', price: 25000 },
+                            { id: 'k09-250g', name: '250g', price: 55000 },
+                            { id: 'k09-500g', name: '500g', price: 100000 },
+                            { id: 'k09-1kg', name: '1kg', price: 200000 }
+                        ]},
+                        { id: 'k10', name: 'Arabika Komersil', category: 'Kopi', options: [
+                            { id: 'k10-100g', name: '100g', price: 20000 },
+                            { id: 'k10-250g', name: '250g', price: 45000 },
+                            { id: 'k10-500g', name: '500g', price: 85000 },
+                            { id: 'k10-1kg', name: '1kg', price: 170000 }
+                        ]}
+                    ],
+                    robusta: [
+                        { id: 'k11', name: 'Fine Natural', category: 'Kopi', isBestSeller: true, options: [
+                            { id: 'k11-100g', name: '100g', price: 20000 },
+                            { id: 'k11-250g', name: '250g', price: 50000 },
+                            { id: 'k11-500g', name: '500g', price: 90000 },
+                            { id: 'k11-1kg', name: '1kg', price: 175000 }
+                        ]},
+                        { id: 'k12', name: 'Fine Honey', category: 'Kopi', options: [
+                            { id: 'k12-100g', name: '100g', price: 20000 },
+                            { id: 'k12-250g', name: '250g', price: 50000 },
+                            { id: 'k12-500g', name: '500g', price: 90000 },
+                            { id: 'k12-1kg', name: '1kg', price: 175000 }
+                        ]},
+                        { id: 'k13', name: 'Peakerry / Lanang', category: 'Kopi', options: [
+                            { id: 'k13-100g', name: '100g', price: 25000 },
+                            { id: 'k13-250g', name: '250g', price: 55000 },
+                            { id: 'k13-500g', name: '500g', price: 100000 },
+                            { id: 'k13-1kg', name: '1kg', price: 190000 }
+                        ]},
+                        { id: 'k14', name: 'Robusta Grade I', category: 'Kopi', options: [
+                            { id: 'k14-100g', name: '100g', price: 17000 },
+                            { id: 'k14-250g', name: '250g', price: 40000 },
+                            { id: 'k14-500g', name: '500g', price: 80000 },
+                            { id: 'k14-1kg', name: '1kg', price: 150000 }
+                        ]},
+                        { id: 'k15', name: 'Eksela', category: 'Kopi', options: [
+                            { id: 'k15-100g', name: '100g', price: 30000 },
+                            { id: 'k15-250g', name: '250g', price: 70000 },
+                            { id: 'k15-500g', name: '500g', price: 1250000 },
+                            { id: 'k15-1kg', name: '1kg', price: 240000 }
+                        ]},
+                    ]
+                },
+                makanan: [
+                    { id: 'm01', name: 'Coming Soon', category: 'Makanan', price: 50000 },
+                    { id: 'm02', name: 'Nasi Goreng Spesial', category: 'Makanan', price: 35000 },
+                ],
+                minuman: [
+                    { id: 'd01', name: 'Jus Mangga Segar', category: 'Minuman', price: 15000 },
+                    { id: 'd02', name: 'Es Teh Manis', category: 'Minuman', price: 10000 },
+                ]
+            };
+
+            const allProducts = [
+                ...products.kopi.arabika,
+                ...products.kopi.robusta,
+                ...products.makanan,
+                ...products.minuman
+            ];
+            const arabikaListDiv = document.getElementById('arabika-list');
+            const robustaListDiv = document.getElementById('robusta-list');
+            const makananListDiv = document.getElementById('makanan-list');
+            const minumanListDiv = document.getElementById('minuman-list');
+            const cartItemsDiv = document.getElementById('cart-items');
+            const cartTotalSpan = document.getElementById('cart-total');
+            const checkoutButton = document.getElementById('checkout-button');
+            const emptyCartMessage = document.getElementById('empty-cart-message');
+            const gridViewBtn = document.getElementById('grid-view-btn');
+            const listViewBtn = document.getElementById('list-view-btn');
+            const howToOrderBtn = document.getElementById('how-to-order-btn');
+            const bestSellerInfoBtn = document.getElementById('best-seller-info-btn');
+
+
+            let cart = {}; // {id-varian: {item, quantity}}
+            let currentProductToAdd = null;
+
+            // Fungsi untuk menampilkan pop-up konfirmasi
+            function showConfirmationModal(productName, productId, selectedOptionId = null) {
+                const modal = document.getElementById('confirmation-modal');
+                const modalMessage = document.getElementById('modal-message');
+                const yesBtn = document.getElementById('yes-btn');
+                const noBtn = document.getElementById('no-btn');
+
+                let fullProductName = productName;
+                if (selectedOptionId) {
+                    const product = allProducts.find(p => p.id === productId);
+                    const option = product.options.find(o => o.id === selectedOptionId);
+                    fullProductName = `${productName} (${option.name})`;
+                }
+
+                modalMessage.innerHTML = `Apakah Anda yakin ingin menambahkan <strong>${fullProductName}</strong> ke keranjang?`;
+                yesBtn.onclick = () => {
+                    if (selectedOptionId) {
+                        addItemToCart(productId, selectedOptionId);
+                    } else {
+                        addItemToCart(productId);
+                    }
+                    
+                    modalMessage.innerHTML = `<strong>${fullProductName}</strong> berhasil ditambahkan ke keranjang!`;
+                    yesBtn.classList.add('hidden');
+                    noBtn.textContent = 'Ok';
+                    noBtn.onclick = () => {
+                        modal.classList.add('hidden');
+                        resetConfirmationModal();
+                    };
+                };
+                noBtn.onclick = () => {
+                    modal.classList.add('hidden');
+                    resetConfirmationModal();
+                };
+                modal.classList.remove('hidden');
+            }
+
+            function resetConfirmationModal() {
+                const modal = document.getElementById('confirmation-modal');
+                const yesBtn = document.getElementById('yes-btn');
+                const noBtn = document.getElementById('no-btn');
+                yesBtn.classList.remove('hidden');
+                noBtn.textContent = 'Tidak';
+                yesBtn.onclick = null;
+                noBtn.onclick = null;
+                modal.classList.add('hidden');
+            }
+
+            // Fungsi untuk menampilkan pop-up cara pesan
+            function showHowToOrderModal() {
+                const modal = document.getElementById('how-to-order-modal');
+                modal.classList.remove('hidden');
+            }
+
+            // Fungsi untuk menampilkan pop-up info best seller
+            function showBestSellerInfoModal() {
+                const modal = document.getElementById('best-seller-info-modal');
+                modal.classList.remove('hidden');
+            }
+
+
+            document.getElementById('close-confirmation-modal-btn').addEventListener('click', resetConfirmationModal);
+            document.getElementById('close-how-to-order-modal-btn').addEventListener('click', () => {
+                document.getElementById('how-to-order-modal').classList.add('hidden');
+            });
+            document.getElementById('ok-how-to-order-btn').addEventListener('click', () => {
+                document.getElementById('how-to-order-modal').classList.add('hidden');
+            });
+            document.getElementById('close-best-seller-info-modal-btn').addEventListener('click', () => {
+                document.getElementById('best-seller-info-modal').classList.add('hidden');
+            });
+            document.getElementById('ok-best-seller-info-btn').addEventListener('click', () => {
+                document.getElementById('best-seller-info-modal').classList.add('hidden');
+            });
+
+            function getCategorySymbol(category) {
+                switch(category) {
+                    case 'Kopi': return '☕';
+                    case 'Makanan': return '🍔';
+                    case 'Minuman': return '🥤';
+                    default: return '';
+                }
+            }
+
+            function createProductCard(product) {
+                const productElement = document.createElement('div');
+                productElement.className = 'product-card bg-gray-50 rounded-xl shadow-md border border-gray-200 text-center';
+
+                let productNameClass = '';
+                if (product.isBestSeller) {
+                    productNameClass = 'product-name-best-seller';
+                }
+
+                let productActionsHtml = '';
+                if (product.options) {
+                    let optionsHtml = product.options.map(option =>
+                        `<option value="${option.id}">${option.name} - Rp${option.price.toLocaleString('id-ID')}</option>`
+                    ).join('');
+
+                    productActionsHtml = `
+                        <div class="product-actions-container flex flex-col md:flex-row items-center gap-2 w-full mt-2">
+                            <select id="select-${product.id}" class="w-full text-sm border-gray-300 rounded-lg p-2 focus:ring-blue-500 focus:border-blue-500">
+                                ${optionsHtml}
+                            </select>
+                            <button data-id="${product.id}" class="add-to-cart-btn-multi flex-shrink-0 bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 text-sm rounded-full transition-colors duration-200 shadow-md">
+                                + Tambah
+                            </button>
+                        </div>
+                    `;
+                } else {
+                    productActionsHtml = `
+                        <div class="product-actions-container flex flex-col md:flex-row items-center gap-2 w-full mt-2">
+                            <p class="text-green-600 font-bold text-xs sm:text-sm">Rp${product.price.toLocaleString('id-ID')}</p>
+                            <button data-id="${product.id}" class="add-to-cart-btn-single flex-shrink-0 bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 text-sm rounded-full transition-colors duration-200 shadow-md">
+                                + Tambah
+                            </button>
+                        </div>
+                    `;
+                }
+
+                productElement.innerHTML = `
+                    <div class="relative w-full flex flex-col items-center">
+                        <div class="icon-container mb-2 text-2xl">
+                            ${getCategorySymbol(product.category)}
+                        </div>
+                        <div class="product-info flex-1 w-full truncate mb-2">
+                            <h3 class="font-semibold text-sm sm:text-base text-gray-900 truncate ${productNameClass}">${product.name}</h3>
+                        </div>
+                    </div>
+                    <div class="product-actions-wrapper w-full">
+                        ${productActionsHtml}
+                    </div>
+                `;
+                return productElement;
+            }
+
+            function renderProducts() {
+                arabikaListDiv.innerHTML = '';
+                products.kopi.arabika.forEach(product => {
+                    arabikaListDiv.appendChild(createProductCard(product));
+                });
+
+                robustaListDiv.innerHTML = '';
+                products.kopi.robusta.forEach(product => {
+                    robustaListDiv.appendChild(createProductCard(product));
+                });
+                
+                makananListDiv.innerHTML = '';
+                products.makanan.forEach(product => {
+                    makananListDiv.appendChild(createProductCard(product));
+                });
+
+                minumanListDiv.innerHTML = '';
+                products.minuman.forEach(product => {
+                    minumanListDiv.appendChild(createProductCard(product));
+                });
+            }
+
+            function renderCart() {
+                cartItemsDiv.innerHTML = '';
+                let total = 0;
+                let hasItems = false;
+
+                for (const id in cart) {
+                    hasItems = true;
+                    const item = cart[id];
+                    total += item.price * item.quantity;
+
+                    const cartItemElement = document.createElement('div');
+                    cartItemElement.className = 'flex justify-between items-center p-3 bg-gray-50 rounded-lg shadow-sm';
+                    cartItemElement.innerHTML = `
+                        <div class="flex items-center space-x-3">
+                            <button data-id="${id}" class="remove-from-cart-btn bg-red-500 hover:bg-red-600 text-white w-6 h-6 rounded-full text-sm font-bold flex items-center justify-center">-</button>
+                            <span>${item.quantity}x ${item.name}</span>
+                        </div>
+                        <span class="font-semibold text-gray-700">Rp${(item.price * item.quantity).toLocaleString('id-ID')}</span>
+                    `;
+                    cartItemsDiv.appendChild(cartItemElement);
+                }
+                
+                if (hasItems) {
+                    total += titipFee;
+                    const titipFeeElement = document.createElement('div');
+                    titipFeeElement.className = 'flex justify-between items-center p-3 bg-gray-50 rounded-lg shadow-sm font-bold text-gray-700';
+                    titipFeeElement.innerHTML = `
+                        <span>Jasa Titip:</span>
+                        <span>Rp${titipFee.toLocaleString('id-ID')}</span>
+                    `;
+                    cartItemsDiv.appendChild(titipFeeElement);
+                }
+
+                if (hasItems) {
+                    emptyCartMessage.style.display = 'none';
+                    checkoutButton.style.display = 'block';
+                } else {
+                    emptyCartMessage.style.display = 'block';
+                    checkoutButton.style.display = 'none';
+                }
+
+                cartTotalSpan.textContent = `Rp${total.toLocaleString('id-ID')}`;
+            }
+
+            function addItemToCart(productId, selectedOptionId = null) {
+                let productWithVariants = allProducts.find(p => p.id === productId);
+                let itemToAdd;
+                let cartItemId;
+
+                if (productWithVariants.options) {
+                    let selectedOption = productWithVariants.options.find(o => o.id === selectedOptionId);
+                    if (!selectedOption) return;
+
+                    cartItemId = selectedOptionId;
+                    itemToAdd = {
+                        id: cartItemId,
+                        name: `${productWithVariants.name} (${selectedOption.name})`,
+                        price: selectedOption.price
+                    };
+                } else {
+                    cartItemId = productId;
+                    itemToAdd = productWithVariants;
+                }
+
+                if (cart[cartItemId]) {
+                    cart[cartItemId].quantity++;
+                } else {
+                    cart[cartItemId] = { ...itemToAdd, quantity: 1 };
+                }
+
+                renderCart();
+            }
+
+            document.addEventListener('click', (event) => {
+                const target = event.target;
+                if (target.classList.contains('add-to-cart-btn-multi')) {
+                    const productId = target.dataset.id;
+                    const selectElement = document.getElementById(`select-${productId}`);
+                    const selectedOptionId = selectElement.value;
+                    let product = allProducts.find(p => p.id === productId);
+                    showConfirmationModal(product.name, productId, selectedOptionId);
+                } else if (target.classList.contains('add-to-cart-btn-single')) {
+                    const productId = target.dataset.id;
+                    let product = allProducts.find(p => p.id === productId);
+                    showConfirmationModal(product.name, productId);
+                }
+            });
+
+            cartItemsDiv.addEventListener('click', (event) => {
+                const target = event.target;
+                if (target.classList.contains('remove-from-cart-btn')) {
+                    const productId = target.dataset.id;
+                    if (cart[productId]) {
+                        if (cart[productId].quantity > 1) {
+                            cart[productId].quantity--;
+                        } else {
+                            delete cart[productId];
+                        }
+                    }
+                    renderCart();
+                }
+            });
+
+            checkoutButton.addEventListener('click', () => {
+                let orderDetails = 'Halo JasTip Arunika, saya ingin memesan:\n\n';
+                let total = 0;
+                let hasItems = false;
+                for (const id in cart) {
+                    hasItems = true;
+                    const item = cart[id];
+                    orderDetails += `${item.quantity}x ${item.name} - Rp${(item.price * item.quantity).toLocaleString('id-ID')}\n`;
+                    total += item.price * item.quantity;
+                }
+                
+                if (hasItems) {
+                    total += titipFee;
+                    orderDetails += `\nBiaya Jasa Titip: Rp${titipFee.toLocaleString('id-ID')}\n`;
+                }
+
+                orderDetails += `\nTotal Pembayaran: Rp${total.toLocaleString('id-ID')}\n\nMohon konfirmasinya. Terima kasih!`;
+
+                const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(orderDetails)}`;
+                window.open(whatsappUrl, '_blank');
+            });
+
+            function setView(view) {
+                const productLists = document.querySelectorAll('.product-list');
+                productLists.forEach(list => {
+                    list.classList.remove('list-view', 'grid-view', 'flex', 'flex-col', 'space-y-4', 'grid', 'grid-cols-2', 'lg:grid-cols-3', 'gap-4');
+                    if (view === 'grid') {
+                        list.classList.add('grid', 'grid-cols-2', 'lg:grid-cols-3', 'gap-4', 'grid-view');
+                    } else if (view === 'list') {
+                        list.classList.add('flex', 'flex-col', 'space-y-4', 'list-view');
+                    }
+                });
+            }
+
+            howToOrderBtn.addEventListener('click', showHowToOrderModal);
+            bestSellerInfoBtn.addEventListener('click', showBestSellerInfoModal);
+            gridViewBtn.addEventListener('click', () => setView('grid'));
+            listViewBtn.addEventListener('click', () => setView('list'));
+
+            const firstVisit = localStorage.getItem('firstVisit');
+            if (!firstVisit) {
+                showHowToOrderModal();
+                localStorage.setItem('firstVisit', 'true');
+            }
+
+            renderProducts();
+            renderCart();
+            setView('grid');
+        });
+    </script>
+</body>
+</html>
