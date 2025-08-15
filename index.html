@@ -242,7 +242,7 @@
             <p class="text-lg text-gray-400">Melayani Titipan Anda dengan Sepenuh Hati</p>
         </header>
 
-        <!-- Container untuk daftar produk -->
+        <!-- Kontainer untuk daftar produk -->
         <div id="product-list-container">
 
             <!-- Tombol untuk mengubah tampilan -->
@@ -270,14 +270,25 @@
                 </div>
             </div>
 
-            <!-- Tab Kategori Utama -->
-            <div class="flex space-x-2 mb-4 p-1 bg-gray-900 rounded-xl">
+            <!-- Input Pencarian Barang Baru Ditambahkan -->
+            <div class="relative mb-4">
+                <input type="text" id="search-input" placeholder="Cari kopi, makanan, atau minuman..." class="w-full bg-gray-700 text-gray-200 border border-gray-600 rounded-lg p-3 pl-10 focus:outline-none focus:ring-2 focus:ring-amber-500">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-search text-gray-400"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                </div>
+            </div>
+
+            <!-- Pesan untuk hasil pencarian -->
+            <p id="search-results-message" class="text-sm text-center text-gray-500 mb-4 hidden"></p>
+
+            <!-- Tab Kategori Utama, disembunyikan saat pencarian aktif -->
+            <div id="main-tabs" class="flex space-x-2 mb-4 p-1 bg-gray-900 rounded-xl">
                 <button id="tab-kopi" class="tab-btn active py-2 px-4 rounded-lg font-medium transition-colors duration-200 flex-1 text-center">Kopi</button>
                 <button id="tab-makanan" class="tab-btn py-2 px-4 rounded-lg font-medium transition-colors duration-200 flex-1 text-center">Makanan</button>
                 <button id="tab-minuman" class="tab-btn py-2 px-4 rounded-lg font-medium transition-colors duration-200 flex-1 text-center">Minuman</button>
             </div>
 
-            <!-- Konten Tab -->
+            <!-- Konten Tab, disembunyikan saat pencarian aktif -->
             <div id="tab-content">
                 <!-- Konten Kopi -->
                 <div id="content-kopi" class="tab-pane">
@@ -323,6 +334,14 @@
                     </section>
                 </div>
             </div>
+            
+            <!-- Kontainer untuk hasil pencarian -->
+            <div id="search-results-container" class="hidden">
+                <div id="search-results-list" class="product-list grid-view grid grid-cols-2 lg:grid-cols-3 gap-4">
+                    <!-- Hasil pencarian akan dimuat di sini -->
+                </div>
+            </div>
+
         </div>
 
         <!-- Garis pemisah -->
@@ -405,7 +424,7 @@
                 <ol class="list-decimal list-inside space-y-1 text-sm">
                     <li>Pilih produk & ukuran.</li>
                     <li>Klik "+ 𝙏𝙖𝙢𝙗𝙖𝙝" untuk menambahkannya ke keranjang.</li>
-                    <li>Selesai belanja, klik "𝙋𝙚𝙨𝙖𝙣 𝙎𝙚𝙠𝙖𝙧𝙖𝙣𝙜 𝙑𝙞𝙖 𝙒𝙝𝙖𝙩𝙨𝙖𝙥𝙥".</li>
+                    <li>Selesai belanja, klik "𝙋𝙚𝙨𝙖𝙣 𝙎𝙚𝙠𝙖𝙧𝙖𝙣𝙜 𝙑�𝙖 𝙒𝙝𝙖𝙩𝙨𝙖𝙥𝙥".</li>
                     <li>Pesan pesanan Anda sudah terisi otomatis, tinggal kirim.</li>
                 </ol>
             </div>
@@ -597,6 +616,12 @@
             const suggestionItemNameInput = document.getElementById('suggestion-item-name');
             const suggestionItemPriceInput = document.getElementById('suggestion-item-price');
             const sendSuggestionBtn = document.getElementById('send-suggestion-btn');
+            const searchInput = document.getElementById('search-input'); // Referensi ke input pencarian
+            const mainTabs = document.getElementById('main-tabs'); // Referensi ke tab utama
+            const tabContent = document.getElementById('tab-content'); // Referensi ke konten tab
+            const searchResultsContainer = document.getElementById('search-results-container'); // Kontainer hasil pencarian
+            const searchResultsList = document.getElementById('search-results-list'); // List hasil pencarian
+            const searchResultsMessage = document.getElementById('search-results-message'); // Pesan hasil pencarian
 
 
             let cart = {}; // {id-varian: {item, quantity}}
@@ -742,13 +767,8 @@
                 return productElement;
             }
 
+            // Fungsi untuk merender produk di tab yang dipilih
             function renderProducts(category, subCategory = null) {
-                const arabikaListDiv = document.getElementById('arabika-list');
-                const robustaListDiv = document.getElementById('robusta-list');
-                const makananListDiv = document.getElementById('makanan-list');
-                const minumanListDiv = document.getElementById('minuman-list');
-                
-                // Clear all lists first
                 arabikaListDiv.innerHTML = '';
                 robustaListDiv.innerHTML = '';
                 makananListDiv.innerHTML = '';
@@ -765,7 +785,6 @@
                         });
                     }
                 } else {
-                    // Filter products based on category
                     const categoryProducts = allProducts.filter(p => p.category.toLowerCase() === category);
                     categoryProducts.forEach(product => {
                         if (category === 'makanan') {
@@ -776,9 +795,36 @@
                     });
                 }
                 
-                // Reapply the current view setting
                 const activeView = document.querySelector('.product-list.list-view') ? 'list' : 'grid';
                 setView(activeView);
+            }
+
+            // Fungsi baru untuk memfilter dan merender produk berdasarkan pencarian
+            function filterProducts(query) {
+                const lowerCaseQuery = query.toLowerCase();
+                // Sembunyikan semua tab dan sub-tab saat pencarian aktif
+                mainTabs.classList.add('hidden');
+                tabContent.classList.add('hidden');
+                searchResultsContainer.classList.remove('hidden');
+                searchResultsList.innerHTML = '';
+
+                // Saring produk yang namanya mengandung query
+                const filteredProducts = allProducts.filter(product => {
+                    const productName = product.name.toLowerCase();
+                    return productName.includes(lowerCaseQuery);
+                });
+
+                if (filteredProducts.length > 0) {
+                    searchResultsMessage.textContent = `${filteredProducts.length} produk ditemukan.`;
+                    searchResultsMessage.classList.remove('hidden');
+                    // Render produk yang difilter ke dalam searchResultsList
+                    filteredProducts.forEach(product => {
+                        searchResultsList.appendChild(createProductCard(product));
+                    });
+                } else {
+                    searchResultsMessage.textContent = `Tidak ada produk yang cocok dengan pencarian Anda.`;
+                    searchResultsMessage.classList.remove('hidden');
+                }
             }
 
             function renderCart() {
@@ -963,16 +1009,35 @@
 
             // Tab logic
             const tabButtons = document.querySelectorAll('.tab-btn');
+            const subTabButtons = document.querySelectorAll('.sub-tab-btn');
             const tabPanes = document.querySelectorAll('.tab-pane');
+            const subTabPanes = document.querySelectorAll('.sub-tab-pane');
 
+            // Fungsi untuk mengaktifkan tab sesuai kategori
+            function activateCategoryTab(category) {
+                tabButtons.forEach(b => b.classList.remove('active'));
+                const targetTab = document.getElementById(`tab-${category}`);
+                if (targetTab) {
+                    targetTab.classList.add('active');
+                }
+                tabPanes.forEach(p => p.classList.add('hidden'));
+                const targetPane = document.getElementById(`content-${category}`);
+                if (targetPane) {
+                    targetPane.classList.remove('hidden');
+                }
+            }
+
+            // Event listener untuk tab utama
             tabButtons.forEach(btn => {
                 btn.addEventListener('click', () => {
-                    tabButtons.forEach(b => b.classList.remove('active'));
-                    btn.classList.add('active');
-
-                    tabPanes.forEach(pane => pane.classList.add('hidden'));
-                    const targetPaneId = 'content-' + btn.id.split('-')[1];
-                    document.getElementById(targetPaneId).classList.remove('hidden');
+                    // Sembunyikan hasil pencarian dan tampilkan tab
+                    searchInput.value = '';
+                    searchResultsContainer.classList.add('hidden');
+                    searchResultsMessage.classList.add('hidden');
+                    mainTabs.classList.remove('hidden');
+                    tabContent.classList.remove('hidden');
+                    
+                    activateCategoryTab(btn.id.split('-')[1]);
 
                     // Handle sub-tabs for 'Kopi'
                     if (btn.id === 'tab-kopi') {
@@ -987,10 +1052,7 @@
                 });
             });
 
-            // Sub-tab logic
-            const subTabButtons = document.querySelectorAll('.sub-tab-btn');
-            const subTabPanes = document.querySelectorAll('.sub-tab-pane');
-
+            // Event listener untuk sub-tab
             subTabButtons.forEach(btn => {
                 btn.addEventListener('click', () => {
                     subTabButtons.forEach(b => b.classList.remove('active'));
@@ -1003,6 +1065,28 @@
                     const subCategoryId = btn.id.split('-')[2];
                     renderProducts('kopi', subCategoryId);
                 });
+            });
+
+            // Event listener untuk input pencarian
+            searchInput.addEventListener('input', (event) => {
+                const query = event.target.value.trim();
+                if (query.length > 0) {
+                    filterProducts(query);
+                } else {
+                    // Jika input kosong, kembali ke tampilan tab
+                    searchResultsContainer.classList.add('hidden');
+                    searchResultsMessage.classList.add('hidden');
+                    mainTabs.classList.remove('hidden');
+                    tabContent.classList.remove('hidden');
+                    const activeTabId = document.querySelector('.tab-btn.active').id;
+                    const category = activeTabId.split('-')[1];
+                    let subCategory = null;
+                    if (category === 'kopi') {
+                        const activeSubTab = document.querySelector('.sub-tab-btn.active');
+                        subCategory = activeSubTab ? activeSubTab.id.split('-')[2] : 'arabika';
+                    }
+                    renderProducts(category, subCategory);
+                }
             });
 
             // Fungsi untuk merender gambar testimoni
@@ -1059,3 +1143,4 @@
     </script>
 </body>
 </html>
+�
