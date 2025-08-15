@@ -149,6 +149,12 @@
             font-family: 'Cinzel', serif;
             font-size: 3rem;
         }
+
+        .tab-btn.active, .sub-tab-btn.active {
+            background-color: #fcd34d;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            color: #92400e;
+        }
     </style>
 </head>
 <body class="bg-gray-100 text-gray-800 p-4 md:p-8">
@@ -189,31 +195,59 @@
                 </button>
             </div>
 
-            <!-- Kategori Kopi -->
-            <section class="mb-8">
-                <h2 class="text-2xl font-bold text-gray-900 mb-4">Kopi</h2>
-                <!-- Sub Kategori Arabika -->
-                <h3 class="text-xl font-semibold text-gray-800 mb-2 mt-4">Arabika</h3>
-                <div id="arabika-list" class="product-list grid-view grid grid-cols-2 lg:grid-cols-3 gap-4">
-                    <!-- Produk Arabika akan dimuat di sini -->
-                </div>
-                <!-- Sub Kategori Robusta -->
-                <h3 class="text-xl font-semibold text-gray-800 mb-2 mt-6">Robusta</h3>
-                <div id="robusta-list" class="product-list grid-view grid grid-cols-2 lg:grid-cols-3 gap-4">
-                    <!-- Produk Robusta akan dimuat di sini -->
-                </div>
-            </section>
+            <!-- Tab Kategori Utama -->
+            <div class="flex space-x-2 mb-4 p-1 bg-gray-200 rounded-xl">
+                <button id="tab-kopi" class="tab-btn active py-2 px-4 rounded-lg font-medium text-gray-800 transition-colors duration-200 flex-1 text-center">Kopi</button>
+                <button id="tab-makanan" class="tab-btn py-2 px-4 rounded-lg font-medium text-gray-800 transition-colors duration-200 flex-1 text-center">Makanan</button>
+                <button id="tab-minuman" class="tab-btn py-2 px-4 rounded-lg font-medium text-gray-800 transition-colors duration-200 flex-1 text-center">Minuman</button>
+            </div>
 
-            <!-- Kategori Makanan dan Minuman Lainnya -->
-            <section class="mb-8">
-                <h2 class="text-2xl font-bold text-gray-900 mb-4">Makanan dan Minuman Lainnya</h2>
-                <div id="makanan-list" class="product-list grid-view grid grid-cols-2 lg:grid-cols-3 gap-4">
-                    <!-- Produk Makanan akan dimuat di sini -->
+            <!-- Konten Tab -->
+            <div id="tab-content">
+                <!-- Konten Kopi -->
+                <div id="content-kopi" class="tab-pane">
+                    <!-- Sub-tab Kopi -->
+                    <div class="flex space-x-2 mb-4 p-1 bg-gray-200 rounded-xl">
+                        <button id="sub-tab-arabika" class="sub-tab-btn active py-2 px-4 rounded-lg font-medium text-gray-800 transition-colors duration-200 flex-1 text-center">Arabika</button>
+                        <button id="sub-tab-robusta" class="sub-tab-btn py-2 px-4 rounded-lg font-medium text-gray-800 transition-colors duration-200 flex-1 text-center">Robusta</button>
+                    </div>
+                    
+                    <div id="sub-tab-content">
+                        <section id="arabika-section" class="sub-tab-pane">
+                            <h2 class="text-2xl font-bold text-gray-900 mb-4">Arabika</h2>
+                            <div id="arabika-list" class="product-list grid-view grid grid-cols-2 lg:grid-cols-3 gap-4">
+                                <!-- Produk Arabika akan dimuat di sini -->
+                            </div>
+                        </section>
+                        <section id="robusta-section" class="sub-tab-pane hidden">
+                            <h2 class="text-2xl font-bold text-gray-900 mb-4">Robusta</h2>
+                            <div id="robusta-list" class="product-list grid-view grid grid-cols-2 lg:grid-cols-3 gap-4">
+                                <!-- Produk Robusta akan dimuat di sini -->
+                            </div>
+                        </section>
+                    </div>
                 </div>
-                <div id="minuman-list" class="product-list grid-view grid grid-cols-2 lg:grid-cols-3 gap-4 mt-6">
-                    <!-- Produk Minuman akan dimuat di sini -->
+
+                <!-- Konten Makanan -->
+                <div id="content-makanan" class="tab-pane hidden">
+                    <section class="mb-8">
+                        <h2 class="text-2xl font-bold text-gray-900 mb-4">Makanan</h2>
+                        <div id="makanan-list" class="product-list grid-view grid grid-cols-2 lg:grid-cols-3 gap-4">
+                            <!-- Produk Makanan akan dimuat di sini -->
+                        </div>
+                    </section>
                 </div>
-            </section>
+
+                <!-- Konten Minuman -->
+                <div id="content-minuman" class="tab-pane hidden">
+                    <section class="mb-8">
+                        <h2 class="text-2xl font-bold text-gray-900 mb-4">Minuman</h2>
+                        <div id="minuman-list" class="product-list grid-view grid grid-cols-2 lg:grid-cols-3 gap-4">
+                            <!-- Produk Minuman akan dimuat di sini -->
+                        </div>
+                    </section>
+                </div>
+            </div>
         </div>
 
         <!-- Garis pemisah -->
@@ -438,7 +472,6 @@
             const howToOrderBtn = document.getElementById('how-to-order-btn');
             const bestSellerInfoBtn = document.getElementById('best-seller-info-btn');
 
-
             let cart = {}; // {id-varian: {item, quantity}}
             let currentProductToAdd = null;
 
@@ -578,26 +611,41 @@
                 return productElement;
             }
 
-            function renderProducts() {
-                arabikaListDiv.innerHTML = '';
-                products.kopi.arabika.forEach(product => {
-                    arabikaListDiv.appendChild(createProductCard(product));
-                });
-
-                robustaListDiv.innerHTML = '';
-                products.kopi.robusta.forEach(product => {
-                    robustaListDiv.appendChild(createProductCard(product));
-                });
+            function renderProducts(category, subCategory = null) {
+                const arabikaListDiv = document.getElementById('arabika-list');
+                const robustaListDiv = document.getElementById('robusta-list');
+                const makananListDiv = document.getElementById('makanan-list');
+                const minumanListDiv = document.getElementById('minuman-list');
                 
+                // Clear all lists first
+                arabikaListDiv.innerHTML = '';
+                robustaListDiv.innerHTML = '';
                 makananListDiv.innerHTML = '';
-                products.makanan.forEach(product => {
-                    makananListDiv.appendChild(createProductCard(product));
-                });
-
                 minumanListDiv.innerHTML = '';
-                products.minuman.forEach(product => {
-                    minumanListDiv.appendChild(createProductCard(product));
-                });
+
+                if (category === 'kopi') {
+                    if (subCategory === 'arabika') {
+                        products.kopi.arabika.forEach(product => {
+                            arabikaListDiv.appendChild(createProductCard(product));
+                        });
+                    } else if (subCategory === 'robusta') {
+                        products.kopi.robusta.forEach(product => {
+                            robustaListDiv.appendChild(createProductCard(product));
+                        });
+                    }
+                } else if (category === 'makanan') {
+                    products.makanan.forEach(product => {
+                        makananListDiv.appendChild(createProductCard(product));
+                    });
+                } else if (category === 'minuman') {
+                    products.minuman.forEach(product => {
+                        minumanListDiv.appendChild(createProductCard(product));
+                    });
+                }
+
+                // Reapply the current view setting
+                const activeView = document.querySelector('.product-list.list-view') ? 'list' : 'grid';
+                setView(activeView);
             }
 
             function renderCart() {
@@ -737,6 +785,50 @@
                 });
             }
 
+            // Tab logic
+            const tabButtons = document.querySelectorAll('.tab-btn');
+            const tabPanes = document.querySelectorAll('.tab-pane');
+
+            tabButtons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    tabButtons.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+
+                    tabPanes.forEach(pane => pane.classList.add('hidden'));
+                    const targetPaneId = 'content-' + btn.id.split('-')[1];
+                    document.getElementById(targetPaneId).classList.remove('hidden');
+
+                    // Handle sub-tabs for 'Kopi'
+                    if (btn.id === 'tab-kopi') {
+                        document.getElementById('sub-tab-content').classList.remove('hidden');
+                        const activeSubTab = document.querySelector('.sub-tab-btn.active');
+                        const activeSubTabId = activeSubTab ? activeSubTab.id.split('-')[2] : 'arabika';
+                        renderProducts('kopi', activeSubTabId);
+                    } else {
+                        document.getElementById('sub-tab-content').classList.add('hidden');
+                        renderProducts(btn.id.split('-')[1]);
+                    }
+                });
+            });
+
+            // Sub-tab logic
+            const subTabButtons = document.querySelectorAll('.sub-tab-btn');
+            const subTabPanes = document.querySelectorAll('.sub-tab-pane');
+
+            subTabButtons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    subTabButtons.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+
+                    subTabPanes.forEach(pane => pane.classList.add('hidden'));
+                    const targetPaneId = btn.id.split('-')[2] + '-section';
+                    document.getElementById(targetPaneId).classList.remove('hidden');
+                    
+                    const subCategoryId = btn.id.split('-')[2];
+                    renderProducts('kopi', subCategoryId);
+                });
+            });
+
             howToOrderBtn.addEventListener('click', showHowToOrderModal);
             bestSellerInfoBtn.addEventListener('click', showBestSellerInfoModal);
             gridViewBtn.addEventListener('click', () => setView('grid'));
@@ -747,11 +839,13 @@
                 showHowToOrderModal();
                 localStorage.setItem('firstVisit', 'true');
             }
-
-            renderProducts();
+            
+            // Initial render based on active tabs
+            renderProducts('kopi', 'arabika');
             renderCart();
             setView('grid');
         });
     </script>
 </body>
 </html>
+
