@@ -76,10 +76,10 @@
         }
         .list-view .product-card .icon-and-info {
             display: flex;
-            align-items: center;
             flex-grow: 1;
             overflow: hidden;
             flex-shrink: 1;
+            align-items: center;
         }
         .list-view .product-card .icon-container {
             font-size: 1.2rem;
@@ -318,6 +318,7 @@
                 <div id="content-makanan" class="tab-pane hidden">
                     <section class="mb-8">
                         <h2 class="text-2xl font-bold mb-4 text-gray-200">Makanan</h2>
+                        <p class="text-sm text-gray-400 mb-4">Jika ingin jastip arunika pilihlah **Tambah**. Tapi jastipers bisa pilih **Beli di Shopee** untuk beli kapanpun jastipers mau.</p>
                         <div id="makanan-list" class="product-list grid-view grid grid-cols-2 lg:grid-cols-3 gap-4">
                             <!-- Produk Makanan akan dimuat di sini -->
                         </div>
@@ -328,6 +329,7 @@
                 <div id="content-minuman" class="tab-pane hidden">
                     <section class="mb-8">
                         <h2 class="text-2xl font-bold mb-4 text-gray-200">Minuman</h2>
+                        <p class="text-sm text-gray-400 mb-4">Jika ingin jastip arunika pilihlah **Tambah**. Tapi jastipers bisa pilih **Beli di Shopee** untuk beli kapanpun jastipers mau.</p>
                         <div id="minuman-list" class="product-list grid-view grid grid-cols-2 lg:grid-cols-3 gap-4">
                             <!-- Produk Minuman akan dimuat di sini -->
                         </div>
@@ -341,6 +343,8 @@
                     <!-- Hasil pencarian akan dimuat di sini -->
                 </div>
             </div>
+            <!-- Loading indicator -->
+            <p id="loading-message" class="text-center text-gray-500 my-8">Memuat produk...</p>
 
         </div>
 
@@ -389,6 +393,8 @@
             <div id="testimonial-grid" class="testimonial-grid p-4 bg-gray-900 rounded-lg">
                 <!-- Gambar testimoni akan dimuat di sini -->
             </div>
+            <!-- Loading indicator testimoni -->
+            <p id="testimonial-loading-message" class="text-center text-gray-500 mt-4">Memuat testimoni...</p>
         </section>
 
     </div>
@@ -424,7 +430,7 @@
                 <ol class="list-decimal list-inside space-y-1 text-sm">
                     <li>Pilih produk & ukuran.</li>
                     <li>Klik "+ 𝙏𝙖𝙢𝙗𝙖𝙝" untuk menambahkannya ke keranjang.</li>
-                    <li>Selesai belanja, klik "𝙋𝙚𝙨𝙖𝙣 𝙎𝙚𝙠𝙖𝙧𝙖𝙣𝙜 𝙑�𝙖 𝙒𝙝𝙖𝙩𝙨𝙖𝙥𝙥".</li>
+                    <li>Selesai belanja, klik "𝙋𝙚𝙨𝙖𝙣 𝙎𝙚𝙠𝙖𝙧𝙖𝙣𝙜 𝙑a 𝙒𝙝a𝙩𝙨a𝙥𝙥".</li>
                     <li>Pesan pesanan Anda sudah terisi otomatis, tinggal kirim.</li>
                 </ol>
             </div>
@@ -471,676 +477,650 @@
         <p>Copyright &copy; by Arunika Group 2025</p>
     </footer>
 
-    <!-- JavaScript untuk logika aplikasi -->
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
+    <!-- Script Firebase -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, onSnapshot, query, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-            const whatsappNumber = '6285640312607';
-            const titipFee = 25000;
+        // Firebase Config Anda
+        const firebaseConfig = {
+            apiKey: "AIzaSyAdYbsk_p1mIvf7NXd2cLaQAFBP2mrxtuI",
+            authDomain: "jastip-arunika.firebaseapp.com",
+            projectId: "jastip-arunika",
+            storageBucket: "jastip-arunika.firebasestorage.app",
+            messagingSenderId: "272195022487",
+            appId: "1:272195022487:web:f9b3cfe42170c5bd6983d2"
+        };
+        
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        
+        let products = {
+            kopi: { arabika: [], robusta: [] },
+            makanan: [],
+            minuman: []
+        };
+        
+        let testimonials = [];
 
-            const products = {
-                kopi: {
-                    arabika: [
-                        { id: 'k01', name: 'Full Wash Sindoro', category: 'Kopi', options: [
-                            { id: 'k01-100g', name: '100g', price: 30000 },
-                            { id: 'k01-250g', name: '250g', price: 70000 },
-                            { id: 'k01-500g', name: '500g', price: 125000 },
-                            { id: 'k01-1kg', name: '1kg', price: 240000 }
-                        ]},
-                        { id: 'k02', name: 'Full Wash Sumbing', category: 'Kopi', options: [
-                            { id: 'k02-100g', name: '100g', price: 30000 },
-                            { id: 'k02-250g', name: '250g', price: 70000 },
-                            { id: 'k02-500g', name: '500g', price: 125000 },
-                            { id: 'k02-1kg', name: '1kg', price: 240000 }
-                        ]},
-                        { id: 'k03', name: 'Natural', category: 'Kopi', options: [
-                            { id: 'k03-100g', name: '100g', price: 35000 },
-                            { id: 'k03-250g', name: '250g', price: 80000 },
-                            { id: 'k03-500g', name: '500g', price: 130000 },
-                            { id: 'k03-1kg', name: '1kg', price: 250000 }
-                        ]},
-                        { id: 'k04', name: 'Honey', category: 'Kopi', options: [
-                            { id: 'k04-100g', name: '100g', price: 35000 },
-                            { id: 'k04-250g', name: '250g', price: 80000 },
-                            { id: 'k04-500g', name: '500g', price: 130000 },
-                            { id: 'k04-1kg', name: '1kg', price: 250000 }
-                        ]},
-                        { id: 'k05', name: 'Yellow Caturra', category: 'Kopi', options: [
-                            { id: 'k05-100g', name: '100g', price: 35000 },
-                            { id: 'k05-250g', name: '250g', price: 80000 },
-                            { id: 'k05-500g', name: '500g', price: 130000 },
-                            { id: 'k05-1kg', name: '1kg', price: 250000 }
-                        ]},
-                        { id: 'k06', name: 'Peaberry / Lanang', category: 'Kopi', options: [
-                            { id: 'k06-100g', name: '100g', price: 35000 },
-                            { id: 'k06-250g', name: '250g', price: 80000 },
-                            { id: 'k06-500g', name: '500g', price: 130000 },
-                            { id: 'k06-1kg', name: '1kg', price: 250000 }
-                        ]},
-                        { id: 'k07', name: 'Wine', category: 'Kopi', isBestSeller: true, options: [
-                            { id: 'k07-100g', name: '100g', price: 40000 },
-                            { id: 'k07-250g', name: '250g', price: 85000 },
-                            { id: 'k07-500g', name: '500g', price: 150000 },
-                            { id: 'k07-1kg', name: '1kg', price: 300000 }
-                        ]},
-                        { id: 'k08', name: 'Kopi Luwak', category: 'Kopi', options: [
-                            { id: 'k08-100g', name: '100g', price: 70000 },
-                            { id: 'k08-250g', name: '250g', price: 150000 },
-                            { id: 'k08-500g', name: '500g', price: 300000 },
-                            { id: 'k08-1kg', name: '1kg', price: 600000 }
-                        ]},
-                        { id: 'k09', name: 'Blend Arabika & Robusta', category: 'Kopi', options: [
-                            { id: 'k09-100g', name: '100g', price: 25000 },
-                            { id: 'k09-250g', name: '250g', price: 55000 },
-                            { id: 'k09-500g', name: '500g', price: 100000 },
-                            { id: 'k09-1kg', name: '1kg', price: 200000 }
-                        ]},
-                        { id: 'k10', name: 'Arabika Komersil', category: 'Kopi', options: [
-                            { id: 'k10-100g', name: '100g', price: 20000 },
-                            { id: 'k10-250g', name: '250g', price: 45000 },
-                            { id: 'k10-500g', name: '500g', price: 85000 },
-                            { id: 'k10-1kg', name: '1kg', price: 170000 }
-                        ]}
-                    ],
-                    robusta: [
-                        { id: 'k11', name: 'Fine Natural', category: 'Kopi', isBestSeller: true, options: [
-                            { id: 'k11-100g', name: '100g', price: 20000 },
-                            { id: 'k11-250g', name: '250g', price: 50000 },
-                            { id: 'k11-500g', name: '500g', price: 90000 },
-                            { id: 'k11-1kg', name: '1kg', price: 175000 }
-                        ]},
-                        { id: 'k12', name: 'Fine Honey', category: 'Kopi', options: [
-                            { id: 'k12-100g', name: '100g', price: 20000 },
-                            { id: 'k12-250g', name: '250g', price: 50000 },
-                            { id: 'k12-500g', name: '500g', price: 90000 },
-                            { id: 'k12-1kg', name: '1kg', price: 175000 }
-                        ]},
-                        { id: 'k13', name: 'Peakerry / Lanang', category: 'Kopi', options: [
-                            { id: 'k13-100g', name: '100g', price: 25000 },
-                            { id: 'k13-250g', name: '250g', price: 55000 },
-                            { id: 'k13-500g', name: '500g', price: 100000 },
-                            { id: 'k13-1kg', name: '1kg', price: 190000 }
-                        ]},
-                        { id: 'k14', name: 'Robusta Grade I', category: 'Kopi', options: [
-                            { id: 'k14-100g', name: '100g', price: 17000 },
-                            { id: 'k14-250g', name: '250g', price: 40000 },
-                            { id: 'k14-500g', name: '500g', price: 80000 },
-                            { id: 'k14-1kg', name: '1kg', price: 150000 }
-                        ]},
-                        { id: 'k15', name: 'Eksela', category: 'Kopi', options: [
-                            { id: 'k15-100g', name: '100g', price: 30000 },
-                            { id: 'k15-250g', name: '250g', price: 70000 },
-                            { id: 'k15-500g', name: '500g', price: 1250000 },
-                            { id: 'k15-1kg', name: '1kg', price: 240000 }
-                        ]},
-                    ]
-                },
-                makanan: [
-                    { id: 'm01', name: 'Coming Soon', category: 'Makanan', price: 0, shopeeLink: 'https://s.shopee.co.id/7fPeL43hU8' },
-                ],
-                minuman: [
-                    { id: 'd01', name: 'Carica ( 2 Dus Isi 12 Cup )', category: 'Minuman', price: 136000, shopeeLink: 'https://s.shopee.co.id/7fPeL43hU8' },
-                ]
-            };
-            
-            // Menggunakan 2 URL gambar per testimoni untuk performa yang optimal.
-            // URL 'thumbUrl' harus berukuran kecil untuk tampilan awal.
-            // URL 'fullUrl' adalah gambar asli berukuran besar untuk pop-up.
-            const testimonials = [
-                { id: 1, thumbUrl: 'https://res.cloudinary.com/dtvmbvwtx/image/upload/w_120,h_120,c_fill/v1755237555/WhatsApp_Image_2025-08-15_at_12.57.35_neyvtz.jpg', fullUrl: 'https://res.cloudinary.com/dtvmbvwtx/image/upload/v1755237555/WhatsApp_Image_2025-08-15_at_12.57.35_neyvtz.jpg' }
-            ];
+        const whatsappNumber = '6285640312607';
+        const titipFee = 25000;
 
-            const allProducts = [
-                ...products.kopi.arabika,
-                ...products.kopi.robusta,
-                ...products.makanan,
-                ...products.minuman
-            ];
-            const arabikaListDiv = document.getElementById('arabika-list');
-            const robustaListDiv = document.getElementById('robusta-list');
-            const makananListDiv = document.getElementById('makanan-list');
-            const minumanListDiv = document.getElementById('minuman-list');
-            const cartItemsDiv = document.getElementById('cart-items');
-            const cartTotalSpan = document.getElementById('cart-total');
-            const checkoutButton = document.getElementById('checkout-button');
-            const emptyCartMessage = document.getElementById('empty-cart-message');
-            const gridViewBtn = document.getElementById('grid-view-btn');
-            const listViewBtn = document.getElementById('list-view-btn');
-            const howToOrderBtn = document.getElementById('how-to-order-btn');
-            const bestSellerInfoBtn = document.getElementById('best-seller-info-btn');
-            const testimonialBtn = document.getElementById('testimonial-btn');
-            const testimonialGrid = document.getElementById('testimonial-grid');
-            const imageModal = document.getElementById('image-modal');
-            const closeImageModalBtn = document.getElementById('close-image-modal-btn');
-            const fullImage = document.getElementById('full-image');
-            const suggestionItemNameInput = document.getElementById('suggestion-item-name');
-            const suggestionItemPriceInput = document.getElementById('suggestion-item-price');
-            const sendSuggestionBtn = document.getElementById('send-suggestion-btn');
-            const searchInput = document.getElementById('search-input'); // Referensi ke input pencarian
-            const mainTabs = document.getElementById('main-tabs'); // Referensi ke tab utama
-            const tabContent = document.getElementById('tab-content'); // Referensi ke konten tab
-            const searchResultsContainer = document.getElementById('search-results-container'); // Kontainer hasil pencarian
-            const searchResultsList = document.getElementById('search-results-list'); // List hasil pencarian
-            const searchResultsMessage = document.getElementById('search-results-message'); // Pesan hasil pencarian
+        const arabikaListDiv = document.getElementById('arabika-list');
+        const robustaListDiv = document.getElementById('robusta-list');
+        const makananListDiv = document.getElementById('makanan-list');
+        const minumanListDiv = document.getElementById('minuman-list');
+        const cartItemsDiv = document.getElementById('cart-items');
+        const cartTotalSpan = document.getElementById('cart-total');
+        const checkoutButton = document.getElementById('checkout-button');
+        const emptyCartMessage = document.getElementById('empty-cart-message');
+        const gridViewBtn = document.getElementById('grid-view-btn');
+        const listViewBtn = document.getElementById('list-view-btn');
+        const howToOrderBtn = document.getElementById('how-to-order-btn');
+        const bestSellerInfoBtn = document.getElementById('best-seller-info-btn');
+        const testimonialBtn = document.getElementById('testimonial-btn');
+        const testimonialGrid = document.getElementById('testimonial-grid');
+        const imageModal = document.getElementById('image-modal');
+        const closeImageModalBtn = document.getElementById('close-image-modal-btn');
+        const fullImage = document.getElementById('full-image');
+        const suggestionItemNameInput = document.getElementById('suggestion-item-name');
+        const suggestionItemPriceInput = document.getElementById('suggestion-item-price');
+        const sendSuggestionBtn = document.getElementById('send-suggestion-btn');
+        const searchInput = document.getElementById('search-input');
+        const mainTabs = document.getElementById('main-tabs');
+        const tabContent = document.getElementById('tab-content');
+        const searchResultsContainer = document.getElementById('search-results-container');
+        const searchResultsList = document.getElementById('search-results-list');
+        const searchResultsMessage = document.getElementById('search-results-message');
+        const loadingMessage = document.getElementById('loading-message');
+        const testimonialLoadingMessage = document.getElementById('testimonial-loading-message');
 
+        let cart = {};
+        
+        function listenForProducts() {
+            // Mengambil dari koleksi publik 'products'
+            const productsCollectionRef = collection(db, 'products');
+            onSnapshot(productsCollectionRef, (snapshot) => {
+                const fetchedProducts = {
+                    kopi: { arabika: [], robusta: [] },
+                    makanan: [],
+                    minuman: []
+                };
 
-            let cart = {}; // {id-varian: {item, quantity}}
-            let currentProductToAdd = null;
-
-            // Fungsi untuk menampilkan pop-up konfirmasi
-            function showConfirmationModal(productName, productId, selectedOptionId = null) {
-                const modal = document.getElementById('confirmation-modal');
-                const modalMessage = document.getElementById('modal-message');
-                const yesBtn = document.getElementById('yes-btn');
-                const noBtn = document.getElementById('no-btn');
-
-                let fullProductName = productName;
-                if (selectedOptionId) {
-                    const product = allProducts.find(p => p.id === productId);
-                    const option = product.options.find(o => o.id === selectedOptionId);
-                    fullProductName = `${productName} (${option.name})`;
-                }
-
-                modalMessage.innerHTML = `Apakah Anda yakin ingin menambahkan <strong>${fullProductName}</strong> ke keranjang?`;
-                yesBtn.onclick = () => {
-                    if (selectedOptionId) {
-                        addItemToCart(productId, selectedOptionId);
-                    } else {
-                        addItemToCart(productId);
-                    }
+                snapshot.docs.forEach(doc => {
+                    const data = { id: doc.id, ...doc.data() };
+                    const category = data.category ? data.category.toLowerCase() : 'lain-lain';
+                    const subCategory = data.subCategory ? data.subCategory.toLowerCase() : null;
                     
-                    modalMessage.innerHTML = `<strong>${fullProductName}</strong> berhasil ditambahkan ke keranjang!`;
-                    yesBtn.classList.add('hidden');
-                    noBtn.textContent = 'Ok';
-                    noBtn.onclick = () => {
-                        modal.classList.add('hidden');
-                        resetConfirmationModal();
-                    };
-                };
-                noBtn.onclick = () => {
-                    modal.classList.add('hidden');
-                    resetConfirmationModal();
-                };
-                modal.classList.remove('hidden');
-            }
-
-            function resetConfirmationModal() {
-                const modal = document.getElementById('confirmation-modal');
-                const yesBtn = document.getElementById('yes-btn');
-                const noBtn = document.getElementById('no-btn');
-                yesBtn.classList.remove('hidden');
-                noBtn.textContent = 'Tidak';
-                yesBtn.onclick = null;
-                noBtn.onclick = null;
-                modal.classList.add('hidden');
-            }
-
-            // Fungsi untuk menampilkan pop-up cara pesan
-            function showHowToOrderModal() {
-                const modal = document.getElementById('how-to-order-modal');
-                modal.classList.remove('hidden');
-            }
-
-            // Fungsi untuk menampilkan pop-up info best seller
-            function showBestSellerInfoModal() {
-                const modal = document.getElementById('best-seller-info-modal');
-                modal.classList.remove('hidden');
-            }
-
-
-            document.getElementById('close-confirmation-modal-btn').addEventListener('click', resetConfirmationModal);
-            document.getElementById('close-how-to-order-modal-btn').addEventListener('click', () => {
-                document.getElementById('how-to-order-modal').classList.add('hidden');
-            });
-            document.getElementById('ok-how-to-order-btn').addEventListener('click', () => {
-                document.getElementById('how-to-order-modal').classList.add('hidden');
-            });
-            document.getElementById('close-best-seller-info-modal-btn').addEventListener('click', () => {
-                document.getElementById('best-seller-info-modal').classList.add('hidden');
-            });
-            document.getElementById('ok-best-seller-info-btn').addEventListener('click', () => {
-                document.getElementById('best-seller-info-modal').classList.add('hidden');
-            });
-
-            function getCategorySymbol(category) {
-                switch(category) {
-                    case 'Kopi': return '☕';
-                    case 'Makanan': return '🍔';
-                    case 'Minuman': return '🥤';
-                    default: return '';
-                }
-            }
-
-            function createProductCard(product) {
-                const productElement = document.createElement('div');
-                productElement.className = 'product-card bg-gray-700 rounded-xl shadow-md border border-gray-600 text-center';
-
-                let productNameClass = '';
-                if (product.isBestSeller) {
-                    productNameClass = 'product-name-best-seller';
-                }
-
-                let productActionsHtml = '';
-                if (product.options) {
-                    let optionsHtml = product.options.map(option =>
-                        `<option value="${option.id}">${option.name} - Rp${option.price.toLocaleString('id-ID')}</option>`
-                    ).join('');
-
-                    productActionsHtml = `
-                        <div class="product-actions-container flex flex-col md:flex-row items-center gap-2 w-full mt-2">
-                            <select id="select-${product.id}" class="w-full text-sm bg-gray-600 border-gray-500 text-gray-200 rounded-lg p-2 focus:ring-amber-500 focus:border-amber-500">
-                                ${optionsHtml}
-                            </select>
-                            <button data-id="${product.id}" class="add-to-cart-btn-multi flex-shrink-0 bg-amber-600 hover:bg-amber-700 text-white font-bold py-2 px-4 text-sm rounded-full transition-colors duration-200 shadow-md">
-                                + Tambah
-                            </button>
-                        </div>
-                    `;
-                } else {
-                    const priceHtml = product.price ? `<p class="text-amber-500 font-bold text-xs sm:text-sm">Rp${product.price.toLocaleString('id-ID')}</p>` : '';
-                    const shopeeBtnHtml = product.shopeeLink ? `<a href="${product.shopeeLink}" target="_blank" class="shopee-btn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shopping-bag"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4H6z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>Beli di Shopee</a>` : '';
-
-                    productActionsHtml = `
-                        <div class="product-actions-container flex flex-col items-center gap-2 w-full mt-2">
-                            ${priceHtml}
-                            <button data-id="${product.id}" class="add-to-cart-btn-single flex-shrink-0 bg-amber-600 hover:bg-amber-700 text-white font-bold py-2 px-4 text-sm rounded-full transition-colors duration-200 shadow-md">
-                                + Tambah
-                            </button>
-                            ${shopeeBtnHtml}
-                        </div>
-                    `;
-                }
-
-                productElement.innerHTML = `
-                    <div class="relative w-full flex flex-col items-center">
-                        <div class="icon-container mb-2 text-2xl text-amber-500">
-                            ${getCategorySymbol(product.category)}
-                        </div>
-                        <div class="product-info flex-1 w-full truncate mb-2">
-                            <h3 class="font-semibold text-sm sm:text-base text-gray-200 truncate ${productNameClass}">${product.name}</h3>
-                        </div>
-                    </div>
-                    <div class="product-actions-wrapper w-full">
-                        ${productActionsHtml}
-                    </div>
-                `;
-                return productElement;
-            }
-
-            // Fungsi untuk merender produk di tab yang dipilih
-            function renderProducts(category, subCategory = null) {
-                arabikaListDiv.innerHTML = '';
-                robustaListDiv.innerHTML = '';
-                makananListDiv.innerHTML = '';
-                minumanListDiv.innerHTML = '';
-
-                if (category === 'kopi') {
-                    if (subCategory === 'arabika') {
-                        products.kopi.arabika.forEach(product => {
-                            arabikaListDiv.appendChild(createProductCard(product));
-                        });
-                    } else if (subCategory === 'robusta') {
-                        products.kopi.robusta.forEach(product => {
-                            robustaListDiv.appendChild(createProductCard(product));
-                        });
+                    if (category === 'kopi' && subCategory) {
+                        fetchedProducts[category][subCategory].push(data);
+                    } else if (category === 'makanan') {
+                        fetchedProducts[category].push(data);
+                    } else if (category === 'minuman') {
+                        fetchedProducts[category].push(data);
                     }
-                } else {
-                    const categoryProducts = allProducts.filter(p => p.category.toLowerCase() === category);
-                    categoryProducts.forEach(product => {
-                        if (category === 'makanan') {
-                            makananListDiv.appendChild(createProductCard(product));
-                        } else if (category === 'minuman') {
-                            minumanListDiv.appendChild(createProductCard(product));
-                        }
-                    });
-                }
-                
-                const activeView = document.querySelector('.product-list.list-view') ? 'list' : 'grid';
-                setView(activeView);
-            }
-
-            // Fungsi baru untuk memfilter dan merender produk berdasarkan pencarian
-            function filterProducts(query) {
-                const lowerCaseQuery = query.toLowerCase();
-                // Sembunyikan semua tab dan sub-tab saat pencarian aktif
-                mainTabs.classList.add('hidden');
-                tabContent.classList.add('hidden');
-                searchResultsContainer.classList.remove('hidden');
-                searchResultsList.innerHTML = '';
-
-                // Saring produk yang namanya mengandung query
-                const filteredProducts = allProducts.filter(product => {
-                    const productName = product.name.toLowerCase();
-                    return productName.includes(lowerCaseQuery);
                 });
 
-                if (filteredProducts.length > 0) {
-                    searchResultsMessage.textContent = `${filteredProducts.length} produk ditemukan.`;
-                    searchResultsMessage.classList.remove('hidden');
-                    // Render produk yang difilter ke dalam searchResultsList
-                    filteredProducts.forEach(product => {
-                        searchResultsList.appendChild(createProductCard(product));
-                    });
-                } else {
-                    searchResultsMessage.textContent = `Tidak ada produk yang cocok dengan pencarian Anda.`;
-                    searchResultsMessage.classList.remove('hidden');
+                // Mengurutkan produk secara abjad (A-Z)
+                fetchedProducts.kopi.arabika.sort((a, b) => a.name.localeCompare(b.name));
+                fetchedProducts.kopi.robusta.sort((a, b) => a.name.localeCompare(b.name));
+                fetchedProducts.makanan.sort((a, b) => a.name.localeCompare(b.name));
+                fetchedProducts.minuman.sort((a, b) => a.name.localeCompare(b.name));
+
+                products = fetchedProducts;
+                loadingMessage.classList.add('hidden');
+                console.log("Products loaded from Firestore:", products);
+
+                updateUI();
+            }, (error) => {
+                console.error("Error fetching products:", error);
+                loadingMessage.textContent = 'Gagal memuat produk. Silakan coba lagi nanti.';
+            });
+        }
+        
+        // Fungsi untuk mengambil data testimoni dari Firestore
+        function listenForTestimonials() {
+            // Mengambil dari koleksi publik 'testimonials'
+            const testimonialsCollectionRef = collection(db, 'testimonials');
+            onSnapshot(testimonialsCollectionRef, (snapshot) => {
+                testimonials = [];
+                snapshot.docs.forEach(doc => {
+                    testimonials.push({ id: doc.id, ...doc.data() });
+                });
+                testimonialLoadingMessage.classList.add('hidden');
+                console.log("Testimonials loaded from Firestore:", testimonials);
+                renderTestimonials();
+            }, (error) => {
+                console.error("Error fetching testimonials:", error);
+                testimonialLoadingMessage.textContent = 'Gagal memuat testimoni.';
+            });
+        }
+        
+        function updateUI() {
+            const searchQuery = searchInput.value.trim();
+            if (searchQuery.length > 0) {
+                filterProducts(searchQuery);
+            } else {
+                const activeTab = document.querySelector('.tab-btn.active');
+                const category = activeTab ? activeTab.id.split('-')[1] : 'kopi';
+                
+                let subCategory = null;
+                if (category === 'kopi') {
+                    const activeSubTab = document.querySelector('#content-kopi .sub-tab-btn.active');
+                    subCategory = activeSubTab ? activeSubTab.id.split('-')[2] : 'arabika';
                 }
+                renderProducts(category, subCategory);
+            }
+        }
+        
+        listenForProducts();
+        listenForTestimonials();
+        
+        function showConfirmationModal(productName, productId, selectedOptionId = null) {
+            const modal = document.getElementById('confirmation-modal');
+            const modalMessage = document.getElementById('modal-message');
+            const yesBtn = document.getElementById('yes-btn');
+            const noBtn = document.getElementById('no-btn');
+
+            let fullProductName = productName;
+            const allProducts = Object.values(products).flatMap(cat => Array.isArray(cat) ? cat : Object.values(cat).flatMap(subCat => subCat));
+            const product = allProducts.find(p => p.id === productId);
+
+            if (selectedOptionId && product && product.options) {
+                const option = product.options.find(o => `${product.id}-${o.id}` === selectedOptionId);
+                fullProductName = `${productName} (${option.name})`;
             }
 
-            function renderCart() {
-                cartItemsDiv.innerHTML = '';
-                let total = 0;
-                let hasItems = false;
-
-                for (const id in cart) {
-                    hasItems = true;
-                    const item = cart[id];
-                    total += item.price * item.quantity;
-
-                    const cartItemElement = document.createElement('div');
-                    cartItemElement.className = 'flex justify-between items-center p-3 bg-gray-700 rounded-lg shadow-sm';
-                    cartItemElement.innerHTML = `
-                        <div class="flex items-center space-x-3">
-                            <button data-id="${id}" class="remove-from-cart-btn bg-red-500 hover:bg-red-600 text-white w-6 h-6 rounded-full text-sm font-bold flex items-center justify-center">-</button>
-                            <span>${item.quantity}x ${item.name}</span>
-                        </div>
-                        <span class="font-semibold text-amber-500">Rp${(item.price * item.quantity).toLocaleString('id-ID')}</span>
-                    `;
-                    cartItemsDiv.appendChild(cartItemElement);
+            modalMessage.innerHTML = `Apakah Anda yakin ingin menambahkan <strong>${fullProductName}</strong> ke keranjang?`;
+            yesBtn.onclick = () => {
+                if (selectedOptionId) {
+                    addItemToCart(productId, selectedOptionId);
+                } else {
+                    addItemToCart(productId);
                 }
                 
-                if (hasItems) {
-                    total += titipFee;
-                    const titipFeeElement = document.createElement('div');
-                    titipFeeElement.className = 'flex justify-between items-center p-3 bg-gray-700 rounded-lg shadow-sm font-bold text-gray-200';
-                    titipFeeElement.innerHTML = `
-                        <span>Jasa Titip:</span>
-                        <span class="text-amber-500">Rp${titipFee.toLocaleString('id-ID')}</span>
-                    `;
-                    cartItemsDiv.appendChild(titipFeeElement);
-                }
-
-                if (hasItems) {
-                    emptyCartMessage.style.display = 'none';
-                    checkoutButton.style.display = 'block';
-                } else {
-                    emptyCartMessage.style.display = 'block';
-                    checkoutButton.style.display = 'none';
-                }
-
-                cartTotalSpan.textContent = `Rp${total.toLocaleString('id-ID')}`;
-            }
-
-            function addItemToCart(productId, selectedOptionId = null) {
-                let productWithVariants = allProducts.find(p => p.id === productId);
-                let itemToAdd;
-                let cartItemId;
-
-                if (productWithVariants.options) {
-                    let selectedOption = productWithVariants.options.find(o => o.id === selectedOptionId);
-                    if (!selectedOption) return;
-
-                    cartItemId = selectedOptionId;
-                    itemToAdd = {
-                        id: cartItemId,
-                        name: `${productWithVariants.name} (${selectedOption.name})`,
-                        price: selectedOption.price
-                    };
-                } else {
-                    cartItemId = productId;
-                    itemToAdd = productWithVariants;
-                }
-
-                if (cart[cartItemId]) {
-                    cart[cartItemId].quantity++;
-                } else {
-                    cart[cartItemId] = { ...itemToAdd, quantity: 1 };
-                }
-
-                renderCart();
-            }
-
-            document.addEventListener('click', (event) => {
-                const target = event.target;
-                if (target.classList.contains('add-to-cart-btn-multi')) {
-                    const productId = target.dataset.id;
-                    const selectElement = document.getElementById(`select-${productId}`);
-                    const selectedOptionId = selectElement.value;
-                    let product = allProducts.find(p => p.id === productId);
-                    showConfirmationModal(product.name, productId, selectedOptionId);
-                } else if (target.classList.contains('add-to-cart-btn-single')) {
-                    const productId = target.dataset.id;
-                    let product = allProducts.find(p => p.id === productId);
-                    showConfirmationModal(product.name, productId);
-                }
-            });
-
-            cartItemsDiv.addEventListener('click', (event) => {
-                const target = event.target;
-                if (target.classList.contains('remove-from-cart-btn')) {
-                    const productId = target.dataset.id;
-                    if (cart[productId]) {
-                        if (cart[productId].quantity > 1) {
-                            cart[productId].quantity--;
-                        } else {
-                            delete cart[productId];
-                        }
-                    }
-                    renderCart();
-                }
-            });
-
-            checkoutButton.addEventListener('click', () => {
-                let orderDetails = 'Halo JasTip Arunika, saya ingin memesan:\n\n';
-                let total = 0;
-                let hasItems = false;
-                for (const id in cart) {
-                    hasItems = true;
-                    const item = cart[id];
-                    orderDetails += `${item.quantity}x ${item.name} - Rp${(item.price * item.quantity).toLocaleString('id-ID')}\n`;
-                    total += item.price * item.quantity;
-                }
-                
-                if (hasItems) {
-                    total += titipFee;
-                    orderDetails += `\nBiaya Jasa Titip: Rp${titipFee.toLocaleString('id-ID')}\n`;
-                }
-
-                orderDetails += `\nTotal Pembayaran: Rp${total.toLocaleString('id-ID')}\n\nMohon konfirmasinya. Terima kasih!`;
-
-                const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(orderDetails)}`;
-                window.open(whatsappUrl, '_blank');
-            });
-
-            // Event listener untuk tombol kirim saran
-            sendSuggestionBtn.addEventListener('click', () => {
-                const itemName = suggestionItemNameInput.value;
-                const itemPrice = suggestionItemPriceInput.value;
-                let message = `Halo JasTip Arunika, saya punya saran barang:\n\n`;
-
-                if (itemName) {
-                    message += `Nama Barang: ${itemName}\n`;
-                }
-                if (itemPrice) {
-                    message += `Estimasi Harga: Rp${new Intl.NumberFormat('id-ID').format(itemPrice)}\n`;
-                }
-                
-                if (itemName || itemPrice) {
-                    const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
-                    window.open(whatsappUrl, '_blank');
-                    suggestionItemNameInput.value = '';
-                    suggestionItemPriceInput.value = '';
-                } else {
-                    // Menggunakan modal kustom sebagai pengganti alert
-                    showInfoModal('Info', 'Harap isi nama barang atau estimasi harga terlebih dahulu.');
-                }
-            });
-            
-            function showInfoModal(title, message) {
-                const modal = document.getElementById('confirmation-modal');
-                const modalTitle = document.getElementById('modal-title');
-                const modalMessage = document.getElementById('modal-message');
-                const yesBtn = document.getElementById('yes-btn');
-                const noBtn = document.getElementById('no-btn');
-
-                modalTitle.textContent = title;
-                modalMessage.textContent = message;
+                modalMessage.innerHTML = `<strong>${fullProductName}</strong> berhasil ditambahkan ke keranjang!`;
                 yesBtn.classList.add('hidden');
                 noBtn.textContent = 'Ok';
                 noBtn.onclick = () => {
                     modal.classList.add('hidden');
                     resetConfirmationModal();
                 };
-                modal.classList.remove('hidden');
+            };
+            noBtn.onclick = () => {
+                modal.classList.add('hidden');
+                resetConfirmationModal();
+            };
+            modal.classList.remove('hidden');
+        }
+
+        function resetConfirmationModal() {
+            const modal = document.getElementById('confirmation-modal');
+            const yesBtn = document.getElementById('yes-btn');
+            const noBtn = document.getElementById('no-btn');
+            yesBtn.classList.remove('hidden');
+            noBtn.textContent = 'Tidak';
+            yesBtn.onclick = null;
+            noBtn.onclick = null;
+            modal.classList.add('hidden');
+        }
+
+        function showHowToOrderModal() {
+            const modal = document.getElementById('how-to-order-modal');
+            modal.classList.remove('hidden');
+        }
+
+        function showBestSellerInfoModal() {
+            const modal = document.getElementById('best-seller-info-modal');
+            modal.classList.remove('hidden');
+        }
+
+
+        document.getElementById('close-confirmation-modal-btn').addEventListener('click', resetConfirmationModal);
+        document.getElementById('close-how-to-order-modal-btn').addEventListener('click', () => {
+            document.getElementById('how-to-order-modal').classList.add('hidden');
+        });
+        document.getElementById('ok-how-to-order-btn').addEventListener('click', () => {
+            document.getElementById('how-to-order-modal').classList.add('hidden');
+        });
+        document.getElementById('close-best-seller-info-modal-btn').addEventListener('click', () => {
+            document.getElementById('best-seller-info-modal').classList.add('hidden');
+        });
+        document.getElementById('ok-best-seller-info-btn').addEventListener('click', () => {
+            document.getElementById('best-seller-info-modal').classList.add('hidden');
+        });
+
+        function getCategorySymbol(category) {
+            switch(category) {
+                case 'Kopi': return '☕';
+                case 'Makanan': return '🍔';
+                case 'Minuman': return '🥤';
+                default: return '';
+            }
+        }
+
+        function createProductCard(product) {
+            const productElement = document.createElement('div');
+            productElement.className = 'product-card bg-gray-700 rounded-xl shadow-md border border-gray-600 text-center';
+
+            let productNameClass = '';
+            if (product.isBestSeller) {
+                productNameClass = 'product-name-best-seller';
             }
 
+            let productActionsHtml = '';
+            if (product.options && product.options.length > 0) {
+                let optionsHtml = product.options.map(option =>
+                    `<option value="${product.id}-${option.id}">${option.name} - Rp${option.price.toLocaleString('id-ID')}</option>`
+                ).join('');
 
-            function setView(view) {
-                const productLists = document.querySelectorAll('.product-list');
-                productLists.forEach(list => {
-                    list.classList.remove('list-view', 'grid-view', 'flex', 'flex-col', 'space-y-4', 'grid', 'grid-cols-2', 'lg:grid-cols-3', 'gap-4');
-                    if (view === 'grid') {
-                        list.classList.add('grid', 'grid-cols-2', 'lg:grid-cols-3', 'gap-4', 'grid-view');
-                    } else if (view === 'list') {
-                        list.classList.add('flex', 'flex-col', 'space-y-4', 'list-view');
-                    }
-                });
+                productActionsHtml = `
+                    <div class="product-actions-container flex flex-col md:flex-row items-center gap-2 w-full mt-2">
+                        <select id="select-${product.id}" class="w-full text-sm bg-gray-600 border-gray-500 text-gray-200 rounded-lg p-2 focus:ring-amber-500 focus:border-amber-500">
+                            ${optionsHtml}
+                        </select>
+                        <button data-id="${product.id}" class="add-to-cart-btn-multi flex-shrink-0 bg-amber-600 hover:bg-amber-700 text-white font-bold py-2 px-4 text-sm rounded-full transition-colors duration-200 shadow-md">
+                            + Tambah
+                        </button>
+                    </div>
+                `;
+            } else {
+                const priceHtml = product.price ? `<p class="text-amber-500 font-bold text-xs sm:text-sm">Rp${product.price.toLocaleString('id-ID')}</p>` : '';
+                const shopeeBtnHtml = product.shopeeLink ? `<a href="${product.shopeeLink}" target="_blank" class="shopee-btn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shopping-bag"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4H6z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>Beli di Shopee</a>` : '';
+                
+                productActionsHtml = `
+                    <div class="product-actions-container flex flex-col items-center gap-2 w-full mt-2">
+                        ${priceHtml}
+                        <button data-id="${product.id}" class="add-to-cart-btn-single flex-shrink-0 bg-amber-600 hover:bg-amber-700 text-white font-bold py-2 px-4 text-sm rounded-full transition-colors duration-200 shadow-md">
+                            + Tambah
+                        </button>
+                        ${shopeeBtnHtml}
+                    </div>
+                `;
             }
 
-            // Tab logic
-            const tabButtons = document.querySelectorAll('.tab-btn');
-            const subTabButtons = document.querySelectorAll('.sub-tab-btn');
-            const tabPanes = document.querySelectorAll('.tab-pane');
-            const subTabPanes = document.querySelectorAll('.sub-tab-pane');
+            productElement.innerHTML = `
+                <div class="relative w-full flex flex-col items-center">
+                    <div class="icon-container mb-2 text-2xl text-amber-500">
+                        ${getCategorySymbol(product.category)}
+                    </div>
+                    <div class="product-info flex-1 w-full truncate mb-2">
+                        <h3 class="font-semibold text-sm sm:text-base text-gray-200 truncate ${productNameClass}">${product.name}</h3>
+                    </div>
+                </div>
+                <div class="product-actions-wrapper w-full">
+                    ${productActionsHtml}
+                </div>
+            `;
+            return productElement;
+        }
 
-            // Fungsi untuk mengaktifkan tab sesuai kategori
-            function activateCategoryTab(category) {
-                tabButtons.forEach(b => b.classList.remove('active'));
-                const targetTab = document.getElementById(`tab-${category}`);
-                if (targetTab) {
-                    targetTab.classList.add('active');
+        function renderProducts(category, subCategory = null) {
+            arabikaListDiv.innerHTML = '';
+            robustaListDiv.innerHTML = '';
+            makananListDiv.innerHTML = '';
+            minumanListDiv.innerHTML = '';
+            
+            const productsToRender = [];
+            if (category === 'kopi') {
+                if (subCategory === 'arabika') {
+                    productsToRender.push(...products.kopi.arabika);
+                } else if (subCategory === 'robusta') {
+                    productsToRender.push(...products.kopi.robusta);
                 }
-                tabPanes.forEach(p => p.classList.add('hidden'));
-                const targetPane = document.getElementById(`content-${category}`);
-                if (targetPane) {
-                    targetPane.classList.remove('hidden');
-                }
+            } else if (category === 'makanan') {
+                productsToRender.push(...products.makanan);
+            } else if (category === 'minuman') {
+                productsToRender.push(...products.minuman);
             }
 
-            // Event listener untuk tab utama
-            tabButtons.forEach(btn => {
-                btn.addEventListener('click', () => {
-                    // Sembunyikan hasil pencarian dan tampilkan tab
-                    searchInput.value = '';
-                    searchResultsContainer.classList.add('hidden');
-                    searchResultsMessage.classList.add('hidden');
-                    mainTabs.classList.remove('hidden');
-                    tabContent.classList.remove('hidden');
-                    
-                    activateCategoryTab(btn.id.split('-')[1]);
-
-                    // Handle sub-tabs for 'Kopi'
-                    if (btn.id === 'tab-kopi') {
-                        document.getElementById('sub-tab-content').classList.remove('hidden');
-                        const activeSubTab = document.querySelector('.sub-tab-btn.active');
-                        const activeSubTabId = activeSubTab ? activeSubTab.id.split('-')[2] : 'arabika';
-                        renderProducts('kopi', activeSubTabId);
-                    } else {
-                        document.getElementById('sub-tab-content').classList.add('hidden');
-                        renderProducts(btn.id.split('-')[1]);
-                    }
-                });
-            });
-
-            // Event listener untuk sub-tab
-            subTabButtons.forEach(btn => {
-                btn.addEventListener('click', () => {
-                    subTabButtons.forEach(b => b.classList.remove('active'));
-                    btn.classList.add('active');
-
-                    subTabPanes.forEach(pane => pane.classList.add('hidden'));
-                    const targetPaneId = btn.id.split('-')[2] + '-section';
-                    document.getElementById(targetPaneId).classList.remove('hidden');
-                    
-                    const subCategoryId = btn.id.split('-')[2];
-                    renderProducts('kopi', subCategoryId);
-                });
-            });
-
-            // Event listener untuk input pencarian
-            searchInput.addEventListener('input', (event) => {
-                const query = event.target.value.trim();
-                if (query.length > 0) {
-                    filterProducts(query);
-                } else {
-                    // Jika input kosong, kembali ke tampilan tab
-                    searchResultsContainer.classList.add('hidden');
-                    searchResultsMessage.classList.add('hidden');
-                    mainTabs.classList.remove('hidden');
-                    tabContent.classList.remove('hidden');
-                    const activeTabId = document.querySelector('.tab-btn.active').id;
-                    const category = activeTabId.split('-')[1];
-                    let subCategory = null;
-                    if (category === 'kopi') {
-                        const activeSubTab = document.querySelector('.sub-tab-btn.active');
-                        subCategory = activeSubTab ? activeSubTab.id.split('-')[2] : 'arabika';
-                    }
-                    renderProducts(category, subCategory);
+            productsToRender.forEach(product => {
+                const productCard = createProductCard(product);
+                if (category === 'kopi' && subCategory === 'arabika') {
+                    arabikaListDiv.appendChild(productCard);
+                } else if (category === 'kopi' && subCategory === 'robusta') {
+                    robustaListDiv.appendChild(productCard);
+                } else if (category === 'makanan') {
+                    makananListDiv.appendChild(productCard);
+                } else if (category === 'minuman') {
+                    minumanListDiv.appendChild(productCard);
                 }
             });
+            
+            const activeView = document.querySelector('.product-list.list-view') ? 'list' : 'grid';
+            setView(activeView);
+        }
 
-            // Fungsi untuk merender gambar testimoni
-            function renderTestimonials() {
-                testimonialGrid.innerHTML = '';
-                testimonials.forEach(testimoni => {
-                    const imgElement = document.createElement('img');
-                    imgElement.className = 'testimonial-img';
-                    imgElement.src = testimoni.thumbUrl;
-                    imgElement.alt = `Testimoni ${testimoni.id}`;
-                    imgElement.dataset.fullSrc = testimoni.fullUrl;
-                    testimonialGrid.appendChild(imgElement);
+        function filterProducts(query) {
+            const lowerCaseQuery = query.toLowerCase();
+            mainTabs.classList.add('hidden');
+            tabContent.classList.add('hidden');
+            searchResultsContainer.classList.remove('hidden');
+            searchResultsList.innerHTML = '';
+
+            const allProducts = Object.values(products).flatMap(cat => Array.isArray(cat) ? cat : Object.values(cat).flatMap(subCat => subCat));
+            const filteredProducts = allProducts.filter(product => {
+                const productName = product.name.toLowerCase();
+                return productName.includes(lowerCaseQuery);
+            });
+            
+            // Urutkan hasil pencarian secara abjad
+            filteredProducts.sort((a, b) => a.name.localeCompare(b.name));
+
+            if (filteredProducts.length > 0) {
+                searchResultsMessage.textContent = `${filteredProducts.length} produk ditemukan.`;
+                searchResultsMessage.classList.remove('hidden');
+                filteredProducts.forEach(product => {
+                    searchResultsList.appendChild(createProductCard(product));
                 });
+            } else {
+                searchResultsMessage.textContent = `Tidak ada produk yang cocok dengan pencarian Anda.`;
+                searchResultsMessage.classList.remove('hidden');
             }
+            setView(document.querySelector('.product-list.list-view') ? 'list' : 'grid');
+        }
 
-            // Event listener untuk tombol testimoni
-            testimonialBtn.addEventListener('click', () => {
-                const testimonialSection = document.getElementById('testimonial-section');
-                testimonialSection.scrollIntoView({ behavior: 'smooth' });
-            });
+        function renderCart() {
+            cartItemsDiv.innerHTML = '';
+            let total = 0;
+            let hasItems = false;
 
-            // Event listener untuk klik pada gambar testimoni
-            testimonialGrid.addEventListener('click', (event) => {
-                const target = event.target;
-                if (target.classList.contains('testimonial-img')) {
-                    fullImage.src = target.dataset.fullSrc;
-                    imageModal.classList.remove('hidden');
-                }
-            });
+            for (const id in cart) {
+                hasItems = true;
+                const item = cart[id];
+                total += item.price * item.quantity;
 
-            // Event listener untuk tombol tutup modal gambar
-            closeImageModalBtn.addEventListener('click', () => {
-                imageModal.classList.add('hidden');
-                fullImage.src = '';
-            });
-
-            howToOrderBtn.addEventListener('click', showHowToOrderModal);
-            bestSellerInfoBtn.addEventListener('click', showBestSellerInfoModal);
-            gridViewBtn.addEventListener('click', () => setView('grid'));
-            listViewBtn.addEventListener('click', () => setView('list'));
-
-            const firstVisit = localStorage.getItem('firstVisit');
-            if (!firstVisit) {
-                showHowToOrderModal();
-                localStorage.setItem('firstVisit', 'true');
+                const cartItemElement = document.createElement('div');
+                cartItemElement.className = 'flex justify-between items-center p-3 bg-gray-700 rounded-lg shadow-sm';
+                cartItemElement.innerHTML = `
+                    <div class="flex items-center space-x-3">
+                        <button data-id="${id}" class="remove-from-cart-btn bg-red-500 hover:bg-red-600 text-white w-6 h-6 rounded-full text-sm font-bold flex items-center justify-center">-</button>
+                        <span>${item.quantity}x ${item.name}</span>
+                    </div>
+                    <span class="font-semibold text-amber-500">Rp${(item.price * item.quantity).toLocaleString('id-ID')}</span>
+                `;
+                cartItemsDiv.appendChild(cartItemElement);
             }
             
-            // Initial render based on active tabs
-            renderProducts('kopi', 'arabika');
+            if (hasItems) {
+                total += titipFee;
+                const titipFeeElement = document.createElement('div');
+                titipFeeElement.className = 'flex justify-between items-center p-3 bg-gray-700 rounded-lg shadow-sm font-bold text-gray-200';
+                titipFeeElement.innerHTML = `
+                    <span>Jasa Titip:</span>
+                    <span class="text-amber-500">Rp${titipFee.toLocaleString('id-ID')}</span>
+                `;
+                cartItemsDiv.appendChild(titipFeeElement);
+            }
+
+            if (hasItems) {
+                emptyCartMessage.style.display = 'none';
+                checkoutButton.style.display = 'block';
+            } else {
+                emptyCartMessage.style.display = 'block';
+                checkoutButton.style.display = 'none';
+            }
+
+            cartTotalSpan.textContent = `Rp${total.toLocaleString('id-ID')}`;
+        }
+
+        function addItemToCart(productId, selectedOptionId = null) {
+            const allProducts = Object.values(products).flatMap(cat => Array.isArray(cat) ? cat : Object.values(cat).flatMap(subCat => subCat));
+            let productWithVariants = allProducts.find(p => p.id === productId);
+            let itemToAdd;
+            let cartItemId;
+
+            if (productWithVariants.options && selectedOptionId) {
+                const option = productWithVariants.options.find(o => `${productWithVariants.id}-${o.id}` === selectedOptionId);
+                if (!option) return;
+
+                cartItemId = selectedOptionId;
+                itemToAdd = {
+                    id: cartItemId,
+                    name: `${productWithVariants.name} (${option.name})`,
+                    price: option.price
+                };
+            } else {
+                cartItemId = productId;
+                itemToAdd = productWithVariants;
+            }
+
+            if (cart[cartItemId]) {
+                cart[cartItemId].quantity++;
+            } else {
+                cart[cartItemId] = { ...itemToAdd, quantity: 1 };
+            }
+
             renderCart();
-            renderTestimonials();
-            setView('grid');
+        }
+
+        document.addEventListener('click', (event) => {
+            const target = event.target;
+            if (target.classList.contains('add-to-cart-btn-multi')) {
+                const productId = target.dataset.id;
+                const selectElement = document.getElementById(`select-${productId}`);
+                const selectedOptionId = selectElement.value;
+                const allProducts = Object.values(products).flatMap(cat => Array.isArray(cat) ? cat : Object.values(cat).flatMap(subCat => subCat));
+                let product = allProducts.find(p => p.id === productId);
+                showConfirmationModal(product.name, productId, selectedOptionId);
+            } else if (target.classList.contains('add-to-cart-btn-single')) {
+                const productId = target.dataset.id;
+                const allProducts = Object.values(products).flatMap(cat => Array.isArray(cat) ? cat : Object.values(cat).flatMap(subCat => subCat));
+                let product = allProducts.find(p => p.id === productId);
+                showConfirmationModal(product.name, productId);
+            }
         });
+
+        cartItemsDiv.addEventListener('click', (event) => {
+            const target = event.target;
+            if (target.classList.contains('remove-from-cart-btn')) {
+                const productId = target.dataset.id;
+                if (cart[productId]) {
+                    if (cart[productId].quantity > 1) {
+                        cart[productId].quantity--;
+                    } else {
+                        delete cart[productId];
+                    }
+                }
+                renderCart();
+            }
+        });
+
+        checkoutButton.addEventListener('click', () => {
+            let orderDetails = 'Halo JasTip Arunika, saya ingin memesan:\n\n';
+            let total = 0;
+            let hasItems = false;
+            for (const id in cart) {
+                hasItems = true;
+                const item = cart[id];
+                const subtotal = item.price * item.quantity;
+                orderDetails += `${item.quantity}x ${item.name} (Rp${item.price.toLocaleString('id-ID')}/item) = Rp${subtotal.toLocaleString('id-ID')}\n`;
+                total += subtotal;
+            }
+            
+            if (hasItems) {
+                total += titipFee;
+                orderDetails += `\nBiaya Jasa Titip: Rp${titipFee.toLocaleString('id-ID')}\n`;
+            }
+
+            orderDetails += `\nTotal Pembayaran: Rp${total.toLocaleString('id-ID')}\n\nMohon konfirmasinya. Terima kasih!`;
+
+            const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(orderDetails)}`;
+            window.open(whatsappUrl, '_blank');
+        });
+
+        sendSuggestionBtn.addEventListener('click', () => {
+            const itemName = suggestionItemNameInput.value;
+            const itemPrice = suggestionItemPriceInput.value;
+            let message = `Halo JasTip Arunika, saya punya saran barang:\n\n`;
+
+            if (itemName) {
+                message += `Nama Barang: ${itemName}\n`;
+            }
+            if (itemPrice) {
+                message += `Estimasi Harga: Rp${new Intl.NumberFormat('id-ID').format(itemPrice)}\n`;
+            }
+            
+            if (itemName || itemPrice) {
+                const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
+                window.open(whatsappUrl, '_blank');
+                suggestionItemNameInput.value = '';
+                suggestionItemPriceInput.value = '';
+            } else {
+                showInfoModal('Info', 'Harap isi nama barang atau estimasi harga terlebih dahulu.');
+            }
+        });
+        
+        function showInfoModal(title, message) {
+            const modal = document.getElementById('confirmation-modal');
+            const modalTitle = document.getElementById('modal-title');
+            const modalMessage = document.getElementById('modal-message');
+            const yesBtn = document.getElementById('yes-btn');
+            const noBtn = document.getElementById('no-btn');
+
+            modalTitle.textContent = title;
+            modalMessage.textContent = message;
+            yesBtn.classList.add('hidden');
+            noBtn.textContent = 'Ok';
+            noBtn.onclick = () => {
+                modal.classList.add('hidden');
+                resetConfirmationModal();
+            };
+            modal.classList.remove('hidden');
+        }
+
+        function setView(view) {
+            const productLists = document.querySelectorAll('.product-list');
+            productLists.forEach(list => {
+                list.classList.remove('list-view', 'grid-view', 'flex', 'flex-col', 'space-y-4', 'grid', 'grid-cols-2', 'lg:grid-cols-3', 'gap-4');
+                if (view === 'grid') {
+                    list.classList.add('grid', 'grid-cols-2', 'lg:grid-cols-3', 'gap-4', 'grid-view');
+                } else if (view === 'list') {
+                    list.classList.add('flex', 'flex-col', 'space-y-4', 'list-view');
+                }
+            });
+        }
+
+        const tabButtons = document.querySelectorAll('.tab-btn');
+        const subTabButtons = document.querySelectorAll('.sub-tab-btn');
+        const tabPanes = document.querySelectorAll('.tab-pane');
+        const subTabPanes = document.querySelectorAll('.sub-tab-pane');
+
+        function activateCategoryTab(category) {
+            tabButtons.forEach(b => b.classList.remove('active'));
+            const targetTab = document.getElementById(`tab-${category}`);
+            if (targetTab) {
+                targetTab.classList.add('active');
+            }
+            tabPanes.forEach(p => p.classList.add('hidden'));
+            const targetPane = document.getElementById(`content-${category}`);
+            if (targetPane) {
+                targetPane.classList.remove('hidden');
+            }
+        }
+
+        tabButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                searchInput.value = '';
+                searchResultsContainer.classList.add('hidden');
+                searchResultsMessage.classList.add('hidden');
+                mainTabs.classList.remove('hidden');
+                tabContent.classList.remove('hidden');
+                
+                const category = btn.id.split('-')[1];
+                activateCategoryTab(category);
+                
+                if (category === 'kopi') {
+                    document.getElementById('sub-tab-content').classList.remove('hidden');
+                    const activeSubTab = document.querySelector('#content-kopi .sub-tab-btn.active');
+                    const activeSubTabId = activeSubTab ? activeSubTab.id.split('-')[2] : 'arabika';
+                    renderProducts(category, activeSubTabId);
+                } else {
+                    document.getElementById('sub-tab-content').classList.add('hidden');
+                    renderProducts(category);
+                }
+            });
+        });
+
+        subTabButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                subTabButtons.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+
+                subTabPanes.forEach(pane => pane.classList.add('hidden'));
+                const targetPaneId = btn.id.split('-')[2] + '-section';
+                document.getElementById(targetPaneId).classList.remove('hidden');
+                
+                const subCategoryId = btn.id.split('-')[2];
+                renderProducts('kopi', subCategoryId);
+            });
+        });
+
+        searchInput.addEventListener('input', (event) => {
+            const query = event.target.value.trim();
+            if (query.length > 0) {
+                filterProducts(query);
+            } else {
+                searchResultsContainer.classList.add('hidden');
+                searchResultsMessage.classList.add('hidden');
+                mainTabs.classList.remove('hidden');
+                tabContent.classList.remove('hidden');
+                const activeTabId = document.querySelector('.tab-btn.active').id;
+                const category = activeTabId.split('-')[1];
+                let subCategory = null;
+                if (category === 'kopi') {
+                    const activeSubTab = document.querySelector('.sub-tab-btn.active');
+                    subCategory = activeSubTab ? activeSubTab.id.split('-')[2] : 'arabika';
+                }
+                renderProducts(category, subCategory);
+            }
+        });
+
+        function renderTestimonials() {
+            testimonialGrid.innerHTML = '';
+            testimonials.forEach(testimoni => {
+                const imgElement = document.createElement('img');
+                imgElement.className = 'testimonial-img';
+                imgElement.src = testimoni.url;
+                imgElement.alt = `Testimoni ${testimoni.id}`;
+                imgElement.dataset.fullSrc = testimoni.url;
+                testimonialGrid.appendChild(imgElement);
+            });
+        }
+
+        testimonialBtn.addEventListener('click', () => {
+            const testimonialSection = document.getElementById('testimonial-section');
+            testimonialSection.scrollIntoView({ behavior: 'smooth' });
+        });
+
+        testimonialGrid.addEventListener('click', (event) => {
+            const target = event.target;
+            if (target.classList.contains('testimonial-img')) {
+                fullImage.src = target.dataset.fullSrc;
+                imageModal.classList.remove('hidden');
+            }
+        });
+
+        closeImageModalBtn.addEventListener('click', () => {
+            imageModal.classList.add('hidden');
+            fullImage.src = '';
+        });
+
+        howToOrderBtn.addEventListener('click', showHowToOrderModal);
+        bestSellerInfoBtn.addEventListener('click', showBestSellerInfoModal);
+        gridViewBtn.addEventListener('click', () => setView('grid'));
+        listViewBtn.addEventListener('click', () => setView('list'));
+
+        const firstVisit = localStorage.getItem('firstVisit');
+        if (!firstVisit) {
+            showHowToOrderModal();
+            localStorage.setItem('firstVisit', 'true');
+        }
+        
+        renderCart();
+        setView('grid');
     </script>
 </body>
 </html>
-�
