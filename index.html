@@ -1,1026 +1,507 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Arunika Shop</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&display=swap');
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #121212;
-            color: #e0e0e0;
-        }
-        .product-card {
-            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-            padding: 1rem;
-            position: relative;
-        }
-        .product-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 15px -3px rgba(255, 215, 0, 0.1), 0 4px 6px -2px rgba(255, 215, 0, 0.05);
-        }
-        
-        /* Gaya untuk modal popup */
+        body { font-family: 'Inter', sans-serif; background-color: #121212; color: #e0e0e0; }
+        #main-title { font-family: 'Cinzel', serif; font-size: 3rem; color: #FFD700; }
+        .product-card { transition: transform 0.2s ease, box-shadow 0.2s ease; padding: 1rem; position: relative; }
+        .product-card:hover { transform: translateY(-5px); box-shadow: 0 10px 15px -3px rgba(255,215,0,0.1); }
+        .product-name-best-seller { display: inline-block; background-image: linear-gradient(to right, #FFD700, #B8860B); background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: bold; padding: 0.25rem 0.5rem; border: 1px solid #FFD700; border-radius: 9999px; font-size: 0.75rem; }
+        .main-nav-btn, .sub-tab-btn { background-color: #2a2a2a; color: #FFD700; transition: all 0.2s ease; }
+        .main-nav-btn.active, .sub-tab-btn.active, .main-nav-btn:hover, .sub-tab-btn:hover { background-image: linear-gradient(to right, #B8860B, #FFD700); box-shadow: 0 4px 6px -1px rgba(255,215,0,0.1); color: #1a1a1a; }
+        .golden-btn { background-color: #1a1a1a; color: #FFD700; border: 1px solid #FFD700; }
+        .golden-btn:hover { background-image: linear-gradient(to right, #B8860B, #FFD700); color: #1a1a1a; }
+        .testimonial-img { cursor: pointer; width: 100%; height: 120px; object-fit: cover; border-radius: 0.5rem; transition: transform 0.2s ease; }
+        .testimonial-img:hover { transform: scale(1.05); }
+        .shopee-btn { background-color: #FF5722; color: white; padding: .5rem 1rem; font-size: .75rem; border-radius: 9999px; }
+        @keyframes pulse { 50% { opacity: .5; } }
+        .skeleton { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+
+        /* --- Gaya Modal --- */
         .modal-overlay {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            top: 0; left: 0; right: 0; bottom: 0;
             background-color: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(4px);
             display: flex;
             align-items: center;
             justify-content: center;
-            z-index: 2000;
+            z-index: 50;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease-in-out;
+        }
+        .modal-overlay.visible {
+            opacity: 1;
+            pointer-events: auto;
         }
         .modal-container {
-            background-color: #1f1f1f;
-            padding: 2rem;
-            border-radius: 1.5rem;
-            max-width: 90%;
-            width: 24rem;
-            text-align: center;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-            color: #e0e0e0;
+            background-color: #1f2937;
+            padding: 1.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+            width: 90%;
+            max-width: 500px;
+            transform: scale(0.95);
+            transition: transform 0.3s ease-in-out;
+        }
+        .modal-overlay.visible .modal-container {
+            transform: scale(1);
         }
 
-        /* Gaya untuk nama produk best seller */
-        .product-name-best-seller {
-            display: inline-block;
-            background-image: linear-gradient(to right, #FFD700, #B8860B);
-            background-clip: text;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            font-weight: bold;
-            padding: 0.25rem 0.5rem;
-            border: 1px solid #FFD700;
-            border-radius: 9999px;
-            box-shadow: 0 1px 2px 0 rgba(255, 215, 0, 0.5);
+        /* --- Gaya Panel Info --- */
+        .info-panel-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.75rem;
+            border-radius: 0.75rem;
+            color: #d1d5db;
+            transition: background-color 0.2s, color 0.2s;
+            background-color: #1f2937;
+        }
+        .info-panel-btn:hover {
+            background-color: #374151;
+            color: #f59e0b;
+        }
+        .info-panel-btn svg {
+            width: 1.75rem;
+            height: 1.75rem;
+        }
+        .info-panel-btn span {
             font-size: 0.75rem;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            color: #FFD700;
+            font-weight: 500;
         }
         
-        /* Gaya untuk mode list */
-        .list-view .product-list .product-card {
+        #category-selector-btn {
             display: flex;
-            flex-direction: row;
             align-items: center;
             justify-content: space-between;
+            width: 100%;
             padding: 0.75rem 1rem;
+            background-color: #2a2a2a;
+            border: 1px solid #4b5563;
+            border-radius: 0.75rem;
+            transition: all 0.2s ease;
         }
-        .list-view .product-card .icon-and-info {
-            display: flex;
-            flex-grow: 1;
-            overflow: hidden;
-            flex-shrink: 1;
-            align-items: center;
+        #category-selector-btn:hover {
+            border-color: #FFD700;
         }
-        .list-view .product-card .icon-container {
-            font-size: 1.2rem;
-            margin-right: 0.5rem;
-            flex-shrink: 0;
-        }
-        .list-view .product-info {
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            overflow: hidden;
-        }
-        .list-view .product-info h3 {
-            font-size: 0.875rem;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        .list-view .product-actions-container {
-            flex-shrink: 0;
+        .category-modal-item {
+            text-align: left;
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            justify-content: space-between;
         }
-        .list-view .product-actions-container select {
-            width: 8rem;
-            flex-shrink: 0;
+        .category-modal-item.active {
+            background-color: #4b5563;
+            font-weight: bold;
+            color: #FFD700;
         }
-        .list-view .product-actions-container button {
-            width: 5rem;
-            height: 2.5rem;
-            padding: 0.5rem 1rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-            font-size: 0.75rem;
+        .category-modal-item:not(.active):hover {
+            background-color: #374151;
         }
 
-        /* Gaya untuk mode grid */
-        .grid-view .product-card {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        .grid-view .product-card .icon-container {
-            font-size: 2rem;
-            margin-bottom: 0.5rem;
-        }
-        .grid-view .product-info {
-            width: 100%;
-            text-align: center;
-            margin-bottom: 0.5rem;
-        }
-        .grid-view .product-actions-container {
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        .grid-view .product-actions-container select {
-            width: 100%;
-            max-width: 12rem;
-        }
-        .grid-view .product-actions-container button {
-            width: 100%;
-            max-width: 12rem;
-            padding: 0.5rem 1rem;
-        }
-        #main-title {
-            font-family: 'Cinzel', serif;
-            font-size: 3rem;
-            color: #FFD700;
-        }
-        
-        /* Gaya untuk tombol dan tab golden-black yang baru */
-        .golden-btn {
-            background-color: #1a1a1a;
-            color: #FFD700;
-            border: 1px solid #FFD700;
-            transition: all 0.2s ease-in-out;
-            box-shadow: 0 2px 5px rgba(255, 215, 0, 0.2);
-        }
-        .golden-btn:hover {
-            background-image: linear-gradient(to right, #B8860B, #FFD700);
-            color: #1a1a1a;
-            box-shadow: 0 4px 10px rgba(255, 215, 0, 0.4);
-            border: none;
-        }
-        .main-nav-btn, .tab-btn, .sub-tab-btn {
+        #toast-notification {
+            position: fixed;
+            bottom: -100px;
+            left: 50%;
+            transform: translateX(-50%);
             background-color: #2a2a2a;
             color: #FFD700;
-            transition: all 0.2s ease-in-out;
+            padding: 1rem 1.5rem;
+            border-radius: 0.75rem;
+            border: 1px solid #FFD700;
+            box-shadow: 0 4px 6px -1px rgba(255,215,0,0.1);
+            z-index: 100;
+            transition: bottom 0.5s ease-in-out;
+            font-weight: 600;
         }
-        .main-nav-btn.active, .tab-btn.active, .sub-tab-btn.active, .main-nav-btn:hover, .tab-btn:hover, .sub-tab-btn:hover {
-            background-image: linear-gradient(to right, #B8860B, #FFD700);
-            box-shadow: 0 4px 6px -1px rgba(255, 215, 0, 0.1), 0 2px 4px -1px rgba(255, 215, 0, 0.05);
-            color: #1a1a1a;
-        }
-
-        .small-golden-btn {
-            font-size: 0.75rem; /* text-xs */
-            padding: 0.5rem 0.75rem; /* py-2 px-3 */
-        }
-
-        /* Gaya untuk grid testimoni */
-        .testimonial-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-            gap: 1rem;
-        }
-        .testimonial-img {
-            cursor: pointer;
-            width: 100%;
-            height: 120px;
-            object-fit: cover;
-            border-radius: 0.5rem;
-            transition: transform 0.2s ease-in-out;
-        }
-        .testimonial-img:hover {
-            transform: scale(1.05);
-            box-shadow: 0 5px 15px rgba(255, 215, 0, 0.3);
-        }
-        .modal-image {
-            max-width: 100%;
-            max-height: 80vh;
-            border-radius: 0.5rem;
-        }
-
-        .shopee-btn {
-            background-color: #FF5722;
-            color: white;
-            padding: 0.5rem 1rem;
-            font-size: 0.75rem;
-            font-weight: bold;
-            border-radius: 9999px;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.25rem;
-            width: 100%;
-            margin-top: 0.5rem;
-        }
-        .shopee-btn:hover {
-            background-color: #E64A19;
+        #toast-notification.show {
+            bottom: 20px;
         }
     </style>
 </head>
 <body class="bg-gray-900 text-gray-200 p-4 md:p-8">
 
     <div class="max-w-4xl mx-auto bg-gray-800 p-6 md:p-10 rounded-3xl shadow-2xl">
-
         <header class="text-center mb-6">
             <h1 id="main-title" class="font-extrabold text-gray-200 mb-2 tracking-tight">Arunika Shop</h1>
             <p class="text-lg text-gray-400">Jastip & Rekomendasi Produk Pilihan</p>
         </header>
-
-        <nav class="flex justify-center space-x-2 mb-6 p-1 bg-gray-900 rounded-xl">
-            <a href="index.html" class="main-nav-btn active py-2 px-4 rounded-lg font-medium transition-colors duration-200 flex-1 text-center">Jastip</a>
-            <a href="via_online.html" class="main-nav-btn py-2 px-4 rounded-lg font-medium transition-colors duration-200 flex-1 text-center">Via Online</a>
-        </nav>
-
-        <div id="jastip-content">
-            <div class="flex flex-col sm:flex-row justify-between items-center space-y-2 sm:space-y-0 sm:space-x-2 mb-4">
-                <div class="flex space-x-2 w-full sm:w-auto">
-                    <button id="how-to-order-btn" class="golden-btn small-golden-btn flex-1 sm:flex-initial py-2 px-4 font-medium rounded-lg hover:bg-opacity-80 transition-colors">
-                        Cara Pesan
+        <nav class="flex justify-center space-x-2 mb-6 p-1 bg-black/20 rounded-xl"><a href="index.html" class="main-nav-btn active py-2 px-4 rounded-lg font-medium flex-1 text-center">Jastip</a><a href="via_online.html" class="main-nav-btn py-2 px-4 rounded-lg font-medium flex-1 text-center">Via Online</a></nav>
+        
+        <main id="jastip-content">
+            <section id="info-panel" class="mb-6">
+                <div class="grid grid-cols-3 gap-2 text-center">
+                    <button id="how-to-order-btn" class="info-panel-btn">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="m9 12 2 2 4-4"/></svg>
+                        <span class="truncate">Cara Pesan</span>
                     </button>
-                    <button id="best-seller-info-btn" class="golden-btn small-golden-btn flex-1 sm:flex-initial py-2 px-4 font-medium rounded-lg hover:bg-opacity-80 transition-colors">
-                        Info Best Seller
+                    <button id="best-seller-info-btn" class="info-panel-btn">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 3.5 9.5 6 22h12l2.5-12.5L12 2z"/><path d="m6 22 6-10 6 10"/><path d="M3.5 9.5h17"/></svg>
+                        <span class="truncate">Best Seller</span>
                     </button>
-                    <button id="testimonial-btn" class="golden-btn small-golden-btn flex-1 sm:flex-initial py-2 px-4 font-medium rounded-lg hover:bg-opacity-80 transition-colors">
-                        Testimoni
-                    </button>
-                </div>
-                <div class="flex space-x-2 mt-4 sm:mt-0">
-                    <button id="grid-view-btn" class="p-2 rounded-lg bg-gray-700 text-gray-200 hover:bg-gray-600 transition-colors">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-layout-grid"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M3 15h18"/><path d="M9 3v18"/><path d="M15 3v18"/></svg>
-                    </button>
-                    <button id="list-view-btn" class="p-2 rounded-lg bg-gray-700 text-gray-200 hover:bg-gray-600 transition-colors">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-list"><line x1="8" x2="21" y1="6" y2="6"/><line x1="8" x2="21" y1="12" y2="12"/><line x1="8" x2="21" y1="18" y2="18"/><line x1="3" x2="3.01" y1="6" y2="6"/><line x1="3" x2="3.01" y1="12" y2="12"/><line x1="3" x2="3.01" y1="18" y2="18"/></svg>
+                    <button id="testimonial-btn" class="info-panel-btn">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.174 6.812a1 1 0 0 0-1.141-1.424l-8.58 3.432a1 1 0 0 0-.453.894v6.282a1 1 0 0 0 .953.996l3.432-.858a1 1 0 0 0 .894-.453l4.288-8.58a1 1 0 0 0-1.424-1.141Z"/><path d="M18 12.204v.996l-3.432.858a1 1 0 0 1-.894-.453L12.4 11.12a1 1 0 0 1 1.424-1.141l4.176 2.229Z"/><path d="m3 3 3 3"/><path d="M9 3l-3 3"/><path d="M3 9l3-3"/><path d="M3 15l3-3"/><path d="M15 3l-3 3"/></svg>
+                        <span class="truncate">Testimoni</span>
                     </button>
                 </div>
-            </div>
+            </section>
 
-            <div class="relative mb-4">
-                <input type="text" id="search-input" placeholder="Cari kopi, makanan, atau minuman..." class="w-full bg-gray-700 text-gray-200 border border-gray-600 rounded-lg p-3 pl-10 focus:outline-none focus:ring-2 focus:ring-amber-500">
-                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-search text-gray-400"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-                </div>
-            </div>
-
-            <p id="search-results-message" class="text-sm text-center text-gray-500 mb-4 hidden"></p>
-
-            <div id="main-tabs" class="flex space-x-2 mb-4 p-1 bg-gray-900 rounded-xl">
-                <button id="tab-kopi" class="tab-btn active py-2 px-4 rounded-lg font-medium transition-colors duration-200 flex-1 text-center">Kopi</button>
-                <button id="tab-makanan" class="tab-btn py-2 px-4 rounded-lg font-medium transition-colors duration-200 flex-1 text-center">Makanan</button>
-                <button id="tab-minuman" class="tab-btn py-2 px-4 rounded-lg font-medium transition-colors duration-200 flex-1 text-center">Minuman</button>
-            </div>
+            <section id="category-selection" class="mb-4">
+                 <button id="category-selector-btn">
+                    <span id="category-selector-text" class="font-bold text-amber-400">Memuat kategori...</span>
+                    <svg class="w-5 h-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                 </button>
+            </section>
 
             <div id="tab-content">
-                <div id="content-kopi" class="tab-pane">
-                    <div class="flex space-x-2 mb-4 p-1 bg-gray-900 rounded-xl">
-                        <button id="sub-tab-arabika" class="sub-tab-btn active py-2 px-4 rounded-lg font-medium text-gray-200 transition-colors duration-200 flex-1 text-center">Arabika</button>
-                        <button id="sub-tab-robusta" class="sub-tab-btn py-2 px-4 rounded-lg font-medium text-gray-200 transition-colors duration-200 flex-1 text-center">Robusta</button>
-                    </div>
-                    
-                    <div id="sub-tab-content">
-                        <section id="arabika-section" class="sub-tab-pane">
-                            <h2 class="text-2xl font-bold mb-4 text-gray-200">Arabika</h2>
-                            <div id="arabika-list" class="product-list grid-view grid grid-cols-2 lg:grid-cols-3 gap-4">
-                                </div>
-                        </section>
-                        <section id="robusta-section" class="sub-tab-pane hidden">
-                            <h2 class="text-2xl font-bold mb-4 text-gray-200">Robusta</h2>
-                            <div id="robusta-list" class="product-list grid-view grid grid-cols-2 lg:grid-cols-3 gap-4">
-                                </div>
-                        </section>
-                    </div>
-                </div>
-
-                <div id="content-makanan" class="tab-pane hidden">
-                    <section class="mb-8">
-                        <h2 class="text-2xl font-bold mb-4 text-gray-200">Makanan</h2>
-                        <p class="text-sm text-gray-400 mb-4">Jika ingin jastip arunika pilihlah **Tambah**. Tapi jastipers bisa pilih **Beli di Shopee** untuk beli kapanpun jastipers mau.</p>
-                        <div id="makanan-list" class="product-list grid-view grid grid-cols-2 lg:grid-cols-3 gap-4">
-                            </div>
-                    </section>
-                </div>
-
-                <div id="content-minuman" class="tab-pane hidden">
-                    <section class="mb-8">
-                        <h2 class="text-2xl font-bold mb-4 text-gray-200">Minuman</h2>
-                        <p class="text-sm text-gray-400 mb-4">Jika ingin jastip arunika pilihlah **Tambah**. Tapi jastipers bisa pilih **Beli di Shopee** untuk beli kapanpun jastipers mau.</p>
-                        <div id="minuman-list" class="product-list grid-view grid grid-cols-2 lg:grid-cols-3 gap-4">
-                            </div>
-                    </section>
-                </div>
+                <div class="grid grid-cols-2 lg:grid-cols-3 gap-4"><div class="skeleton h-48 bg-gray-700 rounded-xl"></div><div class="skeleton h-48 bg-gray-700 rounded-xl"></div><div class="skeleton h-48 bg-gray-700 rounded-xl hidden md:block"></div></div>
             </div>
-            
-            <div id="search-results-container" class="hidden">
-                <div id="search-results-list" class="product-list grid-view grid grid-cols-2 lg:grid-cols-3 gap-4">
-                    </div>
-            </div>
-            <p id="loading-message" class="text-center text-gray-500 my-8">Memuat produk...</p>
-
-        </div>
-
-        <hr class="my-10 border-t border-gray-700">
-
-        <div>
-            <h2 class="text-2xl font-bold text-gray-200 mb-4">Keranjang Anda</h2>
-            <div id="cart-items" class="space-y-4 mb-4">
-                <p id="empty-cart-message" class="text-gray-500 italic text-center p-4">Keranjang masih kosong.</p>
-            </div>
-            <div class="flex justify-between items-center font-bold text-xl text-gray-200 border-t border-gray-700 pt-4">
-                <span>Total:</span>
-                <span id="cart-total">Rp0</span>
-            </div>
-
-            <button id="checkout-button" class="w-full mt-6 py-4 px-6 bg-green-600 hover:bg-green-700 text-white font-bold text-lg rounded-xl shadow-lg transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-green-600 focus:ring-opacity-50" style="display: none;">
-                Pesan Sekarang via WhatsApp
-            </button>
-        </div>
+        </main>
         
         <hr class="my-10 border-t border-gray-700">
-
+        <section>
+            <h2 class="text-2xl font-bold text-gray-200 mb-4">Keranjang Anda</h2>
+            <div id="cart-items" class="space-y-4 mb-4"><p id="empty-cart-message" class="text-gray-500 italic text-center p-4">Keranjang masih kosong.</p></div>
+            <div class="flex justify-between items-center font-bold text-xl text-gray-200 border-t border-gray-700 pt-4"><span>Total:</span><span id="cart-total">Rp0</span></div>
+            <button id="checkout-button" class="w-full mt-6 py-4 px-6 bg-green-600 hover:bg-green-700 text-white font-bold text-lg rounded-xl hidden">Pesan Sekarang via WhatsApp</button>
+        </section>
+        <hr class="my-10 border-t border-gray-700">
         <section id="suggestion-form-section" class="mb-8 p-6 bg-gray-900 rounded-lg">
             <h2 class="text-2xl font-bold text-gray-200 mb-4">Saran Barang & Estimasi Harga</h2>
-            <p class="text-gray-400 mb-4 text-sm">Punya saran barang lain yang ingin Anda titipkan? Sampaikan di sini!</p>
-            <div class="flex flex-col space-y-4">
-                <input type="text" id="suggestion-item-name" placeholder="Nama Barang (contoh: Kopi Arabika Gayo)" class="bg-gray-700 text-gray-200 border border-gray-600 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-amber-500">
-                <input type="number" id="suggestion-item-price" placeholder="Harga perkiraan (contoh: 50000)" class="bg-gray-700 text-gray-200 border border-gray-600 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-amber-500">
-                <button id="send-suggestion-btn" class="golden-btn w-full py-3 font-bold rounded-lg transition-colors duration-200">
-                    Kirim Saran via WhatsApp
-                </button>
-            </div>
+            <p class="text-sm text-gray-400 mb-4">Anda bisa juga memesan barang yang tidak ada di list produk dan mengkonfirmasinya lewat WhatsApp.</p>
+            <div class="flex flex-col space-y-4"><input type="text" id="suggestion-item-name" placeholder="Nama Barang" class="bg-gray-700 rounded-lg p-3"><input type="number" id="suggestion-item-price" placeholder="Harga perkiraan" class="bg-gray-700 rounded-lg p-3"><button id="send-suggestion-btn" class="golden-btn w-full py-3 font-bold rounded-lg">Kirim Saran via WhatsApp</button></div>
         </section>
-
         <hr class="my-10 border-t border-gray-700">
-
         <section id="testimonial-section" class="mb-8 scroll-mt-20">
             <h2 class="text-2xl font-bold text-gray-200 mb-4">Testimoni</h2>
-            <div id="testimonial-grid" class="testimonial-grid p-4 bg-gray-900 rounded-lg">
-                </div>
+            <div id="testimonial-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 p-4 bg-gray-900 rounded-lg"></div>
             <p id="testimonial-loading-message" class="text-center text-gray-500 mt-4">Memuat testimoni...</p>
         </section>
-        
-        <div id="confirmation-modal" class="modal-overlay hidden">
-            <div class="modal-container">
-                <div class="flex justify-between items-center mb-4">
-                    <h3 id="modal-title" class="text-lg font-semibold text-gray-200">Konfirmasi</h3>
-                    <button id="close-confirmation-modal-btn" class="text-gray-400 hover:text-gray-200 focus:outline-none">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-                    </button>
-                </div>
-                <p id="modal-message" class="text-gray-400 mb-6">Apakah Anda yakin ingin menambahkan produk ini?</p>
-                <div id="modal-actions" class="flex justify-center space-x-4">
-                    <button id="yes-btn" class="py-2 px-6 bg-green-500 hover:bg-green-600 text-white font-bold rounded-lg transition-colors">Ya</button>
-                    <button id="no-btn" class="py-2 px-6 bg-gray-600 hover:bg-gray-500 text-gray-200 font-bold rounded-lg transition-colors">Tidak</button>
-                </div>
+        <footer class="mt-8 text-center text-gray-500 text-sm"><p>Copyright &copy; by Arunika Shop 2025</p></footer>
+    </div>
+    
+    <!-- --- Modals --- -->
+    <div id="how-to-order-modal" class="modal-overlay">
+        <div class="modal-container">
+            <div class="flex justify-between items-center mb-6"><h3 class="text-xl font-bold text-amber-400">Cara Pesan</h3><button class="close-modal text-gray-500 text-2xl hover:text-white">&times;</button></div>
+            <div class="text-left text-gray-300 space-y-4">
+                <div class="flex items-start gap-3"><div class="flex-shrink-0 w-6 h-6 flex items-center justify-center bg-amber-500/20 text-amber-400 rounded-full font-bold text-sm">1</div><p>Pilih produk & ukuran.</p></div>
+                <div class="flex items-start gap-3"><div class="flex-shrink-0 w-6 h-6 flex items-center justify-center bg-amber-500/20 text-amber-400 rounded-full font-bold text-sm">2</div><p>Klik tombol "+ Tambah".</p></div>
+                <div class="flex items-start gap-3"><div class="flex-shrink-0 w-6 h-6 flex items-center justify-center bg-amber-500/20 text-amber-400 rounded-full font-bold text-sm">3</div><p>Klik "Pesan Sekarang Via WhatsApp".</p></div>
+                <div class="flex items-start gap-3"><div class="flex-shrink-0 w-6 h-6 flex items-center justify-center bg-amber-500/20 text-amber-400 rounded-full font-bold text-sm">4</div><p>Pesan otomatis terisi, tinggal kirim.</p></div>
             </div>
+            <div class="mt-8"><button class="close-modal w-full py-2 px-6 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-lg">Mengerti</button></div>
         </div>
+    </div>
 
-        <div id="how-to-order-modal" class="modal-overlay hidden">
-            <div class="modal-container">
-                <div class="flex justify-between items-center mb-4">
-                    <h3 class="text-lg font-semibold text-gray-200">Cara Pesan</h3>
-                    <button id="close-how-to-order-modal-btn" class="text-gray-400 hover:text-gray-200 focus:outline-none">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-                    </button>
-                </div>
-                <div class="text-left text-gray-400">
-                    <p class="mb-2 text-sm font-medium">Langkah-langkah mudah untuk memesan:</p>
-                    <ol class="list-decimal list-inside space-y-1 text-sm">
-                        <li>Pilih produk & ukuran.</li>
-                        <li>Klik "+ 𝙏𝙖𝙢𝙗𝙖𝙝" untuk menambahkannya ke keranjang.</li>
-                        <li>Selesai belanja, klik "𝙋𝙚𝙨𝙖𝙣 𝙎𝙚𝙠𝙖𝙧𝙖𝙣𝙜 𝙑𝙞𝙖 𝙒𝙝𝙖𝙩𝙨𝙖𝙥𝙥".</li>
-                        <li>Pesan pesanan Anda sudah terisi otomatis, tinggal kirim.</li>
-                    </ol>
-                </div>
-                <div class="mt-6">
-                    <button id="ok-how-to-order-btn" class="py-2 px-6 bg-blue-500 hover:bg-blue-600 text-white font-bold rounded-lg transition-colors">Ok</button>
-                </div>
+    <div id="best-seller-info-modal" class="modal-overlay">
+        <div class="modal-container">
+            <div class="flex justify-between items-center mb-6"><h3 class="text-xl font-bold text-amber-400">Info Best Seller</h3><button class="close-modal text-gray-500 text-2xl hover:text-white">&times;</button></div>
+            <div class="text-center text-gray-300 space-y-4">
+                <p>Produk dengan label nama keemasan seperti ini adalah produk favorit pelanggan kami.</p>
+                <div class="flex justify-center p-4 bg-gray-900 rounded-lg"><h3 class="font-semibold product-name-best-seller px-4 py-1">Nama Produk Terlaris</h3></div>
             </div>
+            <div class="mt-8"><button class="close-modal w-full py-2 px-6 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-lg">Ok, Paham</button></div>
         </div>
+    </div>
 
-        <div id="best-seller-info-modal" class="modal-overlay hidden">
-            <div class="modal-container">
-                <div class="flex justify-between items-center mb-4">
-                    <h3 class="text-lg font-semibold text-gray-200">Info Best Seller</h3>
-                    <button id="close-best-seller-info-modal-btn" class="text-gray-400 hover:text-gray-200 focus:outline-none">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-                    </button>
-                </div>
-                <div class="text-left text-gray-400">
-                    <p class="mb-4 text-sm">Produk dengan nama yang diberi warna seperti ini:</p>
-                    <div class="flex items-center justify-center mb-4">
-                        <h3 class="font-semibold text-sm product-name-best-seller px-4 py-1">Nama Produk</h3>
-                    </div>
-                    <p class="text-sm">menandakan bahwa produk tersebut adalah "𝙋𝙧𝙤𝙙𝙪𝙠 𝙏𝙚𝙧𝙡𝙖𝙧𝙞𝙨" kami.</p>
-                </div>
-                <div class="mt-6">
-                    <button id="ok-best-seller-info-btn" class="py-2 px-6 bg-blue-500 hover:bg-blue-600 text-white font-bold rounded-lg transition-colors">Ok</button>
-                </div>
-            </div>
+    <div id="category-modal" class="modal-overlay">
+        <div class="modal-container">
+            <div class="flex justify-between items-center mb-6"><h3 class="text-xl font-bold text-amber-400">Pilih Kategori</h3><button class="close-modal text-gray-500 text-2xl hover:text-white">&times;</button></div>
+            <div id="category-modal-list" class="space-y-2 max-h-[60vh] overflow-y-auto pr-2"></div>
         </div>
+    </div>
 
-        <div id="image-modal" class="modal-overlay hidden">
-            <div class="relative max-w-4xl p-4">
-                <button id="close-image-modal-btn" class="absolute top-2 right-2 text-white bg-gray-900 bg-opacity-50 hover:bg-opacity-75 rounded-full p-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-                </button>
-                <img id="full-image" class="modal-image" src="" alt="Gambar Testimoni Penuh">
+    <div id="image-modal" class="modal-overlay">
+        <div class="relative max-w-4xl p-4 w-full h-full flex items-center justify-center">
+            <button class="close-modal absolute top-4 right-4 text-white bg-black bg-opacity-50 rounded-full p-2 leading-none z-10">&times;</button>
+            <img id="full-image" class="max-w-full max-h-full object-contain" src="" alt="Testimoni">
+        </div>
+    </div>
+
+    <!-- PENAMBAHAN: Modal baru untuk konfirmasi tambah barang -->
+    <div id="confirmation-modal" class="modal-overlay">
+        <div class="modal-container text-center">
+            <h3 class="text-xl font-bold text-amber-400 mb-4">Konfirmasi</h3>
+            <p id="confirmation-message" class="text-gray-300 mb-6"></p>
+            <div class="flex justify-center gap-4">
+                <button id="cancel-add-btn" class="w-full py-2 px-6 bg-gray-600 hover:bg-gray-500 text-white font-bold rounded-lg">Batal</button>
+                <button id="confirm-add-btn" class="w-full py-2 px-6 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-lg">Ya, Tambahkan</button>
             </div>
         </div>
     </div>
-    <footer class="mt-8 text-center text-gray-500 text-sm">
-        <p>Copyright &copy; by Arunika Shop 2025</p>
-    </footer>
+
+    <div id="toast-notification">
+        <p id="toast-message"></p>
+    </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, onSnapshot, query, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // Firebase Config Anda
-        const firebaseConfig = {
-            apiKey: "AIzaSyAdYbsk_p1mIvf7NXd2cLaQAFBP2mrxtuI",
-            authDomain: "jastip-arunika.firebaseapp.com",
-            projectId: "jastip-arunika",
-            storageBucket: "jastip-arunika.appspot.com",
-            messagingSenderId: "272195022487",
-            appId: "1:272195022487:web:f9b3cfe42170c5bd6983d2"
-        };
-        
+        const firebaseConfig = { apiKey: "AIzaSyAdYbsk_p1mIvf7NXd2cLaQAFBP2mrxtuI", authDomain: "jastip-arunika.firebaseapp.com", projectId: "jastip-arunika", storageBucket: "jastip-arunika.appspot.com", messagingSenderId: "272195022487", appId: "1:272195022487:web:f9b3cfe42170c5bd6983d2" };
         const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
         const db = getFirestore(app);
         
-        let products = {
-            kopi: { arabika: [], robusta: [] },
-            makanan: [],
-            minuman: []
-        };
+        const tabContentContainer = document.getElementById('tab-content'), cartItemsDiv = document.getElementById('cart-items'), cartTotalSpan = document.getElementById('cart-total'), emptyCartMessage = document.getElementById('empty-cart-message'), checkoutButton = document.getElementById('checkout-button'), testimonialGrid = document.getElementById('testimonial-grid'), testimonialLoadingMessage = document.getElementById('testimonial-loading-message'), sendSuggestionBtn = document.getElementById('send-suggestion-btn'), howToOrderBtn = document.getElementById('how-to-order-btn'), bestSellerInfoBtn = document.getElementById('best-seller-info-btn'), testimonialBtn = document.getElementById('testimonial-btn');
+        const howToOrderModal=document.getElementById('how-to-order-modal'),bestSellerInfoModal=document.getElementById('best-seller-info-modal'),imageModal=document.getElementById('image-modal');
+        const categorySelectorBtn = document.getElementById('category-selector-btn'), categorySelectorText = document.getElementById('category-selector-text'), categoryModal = document.getElementById('category-modal'), categoryModalList = document.getElementById('category-modal-list');
+        const toastNotification = document.getElementById('toast-notification'), toastMessage = document.getElementById('toast-message');
         
-        let testimonials = [];
+        // PENAMBAHAN: DOM element untuk modal konfirmasi
+        const confirmationModal = document.getElementById('confirmation-modal');
+        const confirmationMessage = document.getElementById('confirmation-message');
+        const confirmAddBtn = document.getElementById('confirm-add-btn');
+        const cancelAddBtn = document.getElementById('cancel-add-btn');
 
-        const whatsappNumber = '6285640312607';
-        const titipFee = 25000;
+        let allProducts = [], allCategories = [], cart = {}, itemToConfirm = null;
+        const titipFee = 25000, whatsappNumber = '6285640312607';
 
-        const arabikaListDiv = document.getElementById('arabika-list');
-        const robustaListDiv = document.getElementById('robusta-list');
-        const makananListDiv = document.getElementById('makanan-list');
-        const minumanListDiv = document.getElementById('minuman-list');
-        const cartItemsDiv = document.getElementById('cart-items');
-        const cartTotalSpan = document.getElementById('cart-total');
-        const checkoutButton = document.getElementById('checkout-button');
-        const emptyCartMessage = document.getElementById('empty-cart-message');
-        const gridViewBtn = document.getElementById('grid-view-btn');
-        const listViewBtn = document.getElementById('list-view-btn');
-        const howToOrderBtn = document.getElementById('how-to-order-btn');
-        const bestSellerInfoBtn = document.getElementById('best-seller-info-btn');
-        const testimonialBtn = document.getElementById('testimonial-btn');
-        const testimonialGrid = document.getElementById('testimonial-grid');
-        const imageModal = document.getElementById('image-modal');
-        const closeImageModalBtn = document.getElementById('close-image-modal-btn');
-        const fullImage = document.getElementById('full-image');
-        const suggestionItemNameInput = document.getElementById('suggestion-item-name');
-        const suggestionItemPriceInput = document.getElementById('suggestion-item-price');
-        const sendSuggestionBtn = document.getElementById('send-suggestion-btn');
-        const searchInput = document.getElementById('search-input');
-        const mainTabs = document.getElementById('main-tabs');
-        const tabContent = document.getElementById('tab-content');
-        const searchResultsContainer = document.getElementById('search-results-container');
-        const searchResultsList = document.getElementById('search-results-list');
-        const searchResultsMessage = document.getElementById('search-results-message');
-        const loadingMessage = document.getElementById('loading-message');
-        const testimonialLoadingMessage = document.getElementById('testimonial-loading-message');
+        let toastTimeout;
+        function showToast(message) {
+            clearTimeout(toastTimeout);
+            toastMessage.textContent = message;
+            toastNotification.classList.add('show');
+            toastTimeout = setTimeout(() => {
+                toastNotification.classList.remove('show');
+            }, 3000);
+        }
 
-        let cart = {};
-        
-        // --- JAVASCRIPT LOGIC (Unchanged from original, but with updated WhatsApp messages) ---
-        // The core logic for Jastip products, cart, and modals remains the same.
-        // Only the WhatsApp message content is updated.
-
-        checkoutButton.addEventListener('click', () => {
-            let orderDetails = 'Halo Arunika Shop, saya ingin memesan Jastip berikut:\n\n';
-            let total = 0;
-            let hasItems = false;
-            for (const id in cart) {
-                hasItems = true;
-                const item = cart[id];
-                const subtotal = item.price * item.quantity;
-                orderDetails += `${item.quantity}x ${item.name} (Rp${item.price.toLocaleString('id-ID')}/item) = Rp${subtotal.toLocaleString('id-ID')}\n`;
-                total += subtotal;
-            }
-            
-            if (hasItems) {
-                total += titipFee;
-                orderDetails += `\nBiaya Jasa Titip: Rp${titipFee.toLocaleString('id-ID')}\n`;
-            }
-
-            orderDetails += `\nTotal Pembayaran: Rp${total.toLocaleString('id-ID')}\n\nMohon konfirmasinya. Terima kasih!`;
-
-            const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(orderDetails)}`;
-            window.open(whatsappUrl, '_blank');
-        });
-
-        sendSuggestionBtn.addEventListener('click', () => {
-            const itemName = suggestionItemNameInput.value;
-            const itemPrice = suggestionItemPriceInput.value;
-            let message = `Halo Arunika Shop, saya punya saran barang untuk Jastip:\n\n`;
-
-            if (itemName) {
-                message += `Nama Barang: ${itemName}\n`;
-            }
-            if (itemPrice) {
-                message += `Estimasi Harga: Rp${new Intl.NumberFormat('id-ID').format(itemPrice)}\n`;
-            }
-            
-            if (itemName || itemPrice) {
-                const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
-                window.open(whatsappUrl, '_blank');
-                suggestionItemNameInput.value = '';
-                suggestionItemPriceInput.value = '';
-            } else {
-                showInfoModal('Info', 'Harap isi nama barang atau estimasi harga terlebih dahulu.');
-            }
-        });
-        
-        // --- All other functions (listenForProducts, createProductCard, renderCart, etc.) remain exactly the same as your original file ---
-        // (For brevity, the large block of unchanged JavaScript is omitted here, but it should be copied from your original file)
-        function listenForProducts() {
-            const productsCollectionRef = collection(db, 'products');
-            onSnapshot(productsCollectionRef, (snapshot) => {
-                const fetchedProducts = {
-                    kopi: { arabika: [], robusta: [] },
-                    makanan: [],
-                    minuman: []
-                };
-                snapshot.docs.forEach(doc => {
-                    const data = { id: doc.id, ...doc.data() };
-                    const category = data.category ? data.category.toLowerCase() : 'lain-lain';
-                    const subCategory = data.subCategory ? data.subCategory.toLowerCase() : null;
-                    if (category === 'kopi' && subCategory) {
-                        fetchedProducts[category][subCategory].push(data);
-                    } else if (category === 'makanan') {
-                        fetchedProducts[category].push(data);
-                    } else if (category === 'minuman') {
-                        fetchedProducts[category].push(data);
-                    }
-                });
-                fetchedProducts.kopi.arabika.sort((a, b) => a.name.localeCompare(b.name));
-                fetchedProducts.kopi.robusta.sort((a, b) => a.name.localeCompare(b.name));
-                fetchedProducts.makanan.sort((a, b) => a.name.localeCompare(b.name));
-                fetchedProducts.minuman.sort((a, b) => a.name.localeCompare(b.name));
-                products = fetchedProducts;
-                loadingMessage.classList.add('hidden');
-                console.log("Products loaded from Firestore:", products);
-                updateUI();
-            }, (error) => {
-                console.error("Error fetching products:", error);
-                loadingMessage.textContent = 'Gagal memuat produk. Silakan coba lagi nanti.';
+        function activateCategory(categoryName) {
+            categorySelectorText.textContent = categoryName;
+            document.querySelectorAll('.category-modal-item').forEach(item => {
+                const checkIcon = item.querySelector('svg');
+                item.classList.toggle('active', item.dataset.category === categoryName);
+                if (checkIcon) checkIcon.classList.toggle('hidden', item.dataset.category !== categoryName);
             });
+            document.querySelectorAll('.tab-pane').forEach(pane => pane.classList.add('hidden'));
+            const targetId = `content-${categoryName.toLowerCase().replace(/\s/g, '-')}`;
+            document.getElementById(targetId)?.classList.remove('hidden');
         }
-        function listenForTestimonials() {
-            const testimonialsCollectionRef = collection(db, 'testimonials');
-            onSnapshot(testimonialsCollectionRef, (snapshot) => {
-                testimonials = [];
-                snapshot.docs.forEach(doc => {
-                    testimonials.push({ id: doc.id, ...doc.data() });
-                });
-                testimonialLoadingMessage.classList.add('hidden');
-                console.log("Testimonials loaded from Firestore:", testimonials);
-                renderTestimonials();
-            }, (error) => {
-                console.error("Error fetching testimonials:", error);
-                testimonialLoadingMessage.textContent = 'Gagal memuat testimoni.';
-            });
-        }
-        function updateUI() {
-            const searchQuery = searchInput.value.trim();
-            if (searchQuery.length > 0) {
-                filterProducts(searchQuery);
-            } else {
-                const activeTab = document.querySelector('.tab-btn.active');
-                const category = activeTab ? activeTab.id.split('-')[1] : 'kopi';
-                let subCategory = null;
-                if (category === 'kopi') {
-                    const activeSubTab = document.querySelector('#content-kopi .sub-tab-btn.active');
-                    subCategory = activeSubTab ? activeSubTab.id.split('-')[2] : 'arabika';
-                }
-                renderProducts(category, subCategory);
-            }
-        }
-        listenForProducts();
-        listenForTestimonials();
-        function showConfirmationModal(productName, productId, selectedOptionId = null) {
-            const modal = document.getElementById('confirmation-modal');
-            const modalMessage = document.getElementById('modal-message');
-            const yesBtn = document.getElementById('yes-btn');
-            const noBtn = document.getElementById('no-btn');
-            let fullProductName = productName;
-            const allProducts = Object.values(products).flatMap(cat => Array.isArray(cat) ? cat : Object.values(cat).flatMap(subCat => subCat));
-            const product = allProducts.find(p => p.id === productId);
-            if (selectedOptionId && product && product.options) {
-                const option = product.options.find(o => `${product.id}-${o.id}` === selectedOptionId);
-                fullProductName = `${productName} (${option.name})`;
-            }
-            modalMessage.innerHTML = `Apakah Anda yakin ingin menambahkan <strong>${fullProductName}</strong> ke keranjang?`;
-            yesBtn.onclick = () => {
-                if (selectedOptionId) {
-                    addItemToCart(productId, selectedOptionId);
+
+        function renderUI(categories, products) {
+            tabContentContainer.innerHTML = '';
+            categoryModalList.innerHTML = '';
+            categories.forEach(cat => {
+                const catId = cat.name.toLowerCase().replace(/\s/g, '-');
+                const pane = document.createElement('div');
+                pane.id = `content-${catId}`;
+                pane.className = 'tab-pane hidden';
+                const productsForCat = products.filter(p => p.category === cat.name);
+                
+                if (cat.hasSubtabs) {
+                    const arabikaProducts = productsForCat.filter(p => p.subCategory === "Arabika");
+                    const robustaProducts = productsForCat.filter(p => p.subCategory === "Robusta");
+                    pane.innerHTML = `<div class="flex space-x-2 mb-4 p-1 bg-gray-900 rounded-xl"><button class="sub-tab-btn active w-full py-2 rounded-lg" data-subcat="arabika">Arabika</button><button class="sub-tab-btn w-full py-2 rounded-lg" data-subcat="robusta">Robusta</button></div><div><section id="content-${catId}-arabika"><h2 class="text-2xl font-bold mb-4">Arabika</h2><div id="${catId}-arabika-list" class="product-list grid grid-cols-2 lg:grid-cols-3 gap-4"></div></section><section id="content-${catId}-robusta" class="hidden"><h2 class="text-2xl font-bold mb-4">Robusta</h2><div id="${catId}-robusta-list" class="product-list grid grid-cols-2 lg:grid-cols-3 gap-4"></div></section></div>`;
+                    tabContentContainer.appendChild(pane);
+                    renderProducts(arabikaProducts, document.getElementById(`${catId}-arabika-list`));
+                    renderProducts(robustaProducts, document.getElementById(`${catId}-robusta-list`));
                 } else {
-                    addItemToCart(productId);
-                }
-                modalMessage.innerHTML = `<strong>${fullProductName}</strong> berhasil ditambahkan ke keranjang!`;
-                yesBtn.classList.add('hidden');
-                noBtn.textContent = 'Ok';
-                noBtn.onclick = () => {
-                    modal.classList.add('hidden');
-                    resetConfirmationModal();
-                };
-            };
-            noBtn.onclick = () => {
-                modal.classList.add('hidden');
-                resetConfirmationModal();
-            };
-            modal.classList.remove('hidden');
-        }
-        function resetConfirmationModal() {
-            const modal = document.getElementById('confirmation-modal');
-            const yesBtn = document.getElementById('yes-btn');
-            const noBtn = document.getElementById('no-btn');
-            yesBtn.classList.remove('hidden');
-            noBtn.textContent = 'Tidak';
-            yesBtn.onclick = null;
-            noBtn.onclick = null;
-            modal.classList.add('hidden');
-        }
-        function showHowToOrderModal() {
-            const modal = document.getElementById('how-to-order-modal');
-            modal.classList.remove('hidden');
-        }
-        function showBestSellerInfoModal() {
-            const modal = document.getElementById('best-seller-info-modal');
-            modal.classList.remove('hidden');
-        }
-        document.getElementById('close-confirmation-modal-btn').addEventListener('click', resetConfirmationModal);
-        document.getElementById('close-how-to-order-modal-btn').addEventListener('click', () => {
-            document.getElementById('how-to-order-modal').classList.add('hidden');
-        });
-        document.getElementById('ok-how-to-order-btn').addEventListener('click', () => {
-            document.getElementById('how-to-order-modal').classList.add('hidden');
-        });
-        document.getElementById('close-best-seller-info-modal-btn').addEventListener('click', () => {
-            document.getElementById('best-seller-info-modal').classList.add('hidden');
-        });
-        document.getElementById('ok-best-seller-info-btn').addEventListener('click', () => {
-            document.getElementById('best-seller-info-modal').classList.add('hidden');
-        });
-        function getCategorySymbol(category) {
-            switch(category) {
-                case 'Kopi': return '☕';
-                case 'Makanan': return '🍔';
-                case 'Minuman': return '🥤';
-                default: return '';
-            }
-        }
-        function createProductCard(product) {
-            const productElement = document.createElement('div');
-            productElement.className = 'product-card bg-gray-700 rounded-xl shadow-md border border-gray-600 text-center';
-            let productNameClass = '';
-            if (product.isBestSeller) {
-                productNameClass = 'product-name-best-seller';
-            }
-            let productActionsHtml = '';
-            if (product.options && product.options.length > 0) {
-                let optionsHtml = product.options.map(option =>
-                    `<option value="${product.id}-${option.id}">${option.name} - Rp${option.price.toLocaleString('id-ID')}</option>`
-                ).join('');
-                productActionsHtml = `
-                    <div class="product-actions-container flex flex-col md:flex-row items-center gap-2 w-full mt-2">
-                        <select id="select-${product.id}" class="w-full text-sm bg-gray-600 border-gray-500 text-gray-200 rounded-lg p-2 focus:ring-amber-500 focus:border-amber-500">
-                            ${optionsHtml}
-                        </select>
-                        <button data-id="${product.id}" class="add-to-cart-btn-multi flex-shrink-0 bg-amber-600 hover:bg-amber-700 text-white font-bold py-2 px-4 text-sm rounded-full transition-colors duration-200 shadow-md">
-                            + Tambah
-                        </button>
-                    </div>
-                `;
-            } else {
-                const priceHtml = product.price ? `<p class="text-amber-500 font-bold text-xs sm:text-sm">Rp${product.price.toLocaleString('id-ID')}</p>` : '';
-                const shopeeBtnHtml = product.shopeeLink ? `<a href="${product.shopeeLink}" target="_blank" class="shopee-btn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shopping-bag"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4H6z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>Beli di Shopee</a>` : '';
-                productActionsHtml = `
-                    <div class="product-actions-container flex flex-col items-center gap-2 w-full mt-2">
-                        ${priceHtml}
-                        <button data-id="${product.id}" class="add-to-cart-btn-single flex-shrink-0 bg-amber-600 hover:bg-amber-700 text-white font-bold py-2 px-4 text-sm rounded-full transition-colors duration-200 shadow-md">
-                            + Tambah
-                        </button>
-                        ${shopeeBtnHtml}
-                    </div>
-                `;
-            }
-            productElement.innerHTML = `
-                <div class="relative w-full flex flex-col items-center">
-                    <div class="icon-container mb-2 text-2xl text-amber-500">
-                        ${getCategorySymbol(product.category)}
-                    </div>
-                    <div class="product-info flex-1 w-full truncate mb-2">
-                        <h3 class="font-semibold text-sm sm:text-base text-gray-200 truncate ${productNameClass}">${product.name}</h3>
-                    </div>
-                </div>
-                <div class="product-actions-wrapper w-full">
-                    ${productActionsHtml}
-                </div>
-            `;
-            return productElement;
-        }
-        function renderProducts(category, subCategory = null) {
-            arabikaListDiv.innerHTML = '';
-            robustaListDiv.innerHTML = '';
-            makananListDiv.innerHTML = '';
-            minumanListDiv.innerHTML = '';
-            const productsToRender = [];
-            if (category === 'kopi') {
-                if (subCategory === 'arabika') {
-                    productsToRender.push(...products.kopi.arabika);
-                } else if (subCategory === 'robusta') {
-                    productsToRender.push(...products.kopi.robusta);
-                }
-            } else if (category === 'makanan') {
-                productsToRender.push(...products.makanan);
-            } else if (category === 'minuman') {
-                productsToRender.push(...products.minuman);
-            }
-            productsToRender.forEach(product => {
-                const productCard = createProductCard(product);
-                if (category === 'kopi' && subCategory === 'arabika') {
-                    arabikaListDiv.appendChild(productCard);
-                } else if (category === 'kopi' && subCategory === 'robusta') {
-                    robustaListDiv.appendChild(productCard);
-                } else if (category === 'makanan') {
-                    makananListDiv.appendChild(productCard);
-                } else if (category === 'minuman') {
-                    minumanListDiv.appendChild(productCard);
+                    pane.innerHTML = `<section><h2 class="text-2xl font-bold mb-4">${cat.name}</h2><div id="${catId}-list" class="product-list grid grid-cols-2 lg:grid-cols-3 gap-4"></div></section>`;
+                    tabContentContainer.appendChild(pane);
+                    renderProducts(productsForCat, document.getElementById(`${catId}-list`));
                 }
             });
-            const activeView = document.querySelector('.product-list.list-view') ? 'list' : 'grid';
-            setView(activeView);
-        }
-        function filterProducts(query) {
-            const lowerCaseQuery = query.toLowerCase();
-            mainTabs.classList.add('hidden');
-            tabContent.classList.add('hidden');
-            searchResultsContainer.classList.remove('hidden');
-            searchResultsList.innerHTML = '';
-            const allProducts = Object.values(products).flatMap(cat => Array.isArray(cat) ? cat : Object.values(cat).flatMap(subCat => subCat));
-            const filteredProducts = allProducts.filter(product => {
-                const productName = product.name.toLowerCase();
-                return productName.includes(lowerCaseQuery);
-            });
-            filteredProducts.sort((a, b) => a.name.localeCompare(b.name));
-            if (filteredProducts.length > 0) {
-                searchResultsMessage.textContent = `${filteredProducts.length} produk ditemukan.`;
-                searchResultsMessage.classList.remove('hidden');
-                filteredProducts.forEach(product => {
-                    searchResultsList.appendChild(createProductCard(product));
+            
+            categories.forEach(cat => {
+                const item = document.createElement('button');
+                item.className = 'category-modal-item';
+                item.dataset.category = cat.name;
+                item.innerHTML = `<span>${cat.name}</span> <svg class="w-5 h-5 hidden" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" /></svg>`;
+                item.addEventListener('click', () => {
+                    activateCategory(cat.name);
+                    hideModal(categoryModal);
                 });
+                categoryModalList.appendChild(item);
+            });
+
+            if (categories.length > 0) {
+                activateCategory(categories[0].name);
             } else {
-                searchResultsMessage.textContent = `Tidak ada produk yang cocok dengan pencarian Anda.`;
-                searchResultsMessage.classList.remove('hidden');
+                categorySelectorText.textContent = "Belum ada kategori";
             }
-            setView(document.querySelector('.product-list.list-view') ? 'list' : 'grid');
+            addTabEventListeners();
         }
-        function renderCart() {
-            cartItemsDiv.innerHTML = '';
-            let total = 0;
-            let hasItems = false;
-            for (const id in cart) {
-                hasItems = true;
-                const item = cart[id];
-                total += item.price * item.quantity;
-                const cartItemElement = document.createElement('div');
-                cartItemElement.className = 'flex justify-between items-center p-3 bg-gray-700 rounded-lg shadow-sm';
-                cartItemElement.innerHTML = `
-                    <div class="flex items-center space-x-3">
-                        <button data-id="${id}" class="remove-from-cart-btn bg-red-500 hover:bg-red-600 text-white w-6 h-6 rounded-full text-sm font-bold flex items-center justify-center">-</button>
-                        <span>${item.quantity}x ${item.name}</span>
-                    </div>
-                    <span class="font-semibold text-amber-500">Rp${(item.price * item.quantity).toLocaleString('id-ID')}</span>
-                `;
-                cartItemsDiv.appendChild(cartItemElement);
-            }
-            if (hasItems) {
-                total += titipFee;
-                const titipFeeElement = document.createElement('div');
-                titipFeeElement.className = 'flex justify-between items-center p-3 bg-gray-700 rounded-lg shadow-sm font-bold text-gray-200';
-                titipFeeElement.innerHTML = `
-                    <span>Jasa Titip:</span>
-                    <span class="text-amber-500">Rp${titipFee.toLocaleString('id-ID')}</span>
-                `;
-                cartItemsDiv.appendChild(titipFeeElement);
-            }
-            if (hasItems) {
-                emptyCartMessage.style.display = 'none';
-                checkoutButton.style.display = 'block';
+
+        function renderProducts(products, container) {
+            if (!container) return;
+            container.innerHTML = '';
+            products.forEach(p => container.appendChild(createProductCard(p)));
+        }
+
+        function createProductCard(product) {
+            const el = document.createElement('div'); el.className = 'product-card bg-gray-700 rounded-xl shadow-md border border-gray-600';
+            const isBestSellerClass = product.isBestSeller ? 'product-name-best-seller' : ''; let actionsHtml = '';
+            if (product.options && product.options.length > 0) {
+                const options = product.options.map(o => `<option value="${product.id}-${o.id}">${o.name} - Rp${o.price.toLocaleString('id-ID')}</option>`).join('');
+                actionsHtml = `<div class="product-actions-container"><select id="select-${product.id}" class="w-full text-sm bg-gray-600 rounded-lg p-2">${options}</select><button data-id="${product.id}" class="add-to-cart-btn-multi bg-amber-600 hover:bg-amber-700 text-white font-bold py-2 px-4 text-sm rounded-full mt-2 w-full">+ Tambah</button></div>`;
             } else {
-                emptyCartMessage.style.display = 'block';
-                checkoutButton.style.display = 'none';
+                const price = product.price ? `<p class="text-amber-500 font-bold text-sm">Rp${product.price.toLocaleString('id-ID')}</p>` : '';
+                const shopee = product.shopeeLink ? `<a href="${product.shopeeLink}" target="_blank" class="shopee-btn">Beli di Shopee</a>` : '';
+                actionsHtml = `<div class="product-actions-container">${price}<button data-id="${product.id}" class="add-to-cart-btn-single bg-amber-600 hover:bg-amber-700 text-white font-bold py-2 px-4 text-sm rounded-full mt-2 w-full">+ Tambah</button>${shopee}</div>`;
             }
+            el.innerHTML = `<div class="relative w-full flex flex-col items-center"><div class="icon-container mb-2 text-2xl text-amber-500">🛍️</div><div class="product-info flex-1 w-full truncate mb-2 text-center"><h3 class="font-semibold text-base text-gray-200 truncate ${isBestSellerClass}">${product.name}</h3></div></div><div class="product-actions-wrapper w-full">${actionsHtml}</div>`;
+            return el;
+        }
+
+        function renderCart() {
+            cartItemsDiv.innerHTML = ''; let total = 0; let hasItems = Object.keys(cart).length > 0;
+            for (const id in cart) { const item = cart[id]; total += item.price * item.quantity; const el = document.createElement('div'); el.className = 'flex justify-between items-center p-3 bg-gray-700 rounded-lg'; el.innerHTML = `<div class="flex items-center space-x-3"><button data-id="${id}" class="remove-from-cart-btn bg-red-500 w-6 h-6 rounded-full">-</button><span>${item.quantity}x ${item.name}</span></div><span class="font-semibold text-amber-500">Rp${(item.price*item.quantity).toLocaleString('id-ID')}</span>`; cartItemsDiv.appendChild(el); }
+            if(hasItems){ total+=titipFee; const feeEl=document.createElement('div'); feeEl.className='flex justify-between items-center p-3 bg-gray-700 rounded-lg font-bold'; feeEl.innerHTML=`<span>Jasa Titip:</span><span class="text-amber-500">Rp${titipFee.toLocaleString('id-ID')}</span>`; cartItemsDiv.appendChild(feeEl); }
+            emptyCartMessage.style.display = hasItems ? 'none' : 'block';
+            checkoutButton.style.display = hasItems ? 'block' : 'none';
             cartTotalSpan.textContent = `Rp${total.toLocaleString('id-ID')}`;
         }
-        function addItemToCart(productId, selectedOptionId = null) {
-            const allProducts = Object.values(products).flatMap(cat => Array.isArray(cat) ? cat : Object.values(cat).flatMap(subCat => subCat));
-            let productWithVariants = allProducts.find(p => p.id === productId);
-            let itemToAdd;
-            let cartItemId;
-            if (productWithVariants.options && selectedOptionId) {
-                const option = productWithVariants.options.find(o => `${productWithVariants.id}-${o.id}` === selectedOptionId);
-                if (!option) return;
-                cartItemId = selectedOptionId;
-                itemToAdd = {
-                    id: cartItemId,
-                    name: `${productWithVariants.name} (${option.name})`,
-                    price: option.price
-                };
-            } else {
-                cartItemId = productId;
-                itemToAdd = productWithVariants;
+
+        // PENAMBAHAN: Fungsi untuk menangani proses penambahan item, dipisahkan agar bisa dipanggil setelah konfirmasi
+        function addItemToCart(itemInfo) {
+            const { productId, optionId } = itemInfo;
+            const product = allProducts.find(p => p.id === productId); if (!product) return;
+            let cartItemId, itemData;
+            if (optionId) { 
+                const option = product.options.find(o => `${product.id}-${o.id}` === optionId); 
+                if (!option) return; 
+                cartItemId = optionId; 
+                itemData = { id: cartItemId, name: `${product.name} (${option.name})`, price: option.price }; 
+            } else { 
+                cartItemId = productId; 
+                itemData = { id: cartItemId, name: product.name, price: product.price }; 
             }
-            if (cart[cartItemId]) {
-                cart[cartItemId].quantity++;
-            } else {
-                cart[cartItemId] = { ...itemToAdd, quantity: 1 };
-            }
+            cart[cartItemId] ? cart[cartItemId].quantity++ : cart[cartItemId] = { ...itemData, quantity: 1 };
             renderCart();
+            showToast(`${itemData.name} berhasil ditambahkan!`);
         }
-        document.addEventListener('click', (event) => {
-            const target = event.target;
-            if (target.classList.contains('add-to-cart-btn-multi')) {
-                const productId = target.dataset.id;
-                const selectElement = document.getElementById(`select-${productId}`);
-                const selectedOptionId = selectElement.value;
-                const allProducts = Object.values(products).flatMap(cat => Array.isArray(cat) ? cat : Object.values(cat).flatMap(subCat => subCat));
-                let product = allProducts.find(p => p.id === productId);
-                showConfirmationModal(product.name, productId, selectedOptionId);
-            } else if (target.classList.contains('add-to-cart-btn-single')) {
-                const productId = target.dataset.id;
-                const allProducts = Object.values(products).flatMap(cat => Array.isArray(cat) ? cat : Object.values(cat).flatMap(subCat => subCat));
-                let product = allProducts.find(p => p.id === productId);
-                showConfirmationModal(product.name, productId);
+        
+        function renderTestimonials(container) {
+            onSnapshot(query(collection(db, 'testimonials')), (snap) => {
+                container.innerHTML = ''; 
+                snap.docs.forEach(doc => {
+                    const t = { id: doc.id, ...doc.data() };
+                    const img = document.createElement('img');
+                    img.className = 'testimonial-img w-full h-auto object-cover aspect-square rounded-md';
+                    img.src = t.url;
+                    img.alt = `Testimoni`;
+                    img.addEventListener('click', () => {
+                        document.getElementById('full-image').src = t.url;
+                        showModal(imageModal);
+                    });
+                    container.appendChild(img);
+                });
+                testimonialLoadingMessage.classList.add('hidden');
+            });
+        }
+        
+        function addTabEventListeners() {
+            tabContentContainer.addEventListener('click', e => { if (e.target.matches('.sub-tab-btn')) { const p = e.target.closest('.flex'); p.querySelectorAll('.sub-tab-btn').forEach(b => b.classList.remove('active')); e.target.classList.add('active'); const pane = e.target.closest('.tab-pane'); const baseId = `content-${pane.id.split('-')[1]}`; pane.querySelectorAll('section').forEach(s => s.classList.add('hidden')); document.getElementById(`${baseId}-${e.target.dataset.subcat}`)?.classList.remove('hidden'); } });
+        }
+        
+        // PENAMBAHAN: Logika untuk membuka modal konfirmasi
+        function handleAddToCartClick(e) {
+            const button = e.target;
+            const isMulti = button.matches('.add-to-cart-btn-multi');
+            const productId = button.dataset.id;
+            const product = allProducts.find(p => p.id === productId);
+            if (!product) return;
+
+            let optionId = null;
+            let productName = product.name;
+
+            if (isMulti) {
+                const select = document.getElementById(`select-${productId}`);
+                optionId = select.value;
+                productName = `${product.name} (${select.options[select.selectedIndex].text.split(' - ')[0]})`;
+            }
+            
+            itemToConfirm = { productId, optionId };
+            confirmationMessage.innerHTML = `Ingin memasukkan <strong class="text-amber-400">${productName}</strong> ke keranjang?`;
+            showModal(confirmationModal);
+        }
+
+        tabContentContainer.addEventListener('click', e => {
+            if (e.target.matches('.add-to-cart-btn-multi') || e.target.matches('.add-to-cart-btn-single')) {
+                handleAddToCartClick(e);
             }
         });
-        cartItemsDiv.addEventListener('click', (event) => {
-            const target = event.target;
-            if (target.classList.contains('remove-from-cart-btn')) {
-                const productId = target.dataset.id;
-                if (cart[productId]) {
-                    if (cart[productId].quantity > 1) {
-                        cart[productId].quantity--;
-                    } else {
-                        delete cart[productId];
-                    }
+        
+        cartItemsDiv.addEventListener('click', e => {
+            if (e.target.matches('.remove-from-cart-btn')) {
+                const id = e.target.dataset.id;
+                if (cart[id]) { 
+                    cart[id].quantity > 1 ? cart[id].quantity-- : delete cart[id]; 
                 }
                 renderCart();
             }
         });
-        function showInfoModal(title, message) {
-            const modal = document.getElementById('confirmation-modal');
-            const modalTitle = document.getElementById('modal-title');
-            const modalMessage = document.getElementById('modal-message');
-            const yesBtn = document.getElementById('yes-btn');
-            const noBtn = document.getElementById('no-btn');
-            modalTitle.textContent = title;
-            modalMessage.textContent = message;
-            yesBtn.classList.add('hidden');
-            noBtn.textContent = 'Ok';
-            noBtn.onclick = () => {
-                modal.classList.add('hidden');
-                resetConfirmationModal();
-            };
-            modal.classList.remove('hidden');
-        }
-        function setView(view) {
-            const productLists = document.querySelectorAll('.product-list');
-            productLists.forEach(list => {
-                list.classList.remove('list-view', 'grid-view', 'flex', 'flex-col', 'space-y-4', 'grid', 'grid-cols-2', 'lg:grid-cols-3', 'gap-4');
-                if (view === 'grid') {
-                    list.classList.add('grid', 'grid-cols-2', 'lg:grid-cols-3', 'gap-4', 'grid-view');
-                } else if (view === 'list') {
-                    list.classList.add('flex', 'flex-col', 'space-y-4', 'list-view');
-                }
-            });
-        }
-        const tabButtons = document.querySelectorAll('.tab-btn');
-        const subTabButtons = document.querySelectorAll('.sub-tab-btn');
-        const tabPanes = document.querySelectorAll('.tab-pane');
-        const subTabPanes = document.querySelectorAll('.sub-tab-pane');
-        function activateCategoryTab(category) {
-            tabButtons.forEach(b => b.classList.remove('active'));
-            const targetTab = document.getElementById(`tab-${category}`);
-            if (targetTab) {
-                targetTab.classList.add('active');
-            }
-            tabPanes.forEach(p => p.classList.add('hidden'));
-            const targetPane = document.getElementById(`content-${category}`);
-            if (targetPane) {
-                targetPane.classList.remove('hidden');
-            }
-        }
-        tabButtons.forEach(btn => {
-            btn.addEventListener('click', () => {
-                searchInput.value = '';
-                searchResultsContainer.classList.add('hidden');
-                searchResultsMessage.classList.add('hidden');
-                mainTabs.classList.remove('hidden');
-                tabContent.classList.remove('hidden');
-                const category = btn.id.split('-')[1];
-                activateCategoryTab(category);
-                if (category === 'kopi') {
-                    document.getElementById('sub-tab-content').classList.remove('hidden');
-                    const activeSubTab = document.querySelector('#content-kopi .sub-tab-btn.active');
-                    const activeSubTabId = activeSubTab ? activeSubTab.id.split('-')[2] : 'arabika';
-                    renderProducts(category, activeSubTabId);
-                } else {
-                    document.getElementById('sub-tab-content').classList.add('hidden');
-                    renderProducts(category);
-                }
-            });
+        
+        checkoutButton.addEventListener('click', ()=>{ 
+            let orderDetails = 'Halo Arunika Shop, saya ingin memesan:\n\n'; 
+            let total = 0; 
+            Object.values(cart).forEach(item => { 
+                const subtotal = item.price*item.quantity; 
+                orderDetails += `${item.quantity}x ${item.name} = Rp${subtotal.toLocaleString('id-ID')}\n`; 
+                total += subtotal; 
+            }); 
+            total += titipFee; 
+            orderDetails += `\nBiaya Jasa Titip: Rp${titipFee.toLocaleString('id-ID')}\nTotal: Rp${total.toLocaleString('id-ID')}\n\nTerima kasih!`; 
+            window.open(`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(orderDetails)}`,'_blank'); 
         });
-        subTabButtons.forEach(btn => {
-            btn.addEventListener('click', () => {
-                subTabButtons.forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                subTabPanes.forEach(pane => pane.classList.add('hidden'));
-                const targetPaneId = btn.id.split('-')[2] + '-section';
-                document.getElementById(targetPaneId).classList.remove('hidden');
-                const subCategoryId = btn.id.split('-')[2];
-                renderProducts('kopi', subCategoryId);
-            });
-        });
-        searchInput.addEventListener('input', (event) => {
-            const query = event.target.value.trim();
-            if (query.length > 0) {
-                filterProducts(query);
-            } else {
-                searchResultsContainer.classList.add('hidden');
-                searchResultsMessage.classList.add('hidden');
-                mainTabs.classList.remove('hidden');
-                tabContent.classList.remove('hidden');
-                const activeTabId = document.querySelector('.tab-btn.active').id;
-                const category = activeTabId.split('-')[1];
-                let subCategory = null;
-                if (category === 'kopi') {
-                    const activeSubTab = document.querySelector('.sub-tab-btn.active');
-                    subCategory = activeSubTab ? activeSubTab.id.split('-')[2] : 'arabika';
-                }
-                renderProducts(category, subCategory);
-            }
-        });
-        function renderTestimonials() {
-            testimonialGrid.innerHTML = '';
-            testimonials.forEach(testimoni => {
-                const imgElement = document.createElement('img');
-                imgElement.className = 'testimonial-img';
-                imgElement.src = testimoni.url;
-                imgElement.alt = `Testimoni ${testimoni.id}`;
-                imgElement.dataset.fullSrc = testimoni.url;
-                testimonialGrid.appendChild(imgElement);
-            });
-        }
+
+        sendSuggestionBtn.addEventListener('click', () => { const name = document.getElementById('suggestion-item-name').value; const price = document.getElementById('suggestion-item-price').value; if(!name && !price) return; let message = `Halo, saya punya saran barang:\nNama: ${name}\nEstimasi Harga: Rp${price}`; window.open(`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`, '_blank'); });
+        
+        function showModal(modal) { modal.classList.add('visible'); }
+        function hideModal(modal) { modal.classList.remove('visible'); }
+        
+        howToOrderBtn.addEventListener('click', () => showModal(howToOrderModal));
+        bestSellerInfoBtn.addEventListener('click', () => showModal(bestSellerInfoModal));
+        categorySelectorBtn.addEventListener('click', () => showModal(categoryModal));
+        
         testimonialBtn.addEventListener('click', () => {
-            const testimonialSection = document.getElementById('testimonial-section');
-            testimonialSection.scrollIntoView({ behavior: 'smooth' });
+            document.getElementById('testimonial-section').scrollIntoView({ behavior: 'smooth' });
         });
-        testimonialGrid.addEventListener('click', (event) => {
-            const target = event.target;
-            if (target.classList.contains('testimonial-img')) {
-                fullImage.src = target.dataset.fullSrc;
-                imageModal.classList.remove('hidden');
+
+        // PENAMBAHAN: Event listener untuk tombol di modal konfirmasi
+        confirmAddBtn.addEventListener('click', () => {
+            if (itemToConfirm) {
+                addItemToCart(itemToConfirm);
+                itemToConfirm = null;
             }
+            hideModal(confirmationModal);
         });
-        closeImageModalBtn.addEventListener('click', () => {
-            imageModal.classList.add('hidden');
-            fullImage.src = '';
+        cancelAddBtn.addEventListener('click', () => hideModal(confirmationModal));
+
+        document.querySelectorAll('.modal-overlay').forEach(modal => {
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) { 
+                    hideModal(modal);
+                }
+            });
         });
-        howToOrderBtn.addEventListener('click', showHowToOrderModal);
-        bestSellerInfoBtn.addEventListener('click', showBestSellerInfoModal);
-        gridViewBtn.addEventListener('click', () => setView('grid'));
-        listViewBtn.addEventListener('click', () => setView('list'));
-        const firstVisit = localStorage.getItem('firstVisit');
-        if (!firstVisit) {
-            showHowToOrderModal();
-            localStorage.setItem('firstVisit', 'true');
-        }
+        document.querySelectorAll('.close-modal').forEach(btn => btn.addEventListener('click', (e) => { hideModal(e.target.closest('.modal-overlay')); }));
+
+        onSnapshot(query(collection(db, 'jastip_categories'), orderBy('order')), (catSnap) => {
+            allCategories = catSnap.docs.map(doc => doc.data());
+            onSnapshot(query(collection(db, 'products')), (prodSnap) => {
+                allProducts = prodSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                renderUI(allCategories, allProducts);
+            });
+        });
+        
+        renderTestimonials(testimonialGrid);
         renderCart();
-        setView('grid');
     </script>
 </body>
 </html>
