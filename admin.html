@@ -25,6 +25,10 @@
         .pagination-btn { padding: 0.5rem 1rem; border-radius: 0.5rem; background-color: #374151; transition: background-color 0.2s; }
         .pagination-btn:hover:not(:disabled) { background-color: #4b5563; }
         .pagination-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        /* Gaya untuk upload gambar */
+        #image-preview-container { width: 100px; height: 100px; border: 2px dashed #4B5563; border-radius: 0.5rem; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        #image-preview { max-width: 100%; max-height: 100%; }
+        #upload-progress-bar { width: 0%; transition: width 0.3s; }
     </style>
 </head>
 <body class="bg-gray-900 text-gray-200 p-4 md:p-8">
@@ -46,6 +50,7 @@
             </nav>
 
             <div id="content-jastip">
+                <!-- Konten Admin Jastip tidak diubah -->
                 <section class="mb-8 p-6 bg-black/20 rounded-lg">
                     <h2 class="text-2xl font-bold mb-4">Kelola Produk Jastip</h2>
                     <form id="jastip-form" class="space-y-4"><input type="hidden" id="jastip-product-id"><div><label for="jastip-product-name" class="block text-sm font-medium mb-1">Nama Produk</label><input type="text" id="jastip-product-name" required class="w-full form-input"></div><div><label for="jastip-product-category" class="block text-sm font-medium mb-1">Kategori</label><select id="jastip-product-category" required class="w-full form-input"><option value="">Memuat kategori...</option></select></div><div id="jastip-coffee-fields" class="hidden"><div id="jastip-sub-category-container"><label for="jastip-product-sub-category" class="block text-sm font-medium mb-1">Sub-Kategori Kopi</label><select id="jastip-product-sub-category" class="w-full form-input"><option value="Arabika">Arabika</option><option value="Robusta">Robusta</option></select></div><div id="jastip-options-container" class="space-y-2 mt-4"></div><button type="button" id="jastip-add-option-btn" class="mt-2 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-sm">Tambah Varian</button></div><div id="jastip-non-coffee-fields" class="hidden"><div><label for="jastip-product-price" class="block text-sm font-medium mb-1">Harga</label><input type="number" id="jastip-product-price" class="w-full form-input"></div><div><label for="jastip-product-shopee-link" class="block text-sm font-medium mb-1">Link Shopee (Opsional)</label><input type="url" id="jastip-product-shopee-link" class="w-full form-input"></div></div><div class="pt-2"><label for="jastip-product-is-best-seller" class="flex items-center space-x-2"><input type="checkbox" id="jastip-product-is-best-seller" class="form-checkbox h-5 w-5 rounded bg-gray-700 border-gray-600 text-amber-600"><span class="text-sm font-medium">Jadikan Produk Terlaris</span></label></div><div class="flex space-x-4 pt-2"><button type="submit" class="flex-1 py-3 bg-amber-600 hover:bg-amber-700 rounded-lg font-bold">Simpan Produk Jastip</button><button type="button" id="jastip-cancel-edit-btn" class="hidden flex-1 py-3 bg-gray-600 hover:bg-gray-500 rounded-lg font-bold">Batal</button></div></form>
@@ -66,8 +71,36 @@
                 <hr class="my-10 border-t border-gray-700"><section class="p-6 bg-black/20 rounded-lg"><h2 class="text-2xl font-bold mb-4">Kelola Testimoni</h2><form id="testimonial-form" class="space-y-4"><input type="hidden" id="testimonial-id"><div><label for="testimonial-url" class="block text-sm font-medium mb-1">URL Gambar Testimoni</label><input type="url" id="testimonial-url" required class="w-full form-input"></div><div class="flex space-x-4"><button type="submit" class="flex-1 py-3 bg-green-600 hover:bg-green-700 rounded-lg font-bold">Simpan Testimoni</button><button type="button" id="cancel-testimonial-edit-btn" class="hidden flex-1 py-3 bg-gray-600 hover:bg-gray-500 rounded-lg font-bold">Batal</button></div></form><div class="mt-8"><h3 class="text-lg font-bold mb-2">Daftar Testimoni</h3><div id="testimonial-list" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4"></div></div></section>
             </div>
             <div id="content-via-online" class="hidden">
-                 <section class="p-6 bg-black/20 rounded-lg"><h2 class="text-2xl font-bold mb-4">Kelola Produk Via Online</h2><form id="online-form" class="space-y-4"><input type="hidden" id="online-product-id"><div><label for="online-product-name" class="block text-sm font-medium mb-1">Nama Produk</label><input type="text" id="online-product-name" required class="w-full form-input"></div><div><label for="online-product-category" class="block text-sm font-medium mb-1">Kategori</label><input type="text" id="online-product-category" required class="w-full form-input"></div><div><label for="online-product-image-url" class="block text-sm font-medium mb-1">URL Gambar</label><input type="url" id="online-product-image-url" required class="w-full form-input"></div><div><label for="online-product-affiliate-link" class="block text-sm font-medium mb-1">Link Affiliate</label><input type="url" id="online-product-affiliate-link" required class="w-full form-input"></div><div><label for="online-product-platform" class="block text-sm font-medium mb-1">Platform</label><select id="online-product-platform" required class="w-full form-input"><option>Shopee</option><option>Tokopedia</option><option>Lazada</option><option>Lainnya</option></select></div><div class="flex space-x-4 pt-2"><button type="submit" class="flex-1 py-3 bg-amber-600 hover:bg-amber-700 rounded-lg font-bold">Simpan Produk Online</button><button type="button" id="online-cancel-edit-btn" class="hidden flex-1 py-3 bg-gray-600 hover:bg-gray-500 rounded-lg font-bold">Batal</button></div></form></section>
-                 <div class="mt-8 p-6 bg-black/20 rounded-lg"><h3 class="text-lg font-bold mb-4">Daftar Produk Via Online</h3><div class="relative mb-4"><input type="text" id="online-search-input" placeholder="Cari produk online..." class="w-full form-input"></div><div class="table-container"><table class="w-full text-left table-auto"><thead><tr class="bg-gray-900/50 text-gray-300 uppercase text-xs tracking-wider"><th class="p-3 sortable-header" data-sort-column="name"><div class="flex items-center gap-1">Nama<span id="online-name-sort-indicator"></span></div></th><th class="p-3 sortable-header" data-sort-column="category"><div class="flex items-center gap-1">Kategori<span id="online-category-sort-indicator"></span></div></th><th class="p-3 sortable-header" data-sort-column="platform"><div class="flex items-center gap-1">Platform<span id="online-platform-sort-indicator"></span></div></th><th class="p-3 text-center">Aksi</th></tr></thead><tbody id="online-product-list" class="text-sm"></tbody></table></div><div id="online-pagination-controls" class="mt-4 flex justify-between items-center text-sm text-gray-400"></div></div>
+                 <section class="p-6 bg-black/20 rounded-lg">
+                    <h2 class="text-2xl font-bold mb-4">Kelola Produk Via Online</h2>
+                    <form id="online-form" class="space-y-4">
+                        <input type="hidden" id="online-product-id">
+                        <input type="hidden" id="online-product-image-url-hidden">
+                        <div><label for="online-product-name" class="block text-sm font-medium mb-1">Nama Produk</label><input type="text" id="online-product-name" required class="w-full form-input"></div>
+                        <div><label for="online-product-category" class="block text-sm font-medium mb-1">Kategori</label><input type="text" id="online-product-category" required class="w-full form-input"></div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium mb-1">Gambar Produk</label>
+                            <div class="flex items-center gap-4">
+                                <div id="image-preview-container"><img id="image-preview" src="" alt="Preview"></div>
+                                <input type="file" id="online-product-image-file" accept="image/*" class="w-full form-input file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-amber-50 file:text-amber-700 hover:file:bg-amber-100">
+                            </div>
+                            <div id="upload-progress-container" class="w-full bg-gray-700 rounded-full h-2.5 mt-2 hidden">
+                                <div id="upload-progress-bar" class="bg-amber-600 h-2.5 rounded-full"></div>
+                            </div>
+                        </div>
+
+                        <div><label for="online-product-affiliate-link" class="block text-sm font-medium mb-1">Link Affiliate</label><input type="url" id="online-product-affiliate-link" required class="w-full form-input"></div>
+                        <div><label for="online-product-platform" class="block text-sm font-medium mb-1">Platform</label><select id="online-product-platform" required class="w-full form-input"><option>Shopee</option><option>Tokopedia</option><option>Lazada</option><option>Lainnya</option></select></div>
+                        <div class="flex space-x-4 pt-2"><button type="submit" class="flex-1 py-3 bg-amber-600 hover:bg-amber-700 rounded-lg font-bold">Simpan Produk Online</button><button type="button" id="online-cancel-edit-btn" class="hidden flex-1 py-3 bg-gray-600 hover:bg-gray-500 rounded-lg font-bold">Batal</button></div>
+                    </form>
+                 </section>
+                 <div class="mt-8 p-6 bg-black/20 rounded-lg">
+                    <h3 class="text-lg font-bold mb-4">Daftar Produk Via Online</h3>
+                    <div class="relative mb-4"><input type="text" id="online-search-input" placeholder="Cari produk online..." class="w-full form-input"></div>
+                    <div class="table-container"><table class="w-full text-left table-auto"><thead><tr class="bg-gray-900/50 text-gray-300 uppercase text-xs tracking-wider"><th class="p-3 sortable-header" data-sort-column="name"><div class="flex items-center gap-1">Nama<span id="online-name-sort-indicator"></span></div></th><th class="p-3 sortable-header" data-sort-column="category"><div class="flex items-center gap-1">Kategori<span id="online-category-sort-indicator"></span></div></th><th class="p-3 sortable-header" data-sort-column="platform"><div class="flex items-center gap-1">Platform<span id="online-platform-sort-indicator"></span></div></th><th class="p-3 text-center">Aksi</th></tr></thead><tbody id="online-product-list" class="text-sm"></tbody></table></div>
+                    <div id="online-pagination-controls" class="mt-4 flex justify-between items-center text-sm text-gray-400"></div>
+                 </div>
             </div>
         </div>
     </div>
@@ -78,16 +111,27 @@
         import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, doc, setDoc, deleteDoc, onSnapshot, query, serverTimestamp, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
+        // --- KONFIGURASI ---
         const firebaseConfig = { apiKey: "AIzaSyAdYbsk_p1mIvf7NXd2cLaQAFBP2mrxtuI", authDomain: "jastip-arunika.firebaseapp.com", projectId: "jastip-arunika", storageBucket: "jastip-arunika.appspot.com", messagingSenderId: "272195022487", appId: "1:272195022487:web:f9b3cfe42170c5bd6983d2" };
         const ADMIN_UID = 'nx8LoIzVIYWqeOOVh5hQlY8vP9r1';
+        // PERHATIAN: Ganti dengan detail Cloudinary Anda
+        const CLOUDINARY_CLOUD_NAME = "dtvmbvwtx";
+        const CLOUDINARY_UPLOAD_PRESET = "ml_default";
+        
         const app = initializeApp(firebaseConfig), auth = getAuth(app), db = getFirestore(app);
 
+        // --- DOM Elements ---
         const loginContainer=document.getElementById('login-container'),adminContent=document.getElementById('admin-content'),loadingContainer=document.getElementById('loading-container'),userIdDisplay=document.getElementById('user-id'),logoutBtn=document.getElementById('logout-btn'),modal=document.getElementById('modal'),modalTitle=document.getElementById('modal-title'),modalMessage=document.getElementById('modal-message'),modalCloseBtn=document.getElementById('modal-close-btn');
         const tabJastip=document.getElementById('tab-jastip'),tabViaOnline=document.getElementById('tab-via-online'),contentJastip=document.getElementById('content-jastip'),contentViaOnline=document.getElementById('content-via-online');
         const jastipForm=document.getElementById('jastip-form'),jastipProductIdInput=document.getElementById('jastip-product-id'),jastipProductNameInput=document.getElementById('jastip-product-name'),jastipCategorySelect=document.getElementById('jastip-product-category'),jastipCoffeeFields=document.getElementById('jastip-coffee-fields'),jastipNonCoffeeFields=document.getElementById('jastip-non-coffee-fields'),jastipSubCategorySelect=document.getElementById('jastip-product-sub-category'),jastipOptionsContainer=document.getElementById('jastip-options-container'),jastipAddOptionBtn=document.getElementById('jastip-add-option-btn'),jastipPriceInput=document.getElementById('jastip-product-price'),jastipShopeeLinkInput=document.getElementById('jastip-product-shopee-link'),jastipBestSellerCheckbox=document.getElementById('jastip-product-is-best-seller'),jastipProductListTable=document.getElementById('jastip-product-list'),jastipCancelEditBtn=document.getElementById('jastip-cancel-edit-btn'),jastipSearchInput=document.getElementById('jastip-search-input'),jastipPaginationControls=document.getElementById('jastip-pagination-controls');
-        const onlineForm=document.getElementById('online-form'),onlineProductIdInput=document.getElementById('online-product-id'),onlineProductNameInput=document.getElementById('online-product-name'),onlineProductCategoryInput=document.getElementById('online-product-category'),onlineProductImageUrlInput=document.getElementById('online-product-image-url'),onlineProductAffiliateLinkInput=document.getElementById('online-product-affiliate-link'),onlineProductPlatformSelect=document.getElementById('online-product-platform'),onlineProductListTable=document.getElementById('online-product-list'),onlineCancelEditBtn=document.getElementById('online-cancel-edit-btn'),onlineSearchInput=document.getElementById('online-search-input'),onlinePaginationControls=document.getElementById('online-pagination-controls');
+        const onlineForm=document.getElementById('online-form'),onlineProductIdInput=document.getElementById('online-product-id'),onlineProductNameInput=document.getElementById('online-product-name'),onlineProductCategoryInput=document.getElementById('online-product-category'),onlineProductAffiliateLinkInput=document.getElementById('online-product-affiliate-link'),onlineProductPlatformSelect=document.getElementById('online-product-platform'),onlineProductListTable=document.getElementById('online-product-list'),onlineCancelEditBtn=document.getElementById('online-cancel-edit-btn'),onlineSearchInput=document.getElementById('online-search-input'),onlinePaginationControls=document.getElementById('online-pagination-controls');
         const newCategoryNameInput=document.getElementById('new-category-name'),newCategoryOrderInput=document.getElementById('new-category-order'),newCategoryHasSubtabsCheckbox=document.getElementById('new-category-hassubtabs'),addCategoryBtn=document.getElementById('add-category-btn'),categoryListDiv=document.getElementById('category-list');
         const testimonialForm=document.getElementById('testimonial-form'),testimonialIdInput=document.getElementById('testimonial-id'),testimonialUrlInput=document.getElementById('testimonial-url'),testimonialListDiv=document.getElementById('testimonial-list'),cancelTestimonialEditBtn=document.getElementById('cancel-testimonial-edit-btn');
+        const imageFileInput = document.getElementById('online-product-image-file');
+        const imagePreview = document.getElementById('image-preview');
+        const hiddenImageUrlInput = document.getElementById('online-product-image-url-hidden');
+        const uploadProgressContainer = document.getElementById('upload-progress-container');
+        const uploadProgressBar = document.getElementById('upload-progress-bar');
         
         let jastipProductsData=[], onlineProductsData=[], jastipCategories=[];
         let jastipCurrentPage=1, jastipSortColumn='name', jastipSortDirection='asc';
@@ -122,6 +166,39 @@
         jastipCancelEditBtn.addEventListener('click', () => { jastipForm.reset(); jastipOptionsContainer.innerHTML = ''; jastipCancelEditBtn.classList.add('hidden'); });
 
         // --- Via Online Logic ---
+        async function uploadToCloudinary(file) {
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+            return new Promise((resolve, reject) => {
+                const xhr = new XMLHttpRequest();
+                xhr.open('POST', `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`, true);
+                xhr.upload.onprogress = function(event) {
+                    if (event.lengthComputable) {
+                        const percentComplete = (event.loaded / event.total) * 100;
+                        uploadProgressBar.style.width = percentComplete + '%';
+                    }
+                };
+                xhr.onload = function() {
+                    if (xhr.status === 200) {
+                        const response = JSON.parse(xhr.responseText);
+                        resolve(response.secure_url);
+                    } else {
+                        reject('Gagal mengunggah gambar.');
+                    }
+                };
+                xhr.onerror = function() { reject('Terjadi kesalahan jaringan.'); };
+                xhr.send(formData);
+            });
+        }
+        imageFileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) { imagePreview.src = event.target.result; }
+                reader.readAsDataURL(file);
+            }
+        });
         function updateOnlineSortIndicators(){['name','category','platform'].forEach(c=>document.getElementById(`online-${c}-sort-indicator`).textContent='');const i=onlineSortDirection==='asc'?'▲':'▼';document.getElementById(`online-${onlineSortColumn}-sort-indicator`).textContent=i;}
         function renderOnlinePagination(total){onlinePaginationControls.innerHTML='';const tP=Math.ceil(total/rowsPerPage);if(tP<=1)return;const pB=document.createElement('button');pB.textContent='Sebelumnya';pB.className='pagination-btn';pB.disabled=onlineCurrentPage===1;pB.addEventListener('click',()=>{onlineCurrentPage--;updateOnlineUI();});const pI=document.createElement('span');pI.textContent=`Halaman ${onlineCurrentPage} dari ${tP}`;const nB=document.createElement('button');nB.textContent='Berikutnya';nB.className='pagination-btn';nB.disabled=onlineCurrentPage===tP;nB.addEventListener('click',()=>{onlineCurrentPage++;updateOnlineUI();});onlinePaginationControls.append(pB,pI,nB);}
         function updateOnlineUI(){const q=onlineSearchInput.value.toLowerCase();let f=onlineProductsData.filter(p=>p.name.toLowerCase().includes(q)||p.category.toLowerCase().includes(q));f.sort((a,b)=>{const vA=a[onlineSortColumn],vB=b[onlineSortColumn];const c=String(vA).localeCompare(String(vB));return onlineSortDirection==='asc'?c:-c;});const s=(onlineCurrentPage-1)*rowsPerPage;const p=f.slice(s,s+rowsPerPage);onlineProductListTable.innerHTML='';p.forEach((p,i)=>{const r=document.createElement('tr');r.className=`border-b border-gray-700 hover:bg-amber-900/50 ${i%2===0?'bg-gray-800/50':'bg-transparent'}`;r.innerHTML=`<td class="p-3">${p.name}</td><td class="p-3">${p.category}</td><td class="p-3">${p.platform}</td><td class="p-3 text-center"><div class="flex items-center justify-center gap-2"><button data-id="${p.id}" class="action-btn btn-edit">${editIcon}</button><button data-id="${p.id}" class="action-btn btn-delete">${deleteIcon}</button></div></td>`;onlineProductListTable.appendChild(r);});updateOnlineSortIndicators();renderOnlinePagination(f.length);}
@@ -130,26 +207,42 @@
         onlineSearchInput.addEventListener('input',()=>{onlineCurrentPage=1;updateOnlineUI();});
         onlineForm.addEventListener('submit',async e=>{
             e.preventDefault();
-            const data={name:onlineProductNameInput.value,category:onlineProductCategoryInput.value,imageUrl:onlineProductImageUrlInput.value,affiliateLink:onlineProductAffiliateLinkInput.value,platform:onlineProductPlatformSelect.value};
-            const id=onlineProductIdInput.value;
-            try{
-                if(id) {
-                    await setDoc(doc(db,'affiliate_products',id),data);
-                } else {
-                    await addDoc(collection(db,'affiliate_products'),data);
+            const submitButton = onlineForm.querySelector('button[type="submit"]');
+            submitButton.disabled = true;
+            submitButton.textContent = 'Menyimpan...';
+            let imageUrl = hiddenImageUrlInput.value;
+            const file = imageFileInput.files[0];
+            try {
+                if (file) {
+                    uploadProgressContainer.classList.remove('hidden');
+                    uploadProgressBar.style.width = '0%';
+                    imageUrl = await uploadToCloudinary(file);
+                    uploadProgressContainer.classList.add('hidden');
                 }
-                showModal('Sukses','Produk Online disimpan!');
+                if (!imageUrl) { throw new Error("Gambar produk wajib diunggah."); }
+                const data = { name: onlineProductNameInput.value, category: onlineProductCategoryInput.value, imageUrl: imageUrl, affiliateLink: onlineProductAffiliateLinkInput.value, platform: onlineProductPlatformSelect.value };
+                const id = onlineProductIdInput.value;
+                if (id) { await setDoc(doc(db, 'affiliate_products', id), data); } 
+                else { await addDoc(collection(db, 'affiliate_products'), data); }
+                showModal('Sukses', 'Produk Online disimpan!');
                 onlineForm.reset();
-                onlineProductIdInput.value = ''; 
+                imagePreview.src = '';
+                onlineProductIdInput.value = '';
+                hiddenImageUrlInput.value = '';
                 onlineCancelEditBtn.classList.add('hidden');
-            } catch(err){
-                showModal('Error','Gagal menyimpan.');
+            } catch (err) {
+                showModal('Error', err.message || 'Gagal menyimpan produk.');
+            } finally {
+                submitButton.disabled = false;
+                submitButton.textContent = 'Simpan Produk Online';
             }
         });
-        onlineProductListTable.addEventListener('click',e=>{const id=e.target.closest('button')?.dataset.id;if(!id)return;if(e.target.closest('.btn-edit')){const p=onlineProductsData.find(p=>p.id===id);onlineProductIdInput.value=id;onlineProductNameInput.value=p.name;onlineProductCategoryInput.value=p.category;onlineProductImageUrlInput.value=p.imageUrl;onlineProductAffiliateLinkInput.value=p.affiliateLink;onlineProductPlatformSelect.value=p.platform;onlineCancelEditBtn.classList.remove('hidden');contentViaOnline.scrollIntoView({behavior:'smooth'});}if(e.target.closest('.btn-delete')&&confirm('Yakin hapus?')){deleteDoc(doc(db,'affiliate_products',id));showModal('Sukses','Produk Online dihapus.');}});
+        onlineProductListTable.addEventListener('click',e=>{const id=e.target.closest('button')?.dataset.id;if(!id)return;if(e.target.closest('.btn-edit')){const p=onlineProductsData.find(p=>p.id===id);onlineProductIdInput.value=id;onlineProductNameInput.value=p.name;onlineProductCategoryInput.value=p.category;hiddenImageUrlInput.value=p.imageUrl;imagePreview.src=p.imageUrl;onlineProductAffiliateLinkInput.value=p.affiliateLink;onlineProductPlatformSelect.value=p.platform;onlineCancelEditBtn.classList.remove('hidden');contentViaOnline.scrollIntoView({behavior:'smooth'});}if(e.target.closest('.btn-delete')&&confirm('Yakin hapus?')){deleteDoc(doc(db,'affiliate_products',id));showModal('Sukses','Produk Online dihapus.');}});
         onlineCancelEditBtn.addEventListener('click',()=>{
             onlineForm.reset();
             onlineProductIdInput.value = '';
+            hiddenImageUrlInput.value = '';
+            imagePreview.src = '';
             onlineCancelEditBtn.classList.add('hidden');
         });
 
