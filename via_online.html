@@ -8,7 +8,227 @@
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&display=swap');
         body { font-family: 'Inter', sans-serif; background-color: #121212; color: #e0e0e0; }
-…            console.error("Error fetching affiliate products:", error);
+        #main-title { font-family: 'Cinzel', serif; font-size: 3rem; color: #FFD700; }
+        .main-nav-btn { background-color: #2a2a2a; color: #FFD700; transition: all 0.2s ease-in-out; }
+        .main-nav-btn.active, .main-nav-btn:hover { background-image: linear-gradient(to right, #B8860B, #FFD700); box-shadow: 0 4px 6px -1px rgba(255, 215, 0, 0.1); color: #1a1a1a; }
+        .product-card { transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out; }
+        .product-card:hover { transform: translateY(-5px); box-shadow: 0 10px 15px -3px rgba(255, 215, 0, 0.1); }
+        .platform-btn-shopee { background-color: #FF5722; color: white; } .platform-btn-shopee:hover { background-color: #E64A19; }
+        .platform-btn-tokopedia { background-color: #03AC0E; color: white; } .platform-btn-tokopedia:hover { background-color: #028A0B; }
+        .platform-btn-lazada { background-color: #0F79F1; color: white; } .platform-btn-lazada:hover { background-color: #0D69D0; }
+        .platform-btn-lainnya { background-color: #4B5563; color: white; } .platform-btn-lainnya:hover { background-color: #374151; }
+
+        /* Gaya Modal */
+        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0, 0, 0, 0.7); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; z-index: 50; opacity: 0; pointer-events: none; transition: opacity 0.3s ease-in-out; }
+        .modal-overlay.visible { opacity: 1; pointer-events: auto; }
+        .modal-container { background-color: #1f2937; padding: 1.5rem; border-radius: 1rem; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); width: 90%; max-width: 500px; transform: scale(0.95); transition: transform 0.3s ease-in-out; }
+        .modal-overlay.visible .modal-container { transform: scale(1); }
+
+        /* Gaya Tombol Pemilih Kategori & Item di Modal */
+        #category-selector-btn { display: flex; align-items: center; justify-content: space-between; width: 100%; padding: 0.75rem 1rem; background-color: #2a2a2a; border: 1px solid #4b5563; border-radius: 0.75rem; transition: all 0.2s ease; }
+        #category-selector-btn:hover { border-color: #FFD700; }
+        .category-modal-item { text-align: left; width: 100%; padding: 0.75rem 1rem; border-radius: 0.5rem; display: flex; align-items: center; justify-content: space-between; }
+        .category-modal-item.active { background-color: #4b5563; font-weight: bold; color: #FFD700; }
+        .category-modal-item:not(.active):hover { background-color: #374151; }
+        
+        /* Gaya Paginasi */
+        .pagination-btn { padding: 0.5rem 1rem; border-radius: 0.5rem; background-color: #374151; transition: background-color 0.2s; }
+        .pagination-btn:hover:not(:disabled) { background-color: #4b5563; }
+        .pagination-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-200 p-4 md:p-8">
+
+    <div class="max-w-4xl mx-auto bg-gray-800 p-6 md:p-10 rounded-3xl shadow-2xl">
+        <header class="text-center mb-6">
+            <h1 id="main-title" class="font-extrabold text-gray-200 mb-2 tracking-tight">Arunika Shop</h1>
+            <p class="text-lg text-gray-400">Jastip & Rekomendasi Produk Pilihan</p>
+        </header>
+
+        <nav class="flex justify-center space-x-2 mb-6 p-1 bg-black/20 rounded-xl">
+            <a href="index.html" class="main-nav-btn py-2 px-4 rounded-lg font-medium transition-colors duration-200 flex-1 text-center">Jastip</a>
+            <a href="via_online.html" class="main-nav-btn active py-2 px-4 rounded-lg font-medium transition-colors duration-200 flex-1 text-center">Via Online</a>
+        </nav>
+
+        <div>
+            <h2 class="text-2xl font-bold mb-4 text-center">Rekomendasi Produk Online</h2>
+             <div class="relative mb-4">
+                <input type="text" id="search-input" placeholder="Cari produk rekomendasi..." class="w-full bg-gray-700 text-gray-200 border border-gray-600 rounded-lg p-3 pl-10 focus:outline-none focus:ring-2 focus:ring-amber-500">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-search text-gray-400"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg></div>
+            </div>
+
+            <section id="category-selection" class="mb-6">
+                 <button id="category-selector-btn">
+                    <span id="category-selector-text" class="font-bold text-amber-400">Memuat kategori...</span>
+                    <svg class="w-5 h-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                 </button>
+            </section>
+
+            <div id="affiliate-product-list" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6"></div>
+            <p id="loading-message" class="text-center text-gray-500 my-8">Memuat produk...</p>
+            <p id="no-results-message" class="text-center text-gray-500 my-8 hidden">Tidak ada produk yang cocok dengan filter Anda.</p>
+            
+            <div id="pagination-controls" class="mt-8 flex justify-between items-center text-sm text-gray-400"></div>
+        </div>
+    </div>
+    
+    <footer class="mt-8 text-center text-gray-500 text-sm">
+        <p>Copyright &copy; by Arunika Shop 2025</p>
+    </footer>
+
+    <div id="category-modal" class="modal-overlay">
+        <div class="modal-container">
+            <div class="flex justify-between items-center mb-6"><h3 class="text-xl font-bold text-amber-400">Pilih Kategori</h3><button class="close-modal text-gray-500 text-2xl hover:text-white">&times;</button></div>
+            <div id="category-modal-list" class="space-y-2 max-h-[60vh] overflow-y-auto pr-2"></div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getFirestore, collection, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        const firebaseConfig = { apiKey: "AIzaSyAdYbsk_p1mIvf7NXd2cLaQAFBP2mrxtuI", authDomain: "jastip-arunika.firebaseapp.com", projectId: "jastip-arunika", storageBucket: "jastip-arunika.appspot.com", messagingSenderId: "272195022487", appId: "1:272195022487:web:f9b3cfe42170c5bd6983d2" };
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        const productListDiv = document.getElementById('affiliate-product-list');
+        const loadingMessage = document.getElementById('loading-message');
+        const noResultsMessage = document.getElementById('no-results-message');
+        const searchInput = document.getElementById('search-input');
+        const categorySelectorBtn = document.getElementById('category-selector-btn');
+        const categorySelectorText = document.getElementById('category-selector-text');
+        const categoryModal = document.getElementById('category-modal');
+        const categoryModalList = document.getElementById('category-modal-list');
+        const paginationControls = document.getElementById('pagination-controls');
+        
+        let allProducts = [];
+        let activeCategory = 'Semua';
+        let searchTerm = '';
+        let currentPage = 1;
+        const rowsPerPage = 8;
+
+        function createProductCard(product) {
+            const productElement = document.createElement('div');
+            productElement.className = 'product-card bg-gray-700 rounded-xl shadow-md border border-gray-600 flex flex-col p-4';
+            const platformLower = product.platform ? product.platform.toLowerCase() : 'lainnya';
+            const platformClass = `platform-btn-${platformLower}`;
+            productElement.innerHTML = `
+                <img src="${product.imageUrl}" alt="${product.name}" class="w-full h-32 md:h-40 object-cover rounded-lg mb-4">
+                <div class="w-full text-center mb-4 flex-grow">
+                    <h3 class="font-semibold text-sm md:text-base text-gray-200">${product.name}</h3>
+                    <p class="text-xs md:text-sm text-gray-400 mt-1">${product.category}</p>
+                </div>
+                <a href="${product.affiliateLink}" target="_blank" class="w-full text-center py-2 px-4 ${platformClass} font-bold rounded-lg transition-colors text-sm">
+                    Beli di ${product.platform}
+                </a>`;
+            return productElement;
+        }
+
+        function renderProducts(productsToRender) {
+            productListDiv.innerHTML = '';
+            loadingMessage.classList.add('hidden');
+            // PERBAIKAN: Logika diubah agar pesan hanya muncul jika tidak ada produk
+            noResultsMessage.classList.toggle('hidden', productsToRender.length > 0);
+            productsToRender.forEach(product => productListDiv.appendChild(createProductCard(product)));
+        }
+
+        function renderPagination(totalItems) {
+            paginationControls.innerHTML = '';
+            const totalPages = Math.ceil(totalItems / rowsPerPage);
+            if (totalPages <= 1) return;
+
+            const prevButton = document.createElement('button');
+            prevButton.textContent = 'Sebelumnya';
+            prevButton.className = 'pagination-btn';
+            prevButton.disabled = currentPage === 1;
+            prevButton.addEventListener('click', () => {
+                currentPage--;
+                applyFiltersAndRender();
+            });
+
+            const pageInfo = document.createElement('span');
+            pageInfo.textContent = `Halaman ${currentPage} dari ${totalPages}`;
+
+            const nextButton = document.createElement('button');
+            nextButton.textContent = 'Berikutnya';
+            nextButton.className = 'pagination-btn';
+            nextButton.disabled = currentPage === totalPages;
+            nextButton.addEventListener('click', () => {
+                currentPage++;
+                applyFiltersAndRender();
+            });
+
+            paginationControls.append(prevButton, pageInfo, nextButton);
+        }
+
+        function applyFiltersAndRender() {
+            let filtered = [...allProducts];
+            if (activeCategory !== 'Semua') {
+                filtered = filtered.filter(p => p.category === activeCategory);
+            }
+            if (searchTerm) {
+                const lowerCaseSearch = searchTerm.toLowerCase();
+                filtered = filtered.filter(p => p.name.toLowerCase().includes(lowerCaseSearch));
+            }
+            
+            const startIndex = (currentPage - 1) * rowsPerPage;
+            const paginatedItems = filtered.slice(startIndex, startIndex + rowsPerPage);
+            
+            renderProducts(paginatedItems);
+            renderPagination(filtered.length);
+        }
+
+        function activateCategory(categoryName) {
+            activeCategory = categoryName;
+            currentPage = 1;
+            categorySelectorText.textContent = categoryName;
+            document.querySelectorAll('.category-modal-item').forEach(item => {
+                const checkIcon = item.querySelector('svg');
+                item.classList.toggle('active', item.dataset.category === categoryName);
+                if (checkIcon) checkIcon.classList.toggle('hidden', item.dataset.category !== categoryName);
+            });
+            applyFiltersAndRender();
+        }
+
+        function populateCategoryFilters(products) {
+            const categories = ['Semua', ...new Set(products.map(p => p.category).filter(Boolean).sort())];
+            categoryModalList.innerHTML = '';
+            categories.forEach(category => {
+                const item = document.createElement('button');
+                item.className = 'category-modal-item';
+                item.dataset.category = category;
+                item.innerHTML = `<span>${category}</span> <svg class="w-5 h-5 hidden" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" /></svg>`;
+                item.addEventListener('click', () => {
+                    activateCategory(category);
+                    hideModal(categoryModal);
+                });
+                categoryModalList.appendChild(item);
+            });
+            
+            if (allProducts.length > 0) {
+                activateCategory('Semua');
+            }
+        }
+
+        searchInput.addEventListener('input', (e) => {
+            searchTerm = e.target.value.trim();
+            currentPage = 1;
+            applyFiltersAndRender();
+        });
+
+        function showModal(modal) { modal.classList.add('visible'); }
+        function hideModal(modal) { modal.classList.remove('visible'); }
+        
+        categorySelectorBtn.addEventListener('click', () => showModal(categoryModal));
+        document.querySelectorAll('.close-modal').forEach(btn => btn.addEventListener('click', (e) => { hideModal(e.target.closest('.modal-overlay')); }));
+        categoryModal.addEventListener('click', (e) => { if (e.target === categoryModal) { hideModal(categoryModal); } });
+
+        const productsCollectionRef = collection(db, 'affiliate_products');
+        onSnapshot(query(productsCollectionRef, orderBy("name")), (snapshot) => {
+            allProducts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            populateCategoryFilters(allProducts);
+        }, (error) => {
+            console.error("Error fetching affiliate products:", error);
             loadingMessage.textContent = 'Gagal memuat produk.';
         });
     </script>
