@@ -131,6 +131,23 @@
         #toast-notification.show {
             bottom: 20px;
         }
+
+        /* Gaya untuk dropdown urutkan */
+        .sort-select {
+            background-color: #2a2a2a;
+            border: 1px solid #4b5563;
+            border-radius: 0.75rem;
+            padding: 0.75rem 1rem;
+            color: #e0e0e0;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right 0.5rem center;
+            background-repeat: no-repeat;
+            background-size: 1.5em 1.5em;
+            padding-right: 2.5rem;
+        }
     </style>
 </head>
 <body class="bg-gray-900 text-gray-200 p-4 md:p-8">
@@ -160,11 +177,19 @@
                 </div>
             </section>
 
-            <section id="category-selection" class="mb-4">
-                 <button id="category-selector-btn">
+            <section id="product-filters" class="grid md:grid-cols-2 gap-4 mb-6">
+                <button id="category-selector-btn">
                     <span id="category-selector-text" class="font-bold text-amber-400">Memuat kategori...</span>
                     <svg class="w-5 h-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
-                 </button>
+                </button>
+                <div>
+                    <select id="sort-select" class="w-full sort-select">
+                        <option value="default">Urutan Rekomendasi</option>
+                        <option value="name-asc">Nama (A-Z)</option>
+                        <option value="price-asc">Harga Terendah</option>
+                        <option value="price-desc">Harga Tertinggi</option>
+                    </select>
+                </div>
             </section>
 
             <div id="tab-content">
@@ -261,14 +286,14 @@
         const howToOrderModal=document.getElementById('how-to-order-modal'),bestSellerInfoModal=document.getElementById('best-seller-info-modal'),imageModal=document.getElementById('image-modal');
         const categorySelectorBtn = document.getElementById('category-selector-btn'), categorySelectorText = document.getElementById('category-selector-text'), categoryModal = document.getElementById('category-modal'), categoryModalList = document.getElementById('category-modal-list');
         const toastNotification = document.getElementById('toast-notification'), toastMessage = document.getElementById('toast-message');
+        const sortSelect = document.getElementById('sort-select');
         
-        // PENAMBAHAN: DOM element untuk modal konfirmasi
         const confirmationModal = document.getElementById('confirmation-modal');
         const confirmationMessage = document.getElementById('confirmation-message');
         const confirmAddBtn = document.getElementById('confirm-add-btn');
         const cancelAddBtn = document.getElementById('cancel-add-btn');
 
-        let allProducts = [], allCategories = [], cart = {}, itemToConfirm = null;
+        let allProducts = [], allCategories = [], cart = {}, itemToConfirm = null, currentSort = 'default';
         const titipFee = 25000, whatsappNumber = '6285640312607';
 
         let toastTimeout;
@@ -292,16 +317,44 @@
             const targetId = `content-${categoryName.toLowerCase().replace(/\s/g, '-')}`;
             document.getElementById(targetId)?.classList.remove('hidden');
         }
+        
+        // Fungsi untuk mendapatkan harga representatif dari produk untuk sorting
+        function getProductPrice(product) {
+            if (product.price) {
+                return product.price;
+            }
+            if (product.options && product.options.length > 0) {
+                // Menggunakan harga terendah dari varian sebagai acuan
+                return Math.min(...product.options.map(o => o.price));
+            }
+            return 0; // Produk tanpa harga akan ditaruh di awal
+        }
 
         function renderUI(categories, products) {
             tabContentContainer.innerHTML = '';
             categoryModalList.innerHTML = '';
+
+            // Lakukan sorting produk sebelum dirender
+            let sortedProducts = [...products];
+            switch (currentSort) {
+                case 'name-asc':
+                    sortedProducts.sort((a, b) => a.name.localeCompare(b.name));
+                    break;
+                case 'price-asc':
+                    sortedProducts.sort((a, b) => getProductPrice(a) - getProductPrice(b));
+                    break;
+                case 'price-desc':
+                    sortedProducts.sort((a, b) => getProductPrice(b) - getProductPrice(a));
+                    break;
+                // 'default' tidak melakukan apa-apa, menggunakan urutan dari Firestore
+            }
+
             categories.forEach(cat => {
                 const catId = cat.name.toLowerCase().replace(/\s/g, '-');
                 const pane = document.createElement('div');
                 pane.id = `content-${catId}`;
                 pane.className = 'tab-pane hidden';
-                const productsForCat = products.filter(p => p.category === cat.name);
+                const productsForCat = sortedProducts.filter(p => p.category === cat.name);
                 
                 if (cat.hasSubtabs) {
                     const arabikaProducts = productsForCat.filter(p => p.subCategory === "Arabika");
@@ -367,7 +420,6 @@
             cartTotalSpan.textContent = `Rp${total.toLocaleString('id-ID')}`;
         }
 
-        // PENAMBAHAN: Fungsi untuk menangani proses penambahan item, dipisahkan agar bisa dipanggil setelah konfirmasi
         function addItemToCart(itemInfo) {
             const { productId, optionId } = itemInfo;
             const product = allProducts.find(p => p.id === productId); if (!product) return;
@@ -409,7 +461,6 @@
             tabContentContainer.addEventListener('click', e => { if (e.target.matches('.sub-tab-btn')) { const p = e.target.closest('.flex'); p.querySelectorAll('.sub-tab-btn').forEach(b => b.classList.remove('active')); e.target.classList.add('active'); const pane = e.target.closest('.tab-pane'); const baseId = `content-${pane.id.split('-')[1]}`; pane.querySelectorAll('section').forEach(s => s.classList.add('hidden')); document.getElementById(`${baseId}-${e.target.dataset.subcat}`)?.classList.remove('hidden'); } });
         }
         
-        // PENAMBAHAN: Logika untuk membuka modal konfirmasi
         function handleAddToCartClick(e) {
             const button = e.target;
             const isMulti = button.matches('.add-to-cart-btn-multi');
@@ -430,6 +481,13 @@
             confirmationMessage.innerHTML = `Ingin memasukkan <strong class="text-amber-400">${productName}</strong> ke keranjang?`;
             showModal(confirmationModal);
         }
+
+        // --- Event Listeners ---
+
+        sortSelect.addEventListener('change', (e) => {
+            currentSort = e.target.value;
+            renderUI(allCategories, allProducts);
+        });
 
         tabContentContainer.addEventListener('click', e => {
             if (e.target.matches('.add-to-cart-btn-multi') || e.target.matches('.add-to-cart-btn-single')) {
@@ -473,7 +531,6 @@
             document.getElementById('testimonial-section').scrollIntoView({ behavior: 'smooth' });
         });
 
-        // PENAMBAHAN: Event listener untuk tombol di modal konfirmasi
         confirmAddBtn.addEventListener('click', () => {
             if (itemToConfirm) {
                 addItemToCart(itemToConfirm);
@@ -494,7 +551,8 @@
 
         onSnapshot(query(collection(db, 'jastip_categories'), orderBy('order')), (catSnap) => {
             allCategories = catSnap.docs.map(doc => doc.data());
-            onSnapshot(query(collection(db, 'products')), (prodSnap) => {
+            // Menggunakan query dengan orderBy nama sebagai default
+            onSnapshot(query(collection(db, 'products'), orderBy('name')), (prodSnap) => {
                 allProducts = prodSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 renderUI(allCategories, allProducts);
             });
