@@ -6,6 +6,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&display=swap');
         body { font-family: 'Inter', sans-serif; background-color: #121212; color: #e0e0e0; }
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 2000; backdrop-filter: blur(4px); }
         .modal-container { background-color: #1f1f1f; padding: 2rem; border-radius: 1.5rem; max-width: 90%; width: 24rem; text-align: center; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); }
@@ -25,17 +26,24 @@
         .pagination-btn { padding: 0.5rem 1rem; border-radius: 0.5rem; background-color: #374151; transition: background-color 0.2s; }
         .pagination-btn:hover:not(:disabled) { background-color: #4b5563; }
         .pagination-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-        /* Gaya untuk upload gambar */
         #image-preview-container { width: 100px; height: 100px; border: 2px dashed #4B5563; border-radius: 0.5rem; display: flex; align-items: center; justify-content: center; overflow: hidden; }
         #image-preview { max-width: 100%; max-height: 100%; }
         #upload-progress-bar { width: 0%; transition: width 0.3s; }
+
+        /* Gaya Khusus untuk Admin List */
+        #content-list h1, #content-list h2, #content-list h3 { font-family: 'Cormorant Garamond', serif; }
+        .list-golden-text { color: #d4af37; }
+        .list-golden-shadow { box-shadow: 0 4px 15px rgba(212, 175, 55, 0.2); }
+        .list-dark-card { background-color: #111; border: 1px solid #333; }
+        .list-nav-btn.active { background-color: #222; color: #d4af37; }
+        .list-nav-btn:not(.active) { color: #e0e0e0; border-color: #333; }
     </style>
 </head>
 <body class="bg-gray-900 text-gray-200 p-4 md:p-8">
     <div class="max-w-6xl mx-auto bg-gray-800 p-6 md:p-10 rounded-3xl shadow-2xl">
         <header class="text-center mb-6 relative">
             <h1 class="text-3xl font-bold text-amber-500">Panel Admin Arunika</h1>
-            <p class="text-md text-gray-400">Kelola Produk Jastip & Via Online</p>
+            <p class="text-md text-gray-400">Kelola Toko Anda</p>
             <p id="user-id" class="mt-2 text-xs text-gray-500 break-all"></p>
             <button id="logout-btn" class="absolute top-2 right-2 p-2 bg-gray-700 rounded-lg hover:bg-red-500 hidden"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg></button>
         </header>
@@ -47,8 +55,10 @@
             <nav class="flex justify-center space-x-2 mb-6 p-1 bg-black/20 rounded-xl">
                 <button id="tab-jastip" class="admin-nav-btn active py-2 px-4 rounded-lg font-medium flex-1">Admin Jastip</button>
                 <button id="tab-via-online" class="admin-nav-btn py-2 px-4 rounded-lg font-medium flex-1">Admin Via Online</button>
+                <button id="tab-list" class="admin-nav-btn py-2 px-4 rounded-lg font-medium flex-1">Admin List</button>
             </nav>
 
+            <!-- KONTEN ADMIN JASTIP -->
             <div id="content-jastip">
                 <!-- Konten Admin Jastip tidak diubah -->
                 <section class="mb-8 p-6 bg-black/20 rounded-lg">
@@ -70,6 +80,8 @@
                 <div class="p-6 bg-black/20 rounded-lg"><h3 class="text-lg font-bold mb-4">Daftar Produk Jastip</h3><div class="relative mb-4"><input type="text" id="jastip-search-input" placeholder="Cari produk jastip..." class="w-full form-input"></div><div class="table-container"><table class="w-full text-left table-auto"><thead><tr class="bg-gray-900/50 text-gray-300 uppercase text-xs tracking-wider"><th class="p-3 sortable-header" data-sort-column="name"><div class="flex items-center gap-1">Nama<span id="jastip-name-sort-indicator"></span></div></th><th class="p-3">Kategori</th><th class="p-3 sortable-header" data-sort-column="timestamp"><div class="flex items-center gap-1">Tanggal<span id="jastip-timestamp-sort-indicator"></span></div></th><th class="p-3 text-center">Aksi</th></tr></thead><tbody id="jastip-product-list" class="text-sm"></tbody></table></div><div id="jastip-pagination-controls" class="mt-4 flex justify-between items-center text-sm text-gray-400"></div></div>
                 <hr class="my-10 border-t border-gray-700"><section class="p-6 bg-black/20 rounded-lg"><h2 class="text-2xl font-bold mb-4">Kelola Testimoni</h2><form id="testimonial-form" class="space-y-4"><input type="hidden" id="testimonial-id"><div><label for="testimonial-url" class="block text-sm font-medium mb-1">URL Gambar Testimoni</label><input type="url" id="testimonial-url" required class="w-full form-input"></div><div class="flex space-x-4"><button type="submit" class="flex-1 py-3 bg-green-600 hover:bg-green-700 rounded-lg font-bold">Simpan Testimoni</button><button type="button" id="cancel-testimonial-edit-btn" class="hidden flex-1 py-3 bg-gray-600 hover:bg-gray-500 rounded-lg font-bold">Batal</button></div></form><div class="mt-8"><h3 class="text-lg font-bold mb-2">Daftar Testimoni</h3><div id="testimonial-list" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4"></div></div></section>
             </div>
+
+            <!-- KONTEN ADMIN VIA ONLINE -->
             <div id="content-via-online" class="hidden">
                  <section class="p-6 bg-black/20 rounded-lg">
                     <h2 class="text-2xl font-bold mb-4">Kelola Produk Via Online</h2>
@@ -102,6 +114,74 @@
                     <div id="online-pagination-controls" class="mt-4 flex justify-between items-center text-sm text-gray-400"></div>
                  </div>
             </div>
+
+            <!-- KONTEN ADMIN LIST (BARU) -->
+            <div id="content-list" class="hidden">
+                <header class="text-center mb-8">
+                    <h1 class="text-5xl font-bold list-golden-text mb-2">JasTip Arunika</h1>
+                    <p class="text-lg text-gray-400">Aplikasi Pencatatan Pesanan</p>
+                </header>
+
+                <nav class="flex justify-center mb-6 space-x-2">
+                    <button id="navActiveJastip" class="list-nav-btn bg-black text-gray-400 font-semibold py-2 px-4 rounded-full transition-all duration-300 border border-gray-700 hover:bg-gray-900 active">Jastip Aktif</button>
+                    <button id="navHistory" class="list-nav-btn bg-black text-gray-400 font-semibold py-2 px-4 rounded-full transition-all duration-300 border border-gray-700 hover:bg-gray-900">Riwayat Jastip</button>
+                </nav>
+                
+                <main>
+                    <div id="activeJastipPage">
+                        <div class="list-dark-card p-6 rounded-xl mb-6 list-golden-shadow">
+                            <h2 class="text-3xl font-semibold text-gray-300 mb-4">Input Pesanan</h2>
+                            <div class="mb-4">
+                                <label for="customerNameInput" class="block text-sm font-medium text-gray-400 mb-1">Nama Pemesan (Opsional)</label>
+                                <input type="text" id="customerNameInput" class="w-full p-3 bg-black border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 text-gray-200" placeholder="Masukkan nama pemesan di sini...">
+                            </div>
+                            <p class="text-gray-400 mb-4 text-sm">Tempelkan data pesanan dari WhatsApp ke dalam kotak di bawah ini.</p>
+                            <textarea id="orderInput" class="w-full p-4 bg-black border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 text-gray-200" style="min-height: 150px;" placeholder="Contoh:&#10;Halo Arunika Shop, saya ingin memesan:&#10;&#10;1x Nama Produk A = Rp50.000&#10;&#10;Biaya Jasa Titip: Rp25.000&#10;Total: Rp75.000&#10;&#10;Terima kasih!"></textarea>
+                            <button id="addOrderBtn" class="mt-4 w-full bg-yellow-600 text-gray-900 font-bold py-3 px-6 rounded-full hover:bg-yellow-500 transition-all duration-300 transform hover:scale-105 shadow-lg">
+                                Catat Pesanan
+                            </button>
+                        </div>
+
+                        <div id="messageBox" class="hidden mb-4 p-4 rounded-lg text-center font-semibold" role="alert"></div>
+
+                        <div class="list-dark-card p-6 rounded-xl mb-6 list-golden-shadow">
+                            <h2 class="text-3xl font-semibold text-gray-300 mb-4">Ringkasan Sesi Jastip</h2>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm font-medium">
+                                <div class="p-4 bg-black rounded-lg list-golden-shadow"><p class="text-gray-400">Total Modal Belanja</p><p id="totalModal" class="text-2xl font-bold text-red-400 mt-1">Rp0</p></div>
+                                <div class="p-4 bg-black rounded-lg list-golden-shadow"><p class="text-gray-400">Total Penghasilan Jasa</p><p id="totalJasa" class="text-2xl font-bold text-green-400 mt-1">Rp0</p></div>
+                                <div class="p-4 bg-black rounded-lg list-golden-shadow"><p class="text-gray-400">Total Pembayaran Diterima</p><p id="totalLunas" class="text-2xl font-bold text-blue-400 mt-1">Rp0</p></div>
+                                <div class="p-4 bg-black rounded-lg list-golden-shadow"><p class="text-gray-400">Total Pembayaran Belum Diterima</p><p id="totalBelumLunas" class="text-2xl font-bold text-yellow-400 mt-1">Rp0</p></div>
+                            </div>
+                        </div>
+                        
+                        <div class="list-dark-card p-6 rounded-xl mb-6 list-golden-shadow">
+                            <h2 class="text-3xl font-semibold text-gray-300 mb-4">Daftar Barang yang Perlu Dibeli</h2>
+                            <ul id="itemsToBuyList" class="list-disc list-inside text-gray-400 space-y-2"></ul>
+                        </div>
+
+                        <div id="ordersList" class="space-y-4">
+                            <h2 class="text-3xl font-semibold text-gray-300 mt-8 mb-4">Daftar Pesanan</h2>
+                        </div>
+                        
+                        <div class="mt-8 text-center">
+                            <button id="endJastipBtn" class="w-full md:w-auto bg-green-600 text-white font-bold py-3 px-8 rounded-full hover:bg-green-700 transition-all duration-300 transform hover:scale-105 shadow-lg">Selesai Sesi Jastip</button>
+                        </div>
+                    </div>
+
+                    <div id="historyJastipPage" class="hidden">
+                        <div class="flex justify-end mb-4"><button id="startNewJastipBtn" class="bg-blue-600 text-white font-bold py-2 px-6 rounded-full hover:bg-blue-700 transition-all duration-300">Mulai Jastip Baru</button></div>
+                        <div id="historyList" class="space-y-4"></div>
+                    </div>
+
+                    <div id="historyDetailPage" class="hidden">
+                        <button id="backToHistory" class="flex items-center space-x-2 text-yellow-500 hover:text-yellow-600 mb-4 transition-colors duration-200"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg><span>Kembali ke Riwayat</span></button>
+                        <div class="list-dark-card p-6 rounded-xl mb-6 list-golden-shadow"><h2 class="text-3xl font-semibold text-gray-300 mb-2">Detail Jastip</h2><p id="jastipDetailDate" class="text-gray-400 text-sm mb-4"></p><div id="jastipDetailSummary" class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm font-medium"></div></div>
+                        <div class="list-dark-card p-6 rounded-xl mb-6 list-golden-shadow"><h2 class="text-3xl font-semibold text-gray-300 mb-4">Daftar Barang yang Dibeli</h2><ul id="jastipDetailItems" class="list-disc list-inside text-gray-400 space-y-2"></ul></div>
+                        <div id="jastipDetailOrders" class="space-y-4"><h2 class="text-3xl font-semibold text-gray-300 mt-8 mb-4">Daftar Pesanan</h2></div>
+                    </div>
+                </main>
+            </div>
+
         </div>
     </div>
     <div id="modal" class="hidden modal-overlay"><div class="modal-container"><h3 id="modal-title" class="text-xl font-bold mb-4 text-amber-400"></h3><p id="modal-message" class="text-gray-300 mb-6"></p><button id="modal-close-btn" class="bg-amber-600 hover:bg-amber-700 text-white px-6 py-2 rounded-lg">OK</button></div></div>
@@ -113,8 +193,8 @@
 
         // --- KONFIGURASI ---
         const firebaseConfig = { apiKey: "AIzaSyAdYbsk_p1mIvf7NXd2cLaQAFBP2mrxtuI", authDomain: "jastip-arunika.firebaseapp.com", projectId: "jastip-arunika", storageBucket: "jastip-arunika.appspot.com", messagingSenderId: "272195022487", appId: "1:272195022487:web:f9b3cfe42170c5bd6983d2" };
+        // UID Admin disesuaikan dengan input Anda
         const ADMIN_UID = 'nx8LoIzVIYWqeOOVh5hQlY8vP9r1';
-        // PERHATIAN: Ganti dengan detail Cloudinary Anda
         const CLOUDINARY_CLOUD_NAME = "dtvmbvwtx";
         const CLOUDINARY_UPLOAD_PRESET = "ml_default";
         
@@ -122,37 +202,74 @@
 
         // --- DOM Elements ---
         const loginContainer=document.getElementById('login-container'),adminContent=document.getElementById('admin-content'),loadingContainer=document.getElementById('loading-container'),userIdDisplay=document.getElementById('user-id'),logoutBtn=document.getElementById('logout-btn'),modal=document.getElementById('modal'),modalTitle=document.getElementById('modal-title'),modalMessage=document.getElementById('modal-message'),modalCloseBtn=document.getElementById('modal-close-btn');
-        const tabJastip=document.getElementById('tab-jastip'),tabViaOnline=document.getElementById('tab-via-online'),contentJastip=document.getElementById('content-jastip'),contentViaOnline=document.getElementById('content-via-online');
+        const tabJastip=document.getElementById('tab-jastip'),tabViaOnline=document.getElementById('tab-via-online'), tabList = document.getElementById('tab-list');
+        const contentJastip=document.getElementById('content-jastip'),contentViaOnline=document.getElementById('content-via-online'), contentList = document.getElementById('content-list');
+        
+        // --- Event Listener Utama ---
+        onAuthStateChanged(auth, user => { 
+            if (user && user.uid === ADMIN_UID) { 
+                [logoutBtn, adminContent].forEach(e => e.classList.remove('hidden')); 
+                [loadingContainer, loginContainer].forEach(e => e.classList.add('hidden')); 
+                userIdDisplay.textContent = `UID: ${user.uid}`; 
+                // Inisialisasi semua data setelah login berhasil
+                initJastipAdmin();
+                initViaOnlineAdmin();
+                initListApp(); // Inisialisasi aplikasi list
+            } else { 
+                [logoutBtn, adminContent].forEach(e => e.classList.add('hidden')); 
+                loadingContainer.classList.add('hidden'); 
+                loginContainer.classList.remove('hidden'); 
+            } 
+        });
+        document.getElementById('login-form').addEventListener('submit', async e => { e.preventDefault(); try { await signInWithEmailAndPassword(auth, document.getElementById('login-email').value, document.getElementById('login-password').value); showModal('Login Berhasil', 'Selamat datang, Admin!'); } catch(err) { showModal('Gagal Login', 'Email atau kata sandi salah.'); } });
+        logoutBtn.addEventListener('click', () => signOut(auth));
+        modalCloseBtn.addEventListener('click', () => modal.classList.add('hidden'));
+        function showModal(title, msg) { modalTitle.textContent = title; modalMessage.textContent = msg; modal.classList.remove('hidden'); }
+        
+        // --- Logika Navigasi Tab ---
+        const tabs = [tabJastip, tabViaOnline, tabList];
+        const contents = [contentJastip, contentViaOnline, contentList];
+        tabs.forEach((tab, index) => {
+            tab.addEventListener('click', () => {
+                tabs.forEach(t => t.classList.remove('active'));
+                contents.forEach(c => c.classList.add('hidden'));
+                tab.classList.add('active');
+                contents[index].classList.remove('hidden');
+            });
+        });
+
+        const editIcon=`<svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z"></path><path fill-rule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clip-rule="evenodd"></path></svg><span>Edit</span>`;
+        const deleteIcon=`<svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg><span>Hapus</span>`;
+        
+        // =================================================================
+        // =========== KODE UNTUK ADMIN JASTIP & VIA ONLINE (START) ========
+        // =================================================================
+        
+        // --- DOM Elements Jastip & Online ---
         const jastipForm=document.getElementById('jastip-form'),jastipProductIdInput=document.getElementById('jastip-product-id'),jastipProductNameInput=document.getElementById('jastip-product-name'),jastipCategorySelect=document.getElementById('jastip-product-category'),jastipCoffeeFields=document.getElementById('jastip-coffee-fields'),jastipNonCoffeeFields=document.getElementById('jastip-non-coffee-fields'),jastipSubCategorySelect=document.getElementById('jastip-product-sub-category'),jastipOptionsContainer=document.getElementById('jastip-options-container'),jastipAddOptionBtn=document.getElementById('jastip-add-option-btn'),jastipPriceInput=document.getElementById('jastip-product-price'),jastipShopeeLinkInput=document.getElementById('jastip-product-shopee-link'),jastipBestSellerCheckbox=document.getElementById('jastip-product-is-best-seller'),jastipProductListTable=document.getElementById('jastip-product-list'),jastipCancelEditBtn=document.getElementById('jastip-cancel-edit-btn'),jastipSearchInput=document.getElementById('jastip-search-input'),jastipPaginationControls=document.getElementById('jastip-pagination-controls');
         const onlineForm=document.getElementById('online-form'),onlineProductIdInput=document.getElementById('online-product-id'),onlineProductNameInput=document.getElementById('online-product-name'),onlineProductCategoryInput=document.getElementById('online-product-category'),onlineProductAffiliateLinkInput=document.getElementById('online-product-affiliate-link'),onlineProductPlatformSelect=document.getElementById('online-product-platform'),onlineProductListTable=document.getElementById('online-product-list'),onlineCancelEditBtn=document.getElementById('online-cancel-edit-btn'),onlineSearchInput=document.getElementById('online-search-input'),onlinePaginationControls=document.getElementById('online-pagination-controls');
         const newCategoryNameInput=document.getElementById('new-category-name'),newCategoryOrderInput=document.getElementById('new-category-order'),newCategoryHasSubtabsCheckbox=document.getElementById('new-category-hassubtabs'),addCategoryBtn=document.getElementById('add-category-btn'),categoryListDiv=document.getElementById('category-list');
         const testimonialForm=document.getElementById('testimonial-form'),testimonialIdInput=document.getElementById('testimonial-id'),testimonialUrlInput=document.getElementById('testimonial-url'),testimonialListDiv=document.getElementById('testimonial-list'),cancelTestimonialEditBtn=document.getElementById('cancel-testimonial-edit-btn');
-        const imageFileInput = document.getElementById('online-product-image-file');
-        const imagePreview = document.getElementById('image-preview');
-        const hiddenImageUrlInput = document.getElementById('online-product-image-url-hidden');
-        const uploadProgressContainer = document.getElementById('upload-progress-container');
-        const uploadProgressBar = document.getElementById('upload-progress-bar');
+        const imageFileInput = document.getElementById('online-product-image-file'), imagePreview = document.getElementById('image-preview'), hiddenImageUrlInput = document.getElementById('online-product-image-url-hidden'), uploadProgressContainer = document.getElementById('upload-progress-container'), uploadProgressBar = document.getElementById('upload-progress-bar');
         
         let jastipProductsData=[], onlineProductsData=[], jastipCategories=[];
         let jastipCurrentPage=1, jastipSortColumn='name', jastipSortDirection='asc';
         let onlineCurrentPage=1, onlineSortColumn='name', onlineSortDirection='asc';
         const rowsPerPage=10;
 
-        onAuthStateChanged(auth, user => { if (user && user.uid === ADMIN_UID) { [logoutBtn, adminContent].forEach(e => e.classList.remove('hidden')); [loadingContainer, loginContainer].forEach(e => e.classList.add('hidden')); userIdDisplay.textContent = `UID: ${user.uid}`; listenForJastipCategories(); listenForJastipProducts(); listenForOnlineProducts(); listenForTestimonials(); } else { [logoutBtn, adminContent].forEach(e => e.classList.add('hidden')); loadingContainer.classList.add('hidden'); loginContainer.classList.remove('hidden'); } });
-        document.getElementById('login-form').addEventListener('submit', async e => { e.preventDefault(); try { await signInWithEmailAndPassword(auth, document.getElementById('login-email').value, document.getElementById('login-password').value); showModal('Login Berhasil', 'Selamat datang, Admin!'); } catch(err) { showModal('Gagal Login', 'Email atau kata sandi salah.'); } });
-        logoutBtn.addEventListener('click', () => signOut(auth));
-        modalCloseBtn.addEventListener('click', () => modal.classList.add('hidden'));
-        function showModal(title, msg) { modalTitle.textContent = title; modalMessage.textContent = msg; modal.classList.remove('hidden'); }
-        tabJastip.addEventListener('click', () => { tabJastip.classList.add('active'); tabViaOnline.classList.remove('active'); contentJastip.classList.remove('hidden'); contentViaOnline.classList.add('hidden'); });
-        tabViaOnline.addEventListener('click', () => { tabViaOnline.classList.add('active'); tabJastip.classList.remove('active'); contentViaOnline.classList.remove('hidden'); contentJastip.classList.add('hidden'); });
+        function initJastipAdmin() {
+            listenForJastipCategories(); 
+            listenForJastipProducts(); 
+            listenForTestimonials();
+        }
 
-        const editIcon=`<svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z"></path><path fill-rule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clip-rule="evenodd"></path></svg><span>Edit</span>`;
-        const deleteIcon=`<svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg><span>Hapus</span>`;
-        
+        function initViaOnlineAdmin() {
+            listenForOnlineProducts();
+        }
+
         function listenForJastipCategories() { const q = query(collection(db, 'jastip_categories'), orderBy('order')); onSnapshot(q, (snapshot) => { jastipCategories = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })); categoryListDiv.innerHTML = ''; jastipCategories.forEach(cat => { const div = document.createElement('div'); div.className = 'flex items-center justify-between bg-gray-700 p-3 rounded-lg'; div.innerHTML = `<div class="flex items-center gap-4"><span class="font-bold text-gray-400">#${cat.order}</span><span class="font-semibold">${cat.name}</span>${cat.hasSubtabs ? '<span class="text-xs bg-blue-500 text-white px-2 py-0.5 rounded-full">Dengan Sub-Tab</span>' : ''}</div><button data-id="${cat.id}" class="action-btn btn-delete">${deleteIcon}</button>`; categoryListDiv.appendChild(div); }); const currentSelection = jastipCategorySelect.value; jastipCategorySelect.innerHTML = '<option value="">-- Pilih Kategori --</option>'; jastipCategories.forEach(cat => { const option = document.createElement('option'); option.value = cat.name; option.textContent = cat.name; jastipCategorySelect.appendChild(option); }); jastipCategorySelect.value = currentSelection; }); }
         addCategoryBtn.addEventListener('click', async () => { const name = newCategoryNameInput.value.trim(); const order = parseInt(newCategoryOrderInput.value); const hasSubtabs = newCategoryHasSubtabsCheckbox.checked; if (!name || isNaN(order)) return showModal('Error', 'Nama kategori dan urutan harus diisi.'); await addDoc(collection(db, 'jastip_categories'), { name, order, hasSubtabs }); newCategoryNameInput.value = ''; newCategoryOrderInput.value = ''; newCategoryHasSubtabsCheckbox.checked = false; showModal('Sukses', `Kategori "${name}" berhasil ditambahkan.`); });
         categoryListDiv.addEventListener('click', async (e) => { const target = e.target.closest('button'); if (target && target.matches('.btn-delete')) { const id = target.dataset.id; if (confirm('Yakin ingin menghapus kategori ini?')) { await deleteDoc(doc(db, 'jastip_categories', id)); showModal('Sukses', 'Kategori berhasil dihapus.'); } } });
-
         function updateJastipSortIndicators() { ['name', 'timestamp'].forEach(c => document.getElementById(`jastip-${c}-sort-indicator`).textContent = ''); const i = jastipSortDirection === 'asc' ? '▲' : '▼'; document.getElementById(`jastip-${jastipSortColumn}-sort-indicator`).textContent = i; }
         function renderJastipPagination(total) { jastipPaginationControls.innerHTML = ''; const tP = Math.ceil(total / rowsPerPage); if (tP <= 1) return; const pB = document.createElement('button'); pB.textContent = 'Sebelumnya'; pB.className = 'pagination-btn'; pB.disabled = jastipCurrentPage === 1; pB.addEventListener('click', () => { jastipCurrentPage--; updateJastipUI(); }); const pI = document.createElement('span'); pI.textContent = `Halaman ${jastipCurrentPage} dari ${tP}`; const nB = document.createElement('button'); nB.textContent = 'Berikutnya'; nB.className = 'pagination-btn'; nB.disabled = jastipCurrentPage === tP; nB.addEventListener('click', () => { jastipCurrentPage++; updateJastipUI(); }); jastipPaginationControls.append(pB, pI, nB); }
         function updateJastipUI() { const q = jastipSearchInput.value.toLowerCase(); let f = jastipProductsData.filter(p => p.name.toLowerCase().includes(q)); f.sort((a, b) => { const vA = a[jastipSortColumn], vB = b[jastipSortColumn]; let c = 0; if (jastipSortColumn === 'timestamp') { c = (vA?.seconds || 0) - (vB?.seconds || 0); } else { c = String(vA).localeCompare(String(vB)); } return jastipSortDirection === 'asc' ? c : -c; }); const s = (jastipCurrentPage - 1) * rowsPerPage; const p = f.slice(s, s + rowsPerPage); jastipProductListTable.innerHTML = ''; p.forEach((p, i) => { const r = document.createElement('tr'); const t = p.timestamp ? new Date(p.timestamp.seconds * 1000).toLocaleString('id-ID', {day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}) : 'N/A'; r.className = `border-b border-gray-700 hover:bg-amber-900/50 ${i % 2 === 0 ? 'bg-gray-800/50' : 'bg-transparent'}`; r.innerHTML = `<td class="p-3">${p.name}</td><td class="p-3">${p.category}${p.subCategory ? ` (${p.subCategory})` : ''}</td><td class="p-3 whitespace-nowrap">${t}</td><td class="p-3 text-center"><div class="flex items-center justify-center gap-2"><button data-id="${p.id}" class="action-btn btn-edit">${editIcon}</button><button data-id="${p.id}" class="action-btn btn-delete">${deleteIcon}</button></div></td>`; jastipProductListTable.appendChild(r); }); updateJastipSortIndicators(); renderJastipPagination(f.length); }
@@ -164,92 +281,305 @@
         jastipForm.addEventListener('submit', async e => { e.preventDefault(); const catName = jastipCategorySelect.value; const cat = jastipCategories.find(c => c.name === catName); if (!cat) return showModal('Error', 'Kategori tidak valid.'); let data; if (cat.hasSubtabs) { const opts = Array.from(jastipOptionsContainer.querySelectorAll('.input-group')).map(el => ({ name: el.children[0].value, price: parseInt(el.children[1].value), id: el.children[0].value.replace(/\s/g, '').toLowerCase() })); if (opts.some(o => !o.name || isNaN(o.price))) return showModal('Error', 'Varian kopi harus diisi lengkap.'); data = { options: opts, subCategory: jastipSubCategorySelect.value }; } else { data = { price: parseInt(jastipPriceInput.value), shopeeLink: jastipShopeeLinkInput.value }; } Object.assign(data, { name: jastipProductNameInput.value, category: catName, isBestSeller: jastipBestSellerCheckbox.checked, timestamp: serverTimestamp() }); try { if (jastipProductIdInput.value) await setDoc(doc(db, 'products', jastipProductIdInput.value), data); else await addDoc(collection(db, 'products'), data); showModal('Sukses', 'Produk Jastip disimpan!'); jastipForm.reset(); jastipCancelEditBtn.classList.add('hidden'); jastipOptionsContainer.innerHTML = ''; } catch (err) { showModal('Error', 'Gagal menyimpan.'); } });
         jastipProductListTable.addEventListener('click', e => { const id = e.target.closest('button')?.dataset.id; if (!id) return; if (e.target.closest('.btn-edit')) { const p = jastipProductsData.find(p => p.id === id); const cat = jastipCategories.find(c => c.name === p.category); jastipProductIdInput.value = id; jastipProductNameInput.value = p.name; jastipCategorySelect.value = p.category; jastipCoffeeFields.classList.toggle('hidden', !cat?.hasSubtabs); jastipNonCoffeeFields.classList.toggle('hidden', cat?.hasSubtabs); if (cat?.hasSubtabs) { jastipSubCategorySelect.value = p.subCategory; jastipOptionsContainer.innerHTML = ''; p.options.forEach(createJastipOptionInput); } else { jastipPriceInput.value = p.price; jastipShopeeLinkInput.value = p.shopeeLink || ''; } jastipBestSellerCheckbox.checked = p.isBestSeller; jastipCancelEditBtn.classList.remove('hidden'); contentJastip.scrollIntoView({ behavior: 'smooth' }); } if (e.target.closest('.btn-delete') && confirm('Yakin hapus?')) { deleteDoc(doc(db, 'products', id)); showModal('Sukses', 'Produk Jastip dihapus.'); } });
         jastipCancelEditBtn.addEventListener('click', () => { jastipForm.reset(); jastipOptionsContainer.innerHTML = ''; jastipCancelEditBtn.classList.add('hidden'); });
-
-        // --- Via Online Logic ---
-        async function uploadToCloudinary(file) {
-            const formData = new FormData();
-            formData.append('file', file);
-            formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
-            return new Promise((resolve, reject) => {
-                const xhr = new XMLHttpRequest();
-                xhr.open('POST', `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`, true);
-                xhr.upload.onprogress = function(event) {
-                    if (event.lengthComputable) {
-                        const percentComplete = (event.loaded / event.total) * 100;
-                        uploadProgressBar.style.width = percentComplete + '%';
-                    }
-                };
-                xhr.onload = function() {
-                    if (xhr.status === 200) {
-                        const response = JSON.parse(xhr.responseText);
-                        resolve(response.secure_url);
-                    } else {
-                        reject('Gagal mengunggah gambar.');
-                    }
-                };
-                xhr.onerror = function() { reject('Terjadi kesalahan jaringan.'); };
-                xhr.send(formData);
-            });
-        }
-        imageFileInput.addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(event) { imagePreview.src = event.target.result; }
-                reader.readAsDataURL(file);
-            }
-        });
+        async function uploadToCloudinary(file) { const formData = new FormData(); formData.append('file', file); formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET); return new Promise((resolve, reject) => { const xhr = new XMLHttpRequest(); xhr.open('POST', `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`, true); xhr.upload.onprogress = function(event) { if (event.lengthComputable) { const percentComplete = (event.loaded / event.total) * 100; uploadProgressBar.style.width = percentComplete + '%'; } }; xhr.onload = function() { if (xhr.status === 200) { const response = JSON.parse(xhr.responseText); resolve(response.secure_url); } else { reject('Gagal mengunggah gambar.'); } }; xhr.onerror = function() { reject('Terjadi kesalahan jaringan.'); }; xhr.send(formData); }); }
+        imageFileInput.addEventListener('change', (e) => { const file = e.target.files[0]; if (file) { const reader = new FileReader(); reader.onload = function(event) { imagePreview.src = event.target.result; }; reader.readAsDataURL(file); } });
         function updateOnlineSortIndicators(){['name','category','platform'].forEach(c=>document.getElementById(`online-${c}-sort-indicator`).textContent='');const i=onlineSortDirection==='asc'?'▲':'▼';document.getElementById(`online-${onlineSortColumn}-sort-indicator`).textContent=i;}
         function renderOnlinePagination(total){onlinePaginationControls.innerHTML='';const tP=Math.ceil(total/rowsPerPage);if(tP<=1)return;const pB=document.createElement('button');pB.textContent='Sebelumnya';pB.className='pagination-btn';pB.disabled=onlineCurrentPage===1;pB.addEventListener('click',()=>{onlineCurrentPage--;updateOnlineUI();});const pI=document.createElement('span');pI.textContent=`Halaman ${onlineCurrentPage} dari ${tP}`;const nB=document.createElement('button');nB.textContent='Berikutnya';nB.className='pagination-btn';nB.disabled=onlineCurrentPage===tP;nB.addEventListener('click',()=>{onlineCurrentPage++;updateOnlineUI();});onlinePaginationControls.append(pB,pI,nB);}
         function updateOnlineUI(){const q=onlineSearchInput.value.toLowerCase();let f=onlineProductsData.filter(p=>p.name.toLowerCase().includes(q)||p.category.toLowerCase().includes(q));f.sort((a,b)=>{const vA=a[onlineSortColumn],vB=b[onlineSortColumn];const c=String(vA).localeCompare(String(vB));return onlineSortDirection==='asc'?c:-c;});const s=(onlineCurrentPage-1)*rowsPerPage;const p=f.slice(s,s+rowsPerPage);onlineProductListTable.innerHTML='';p.forEach((p,i)=>{const r=document.createElement('tr');r.className=`border-b border-gray-700 hover:bg-amber-900/50 ${i%2===0?'bg-gray-800/50':'bg-transparent'}`;r.innerHTML=`<td class="p-3">${p.name}</td><td class="p-3">${p.category}</td><td class="p-3">${p.platform}</td><td class="p-3 text-center"><div class="flex items-center justify-center gap-2"><button data-id="${p.id}" class="action-btn btn-edit">${editIcon}</button><button data-id="${p.id}" class="action-btn btn-delete">${deleteIcon}</button></div></td>`;onlineProductListTable.appendChild(r);});updateOnlineSortIndicators();renderOnlinePagination(f.length);}
         function listenForOnlineProducts(){onSnapshot(query(collection(db,'affiliate_products')),s=>{onlineProductsData=s.docs.map(d=>({id:d.id,...d.data()}));updateOnlineUI();});}
         document.querySelectorAll('#content-via-online .sortable-header').forEach(h=>{h.addEventListener('click',()=>{const c=h.dataset.sortColumn;if(onlineSortColumn===c){onlineSortDirection=onlineSortDirection==='asc'?'desc':'asc';}else{onlineSortColumn=c;onlineSortDirection='asc';}onlineCurrentPage=1;updateOnlineUI();});});
         onlineSearchInput.addEventListener('input',()=>{onlineCurrentPage=1;updateOnlineUI();});
-        onlineForm.addEventListener('submit',async e=>{
-            e.preventDefault();
-            const submitButton = onlineForm.querySelector('button[type="submit"]');
-            submitButton.disabled = true;
-            submitButton.textContent = 'Menyimpan...';
-            let imageUrl = hiddenImageUrlInput.value;
-            const file = imageFileInput.files[0];
-            try {
-                if (file) {
-                    uploadProgressContainer.classList.remove('hidden');
-                    uploadProgressBar.style.width = '0%';
-                    imageUrl = await uploadToCloudinary(file);
-                    uploadProgressContainer.classList.add('hidden');
-                }
-                if (!imageUrl) { throw new Error("Gambar produk wajib diunggah."); }
-                const data = { name: onlineProductNameInput.value, category: onlineProductCategoryInput.value, imageUrl: imageUrl, affiliateLink: onlineProductAffiliateLinkInput.value, platform: onlineProductPlatformSelect.value };
-                const id = onlineProductIdInput.value;
-                if (id) { await setDoc(doc(db, 'affiliate_products', id), data); } 
-                else { await addDoc(collection(db, 'affiliate_products'), data); }
-                showModal('Sukses', 'Produk Online disimpan!');
-                onlineForm.reset();
-                imagePreview.src = '';
-                onlineProductIdInput.value = '';
-                hiddenImageUrlInput.value = '';
-                onlineCancelEditBtn.classList.add('hidden');
-            } catch (err) {
-                showModal('Error', err.message || 'Gagal menyimpan produk.');
-            } finally {
-                submitButton.disabled = false;
-                submitButton.textContent = 'Simpan Produk Online';
-            }
-        });
+        onlineForm.addEventListener('submit',async e=>{ e.preventDefault(); const submitButton = onlineForm.querySelector('button[type="submit"]'); submitButton.disabled = true; submitButton.textContent = 'Menyimpan...'; let imageUrl = hiddenImageUrlInput.value; const file = imageFileInput.files[0]; try { if (file) { uploadProgressContainer.classList.remove('hidden'); uploadProgressBar.style.width = '0%'; imageUrl = await uploadToCloudinary(file); uploadProgressContainer.classList.add('hidden'); } if (!imageUrl) { throw new Error("Gambar produk wajib diunggah."); } const data = { name: onlineProductNameInput.value, category: onlineProductCategoryInput.value, imageUrl: imageUrl, affiliateLink: onlineProductAffiliateLinkInput.value, platform: onlineProductPlatformSelect.value }; const id = onlineProductIdInput.value; if (id) { await setDoc(doc(db, 'affiliate_products', id), data); } else { await addDoc(collection(db, 'affiliate_products'), data); } showModal('Sukses', 'Produk Online disimpan!'); onlineForm.reset(); imagePreview.src = ''; onlineProductIdInput.value = ''; hiddenImageUrlInput.value = ''; onlineCancelEditBtn.classList.add('hidden'); } catch (err) { showModal('Error', err.message || 'Gagal menyimpan produk.'); } finally { submitButton.disabled = false; submitButton.textContent = 'Simpan Produk Online'; } });
         onlineProductListTable.addEventListener('click',e=>{const id=e.target.closest('button')?.dataset.id;if(!id)return;if(e.target.closest('.btn-edit')){const p=onlineProductsData.find(p=>p.id===id);onlineProductIdInput.value=id;onlineProductNameInput.value=p.name;onlineProductCategoryInput.value=p.category;hiddenImageUrlInput.value=p.imageUrl;imagePreview.src=p.imageUrl;onlineProductAffiliateLinkInput.value=p.affiliateLink;onlineProductPlatformSelect.value=p.platform;onlineCancelEditBtn.classList.remove('hidden');contentViaOnline.scrollIntoView({behavior:'smooth'});}if(e.target.closest('.btn-delete')&&confirm('Yakin hapus?')){deleteDoc(doc(db,'affiliate_products',id));showModal('Sukses','Produk Online dihapus.');}});
-        onlineCancelEditBtn.addEventListener('click',()=>{
-            onlineForm.reset();
-            onlineProductIdInput.value = '';
-            hiddenImageUrlInput.value = '';
-            imagePreview.src = '';
-            onlineCancelEditBtn.classList.add('hidden');
-        });
-
+        onlineCancelEditBtn.addEventListener('click',()=>{ onlineForm.reset(); onlineProductIdInput.value = ''; hiddenImageUrlInput.value = ''; imagePreview.src = ''; onlineCancelEditBtn.classList.add('hidden'); });
         function listenForTestimonials(){onSnapshot(collection(db,'testimonials'),snap=>{testimonialListDiv.innerHTML='';snap.docs.forEach(d=>{const t={id:d.id,...d.data()};const div=document.createElement('div');div.className='relative group rounded-lg overflow-hidden';div.innerHTML=`<img src="${t.url}" class="w-full h-auto object-cover aspect-square"><div class="absolute inset-0 bg-black bg-opacity-60 flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity"><button data-id="${t.id}" data-url="${t.url}" class="action-btn btn-edit">${editIcon}</button><button data-id="${t.id}" class="action-btn btn-delete">${deleteIcon}</button></div>`;testimonialListDiv.appendChild(div);});});}
         testimonialForm.addEventListener('submit',async e=>{e.preventDefault();const id=testimonialIdInput.value;try{if(id)await setDoc(doc(db,'testimonials',id),{url:testimonialUrlInput.value});else await addDoc(collection(db,'testimonials'),{url:testimonialUrlInput.value});showModal('Sukses','Testimoni disimpan!');testimonialForm.reset();cancelTestimonialEditBtn.classList.add('hidden');}catch(err){showModal('Error','Gagal simpan.');}});
         testimonialListDiv.addEventListener('click',e=>{const btn=e.target.closest('button');if(!btn)return;const id=btn.dataset.id;if(btn.matches('.btn-edit')){testimonialIdInput.value=id;testimonialUrlInput.value=btn.dataset.url;cancelTestimonialEditBtn.classList.remove('hidden');}if(btn.matches('.btn-delete')&&confirm('Yakin hapus?')){deleteDoc(doc(db,'testimonials',id));showModal('Sukses','Testimoni dihapus.');}});
         cancelTestimonialEditBtn.addEventListener('click',()=>{testimonialForm.reset();cancelTestimonialEditBtn.classList.add('hidden');});
+        
+        // =================================================================
+        // =========== KODE UNTUK ADMIN JASTIP & VIA ONLINE (END) ==========
+        // =================================================================
+
+
+        // =================================================================
+        // =========== KODE UNTUK ADMIN LIST (START) =======================
+        // =================================================================
+        
+        // --- DOM Elements untuk Admin List ---
+        const customerNameInput = document.getElementById('customerNameInput');
+        const orderInput = document.getElementById('orderInput');
+        const addOrderBtn = document.getElementById('addOrderBtn');
+        const ordersList = document.getElementById('ordersList');
+        const itemsToBuyList = document.getElementById('itemsToBuyList');
+        const totalModalEl = document.getElementById('totalModal');
+        const totalJasaEl = document.getElementById('totalJasa');
+        const totalLunasEl = document.getElementById('totalLunas');
+        const totalBelumLunasEl = document.getElementById('totalBelumLunas');
+        const messageBox = document.getElementById('messageBox');
+        
+        const navActiveJastip = document.getElementById('navActiveJastip');
+        const navHistory = document.getElementById('navHistory');
+        const activeJastipPage = document.getElementById('activeJastipPage');
+        const historyJastipPage = document.getElementById('historyJastipPage');
+        const historyDetailPage = document.getElementById('historyDetailPage');
+        const endJastipBtn = document.getElementById('endJastipBtn');
+        const startNewJastipBtn = document.getElementById('startNewJastipBtn');
+        const backToHistoryBtn = document.getElementById('backToHistory');
+
+        let jastipSessions = [];
+        let currentJastip = { id: null, date: null, orders: [] };
+        let listCurrentPage = 'active';
+
+        function initListApp() {
+            loadJastipData();
+            showListPage('active');
+
+            navActiveJastip.addEventListener('click', () => showListPage('active'));
+            navHistory.addEventListener('click', () => showListPage('history'));
+            backToHistoryBtn.addEventListener('click', () => showListPage('history'));
+            addOrderBtn.addEventListener('click', () => {
+                const text = orderInput.value;
+                const name = customerNameInput.value.trim();
+                if (text.trim() === '') return showListMessage('Harap tempelkan data pesanan terlebih dahulu.', 'bg-yellow-600 text-white');
+                const newOrder = parseOrder(text, name);
+                if (newOrder) {
+                    if (!currentJastip.id) startNewJastip();
+                    currentJastip.orders.push(newOrder);
+                    saveJastipData();
+                    renderActiveJastip();
+                    orderInput.value = '';
+                    customerNameInput.value = '';
+                    showListMessage('Pesanan berhasil dicatat!', 'bg-green-600 text-white');
+                } else {
+                    showListMessage('Format pesanan tidak valid. Mohon periksa kembali.', 'bg-red-600 text-white');
+                }
+            });
+
+            endJastipBtn.addEventListener('click', () => {
+                if (currentJastip.orders.length > 0) {
+                    jastipSessions.push(currentJastip);
+                    saveJastipData();
+                    startNewJastip();
+                    showListMessage('Sesi jastip berhasil diarsipkan!', 'bg-green-600 text-white');
+                    showListPage('history');
+                } else {
+                    showListMessage('Tidak ada pesanan untuk diarsipkan.', 'bg-yellow-600 text-white');
+                }
+            });
+
+            startNewJastipBtn.addEventListener('click', () => {
+                startNewJastip();
+                showListPage('active');
+            });
+        }
+
+        function showListPage(page) {
+            listCurrentPage = page;
+            [activeJastipPage, historyJastipPage, historyDetailPage].forEach(p => p.classList.add('hidden'));
+            [navActiveJastip, navHistory].forEach(btn => btn.classList.remove('active'));
+
+            if (page === 'active') {
+                activeJastipPage.classList.remove('hidden');
+                navActiveJastip.classList.add('active');
+                renderActiveJastip();
+            } else if (page === 'history') {
+                historyJastipPage.classList.remove('hidden');
+                navHistory.classList.add('active');
+                renderHistoryList();
+            } else if (page === 'details') {
+                historyDetailPage.classList.remove('hidden');
+                navHistory.classList.add('active');
+            }
+        }
+
+        function startNewJastip() {
+            currentJastip = { id: Date.now(), date: new Date().toISOString(), orders: [] };
+            saveJastipData();
+            renderActiveJastip();
+        }
+
+        function renderActiveJastip() {
+            renderOrders(currentJastip.orders, ordersList);
+            updateSummary(currentJastip.orders);
+            renderItemsToBuy(currentJastip.orders);
+        }
+
+        function parseOrder(text, manualName) {
+            try {
+                // DIUBAH: Menyesuaikan dengan format dari index.html (menggunakan "=")
+                const itemsMatch = text.matchAll(/(\d+)x (.*?) = Rp([\d,.]+)/g);
+                const jastipFeeMatch = text.match(/Biaya Jasa Titip: Rp([\d,.]+)/);
+                // DIUBAH: Hanya mencari "Total:", bukan "Total Pembayaran:"
+                const totalPaymentMatch = text.match(/Total: Rp([\d,.]+)/);
+                
+                if (!itemsMatch || !jastipFeeMatch || !totalPaymentMatch) return null;
+
+                const items = [];
+                let totalItemPrice = 0;
+                for (const item of itemsMatch) {
+                    const price = parseFloat(item[3].replace(/\./g, '').replace(',', ''));
+                    items.push({ name: item[2].trim(), quantity: parseInt(item[1]), price: price });
+                    totalItemPrice += price;
+                }
+
+                const jastipFee = parseFloat(jastipFeeMatch[1].replace(/\./g, '').replace(',', ''));
+                const totalPayment = parseFloat(totalPaymentMatch[1].replace(/\./g, '').replace(',', ''));
+                
+                let customerName = manualName || 'Pelanggan';
+                if (items.length === 0 || isNaN(jastipFee) || isNaN(totalPayment)) return null;
+
+                return { id: Date.now(), customerName, items, jastipFee, totalPayment, moneyToPay: totalItemPrice, moneyToEarn: jastipFee, isPaid: false };
+            } catch (error) { console.error("Parsing error:", error); return null; }
+        }
+
+        function renderOrders(orders, container) {
+            container.innerHTML = `<h2 class="text-3xl font-semibold text-gray-300 mt-8 mb-4">Daftar Pesanan</h2>`;
+            if (orders.length === 0) {
+                container.innerHTML += `<p class="text-center text-gray-500">Belum ada pesanan yang dicatat.</p>`;
+                return;
+            }
+            orders.forEach(order => {
+                const statusColor = order.isPaid ? 'bg-green-700 text-white' : 'bg-yellow-700 text-white';
+                const statusText = order.isPaid ? 'LUNAS' : 'BELUM LUNAS';
+                const orderEl = document.createElement('div');
+                orderEl.className = `list-dark-card p-6 rounded-xl list-golden-shadow border-l-4 ${order.isPaid ? 'border-green-500' : 'border-yellow-500'}`;
+                
+                let buttonsHTML = listCurrentPage === 'active' ? `
+                    <div class="flex justify-between mt-4 space-x-2">
+                        <button onclick="window.togglePaymentStatus(${order.id})" class="flex-1 font-semibold py-2 px-4 rounded-full transition-all duration-300 ${order.isPaid ? 'bg-gray-800 text-gray-400 hover:bg-gray-700' : 'bg-yellow-500 text-gray-900 hover:bg-yellow-600'}">
+                            ${order.isPaid ? 'Batalkan Lunas' : 'Tandai Lunas'}
+                        </button>
+                        <button onclick="window.deleteOrder(${order.id})" class="w-10 bg-red-800 text-white py-2 rounded-full hover:bg-red-700 transition-all duration-300">🗑️</button>
+                    </div>` : '';
+
+                orderEl.innerHTML = `
+                    <div class="flex justify-between items-center mb-4"><h3 class="text-xl font-bold text-gray-200">${order.customerName} - #${order.id.toString().slice(-4)}</h3><span class="font-bold px-3 py-1 rounded-full text-xs ${statusColor}">${statusText}</span></div>
+                    <ul class="list-disc list-inside space-y-1 text-sm text-gray-400 mb-4">${order.items.map(item => `<li>${item.quantity}x ${item.name} - ${formatRupiah(item.price)}</li>`).join('')}</ul>
+                    <div class="grid grid-cols-2 gap-2 text-sm text-gray-300 font-semibold mb-4">
+                        <div>Biaya Jasa Titip:</div><div class="text-right">${formatRupiah(order.jastipFee)}</div>
+                        <div>Total Pembayaran:</div><div class="text-right">${formatRupiah(order.totalPayment)}</div>
+                        <div>Modal Belanja:</div><div class="text-right text-red-400">${formatRupiah(order.moneyToPay)}</div>
+                        <div>Penghasilan Anda:</div><div class="text-right text-green-400">${formatRupiah(order.moneyToEarn)}</div>
+                    </div>
+                    ${buttonsHTML}`;
+                container.appendChild(orderEl);
+            });
+        }
+
+        function updateSummary(ordersToSum) {
+            const totalModal = ordersToSum.reduce((sum, order) => sum + order.moneyToPay, 0);
+            const totalJasa = ordersToSum.reduce((sum, order) => sum + order.moneyToEarn, 0);
+            const totalLunas = ordersToSum.filter(o => o.isPaid).reduce((sum, order) => sum + order.totalPayment, 0);
+            const totalBelumLunas = ordersToSum.filter(o => !o.isPaid).reduce((sum, order) => sum + order.totalPayment, 0);
+            totalModalEl.textContent = formatRupiah(totalModal);
+            totalJasaEl.textContent = formatRupiah(totalJasa);
+            totalLunasEl.textContent = formatRupiah(totalLunas);
+            totalBelumLunasEl.textContent = formatRupiah(totalBelumLunas);
+        }
+
+        function renderItemsToBuy(ordersToBuy, container = itemsToBuyList) {
+            const aggregatedItems = {};
+            ordersToBuy.forEach(order => { order.items.forEach(item => { aggregatedItems[item.name] = (aggregatedItems[item.name] || 0) + item.quantity; }); });
+            container.innerHTML = '';
+            const itemNames = Object.keys(aggregatedItems).sort();
+            if (itemNames.length === 0) return container.innerHTML = `<p class="text-center text-gray-500">Tidak ada barang yang perlu dibeli.</p>`;
+            itemNames.forEach(itemName => {
+                const li = document.createElement('li');
+                li.className = 'flex items-center space-x-2';
+                li.innerHTML = `<span class="font-bold text-lg text-yellow-500">${aggregatedItems[itemName]}x</span><span class="text-gray-300">${itemName}</span>`;
+                container.appendChild(li);
+            });
+        }
+
+        function renderHistoryList() {
+            const historyContainer = document.getElementById('historyList');
+            historyContainer.innerHTML = '';
+            if (jastipSessions.length === 0) return historyContainer.innerHTML = `<p class="text-center text-gray-500">Belum ada riwayat sesi jastip.</p>`;
+            
+            [...jastipSessions].sort((a, b) => new Date(b.date) - new Date(a.date)).forEach(session => {
+                const totalPayment = session.orders.reduce((sum, order) => sum + order.totalPayment, 0);
+                const lunasCount = session.orders.filter(o => o.isPaid).length;
+                const totalCount = session.orders.length;
+                const sessionEl = document.createElement('div');
+                sessionEl.className = 'list-dark-card p-6 rounded-xl list-golden-shadow cursor-pointer hover:bg-gray-900 transition-colors duration-200';
+                sessionEl.onclick = () => showHistoryDetail(session.id);
+                sessionEl.innerHTML = `
+                    <div class="flex justify-between items-center mb-2"><h3 class="text-xl font-bold text-gray-200">Sesi ${formatDate(session.date)}</h3><span class="text-sm text-gray-500">${totalCount} Pesanan</span></div>
+                    <p class="text-gray-400">Total Pembayaran: <span class="font-semibold text-blue-400">${formatRupiah(totalPayment)}</span></p>
+                    <p class="text-sm text-gray-500">Status: <span class="${lunasCount === totalCount ? 'text-green-400' : 'text-yellow-400'}">${lunasCount}/${totalCount} Lunas</span></p>`;
+                historyContainer.appendChild(sessionEl);
+            });
+        }
+
+        function showHistoryDetail(id) {
+            const session = jastipSessions.find(s => s.id === id);
+            if (!session) return;
+            showListPage('details');
+            document.getElementById('jastipDetailDate').textContent = `Tanggal: ${formatDate(session.date)}`;
+            const summaryContainer = document.getElementById('jastipDetailSummary');
+            summaryContainer.innerHTML = `
+                <div class="p-4 bg-black rounded-lg list-golden-shadow"><p class="text-gray-400">Total Modal</p><p class="text-2xl font-bold text-red-400 mt-1">${formatRupiah(session.orders.reduce((s, o) => s + o.moneyToPay, 0))}</p></div>
+                <div class="p-4 bg-black rounded-lg list-golden-shadow"><p class="text-gray-400">Total Jasa</p><p class="text-2xl font-bold text-green-400 mt-1">${formatRupiah(session.orders.reduce((s, o) => s + o.moneyToEarn, 0))}</p></div>
+                <div class="p-4 bg-black rounded-lg list-golden-shadow"><p class="text-gray-400">Total Lunas</p><p class="text-2xl font-bold text-blue-400 mt-1">${formatRupiah(session.orders.filter(o=>o.isPaid).reduce((s, o) => s + o.totalPayment, 0))}</p></div>
+                <div class="p-4 bg-black rounded-lg list-golden-shadow"><p class="text-gray-400">Total Belum Lunas</p><p class="text-2xl font-bold text-yellow-400 mt-1">${formatRupiah(session.orders.filter(o=>!o.isPaid).reduce((s, o) => s + o.totalPayment, 0))}</p></div>`;
+            renderItemsToBuy(session.orders, document.getElementById('jastipDetailItems'));
+            renderOrders(session.orders, document.getElementById('jastipDetailOrders'));
+        }
+
+        window.togglePaymentStatus = function(id) {
+            const order = currentJastip.orders.find(o => o.id === id);
+            if (order) { order.isPaid = !order.isPaid; saveJastipData(); renderActiveJastip(); }
+        }
+        
+        window.deleteOrder = function(id) {
+            if (confirm('Yakin ingin menghapus pesanan ini?')) {
+                currentJastip.orders = currentJastip.orders.filter(o => o.id !== id);
+                saveJastipData();
+                renderActiveJastip();
+            }
+        }
+
+        function formatRupiah(number) { return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(number); }
+        function formatDate(dateString) { return new Date(dateString).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' }); }
+        function showListMessage(msg, className) { messageBox.textContent = msg; messageBox.className = `block mb-4 p-4 rounded-lg text-center font-semibold ${className}`; setTimeout(() => { messageBox.classList.add('hidden'); }, 3000); }
+
+        function saveJastipData() {
+            const dataToSave = { sessions: jastipSessions, current: currentJastip };
+            // Simpan ke Firestore di bawah user admin
+            const user = auth.currentUser;
+            if (user) {
+                const listDataRef = doc(db, 'admin_data', user.uid);
+                setDoc(listDataRef, { jastipListData: JSON.stringify(dataToSave) }, { merge: true });
+            }
+        }
+
+        function loadJastipData() {
+            const user = auth.currentUser;
+            if (user) {
+                const listDataRef = doc(db, 'admin_data', user.uid);
+                onSnapshot(listDataRef, (docSnap) => {
+                    if (docSnap.exists() && docSnap.data().jastipListData) {
+                        const storedData = JSON.parse(docSnap.data().jastipListData);
+                        jastipSessions = storedData.sessions || [];
+                        currentJastip = storedData.current || { id: null, date: null, orders: [] };
+                    } else {
+                        // Jika tidak ada data, mulai sesi baru
+                        startNewJastip();
+                    }
+                    // Render ulang halaman aktif setelah data dimuat
+                    showListPage(listCurrentPage);
+                }, (error) => { // <-- PERBAIKAN: Menambahkan penanganan error
+                    console.error("Kesalahan izin Firestore pada 'admin_data':", error);
+                    showListMessage("Gagal memuat data list. Pastikan rules Firestore Anda sudah benar.", "bg-red-600 text-white");
+                });
+            }
+        }
+        
+        // =================================================================
+        // =========== KODE UNTUK ADMIN LIST (END) =========================
+        // =================================================================
+
     </script>
 </body>
 </html>
