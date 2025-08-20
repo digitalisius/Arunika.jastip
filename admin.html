@@ -6,6 +6,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&display=swap');
         body { font-family: 'Inter', sans-serif; background-color: #121212; color: #e0e0e0; }
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 2000; backdrop-filter: blur(4px); }
         .modal-container { background-color: #1f1f1f; padding: 2rem; border-radius: 1.5rem; max-width: 90%; width: 24rem; text-align: center; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); }
@@ -24,70 +25,20 @@
         #image-preview-container { width: 100px; height: 100px; border: 2px dashed #4B5563; border-radius: 0.5rem; display: flex; align-items: center; justify-content: center; overflow: hidden; }
         #image-preview { max-width: 100%; max-height: 100%; }
         #upload-progress-bar { width: 0%; transition: width 0.3s; }
-
-        /* Gaya Khusus untuk Admin List */
+        #content-list h1, #content-list h2, #content-list h3 { font-family: 'Cormorant Garamond', serif; }
         .list-golden-text { color: #d4af37; }
         .list-golden-shadow { box-shadow: 0 4px 15px rgba(212, 175, 55, 0.2); }
         .list-dark-card { background-color: #111; border: 1px solid #333; }
         .list-nav-btn.active { background-color: #222; color: #d4af37; }
         .list-nav-btn:not(.active) { color: #e0e0e0; border-color: #333; }
-
-        /* --- Gaya Baru yang Elegan --- */
-        #logout-btn {
-            background-color: #374151;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s ease;
-            border: 1px solid transparent;
-        }
-        #logout-btn:hover {
-            background-color: #DC2626;
-            border-color: #F87171;
-            transform: rotate(90deg);
-        }
+        #logout-btn { background-color: #374151; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; border: 1px solid transparent; }
+        #logout-btn:hover { background-color: #DC2626; border-color: #F87171; transform: rotate(90deg); }
         #logout-btn svg { color: #e0e0e0; }
-
-        .admin-nav-container {
-            position: relative;
-            display: flex;
-            justify-content: center;
-            background-color: #1f2937;
-            border-radius: 9999px;
-            padding: 0.5rem;
-            box-shadow: inset 0 2px 4px 0 rgba(0,0,0,0.2);
-        }
-        .admin-nav-btn {
-            background-color: transparent;
-            color: #9ca3af;
-            font-weight: 600;
-            padding: 0.75rem 1.5rem;
-            border-radius: 9999px;
-            transition: all 0.3s ease;
-            z-index: 10;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        .admin-nav-btn:hover:not(.active) {
-            color: #e0e0e0;
-        }
-        .admin-nav-btn.active {
-            color: #121212;
-        }
-        .nav-indicator {
-            position: absolute;
-            height: calc(100% - 1rem);
-            top: 0.5rem;
-            left: 0.5rem;
-            background-image: linear-gradient(to right, #f59e0b, #d97706);
-            border-radius: 9999px;
-            transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
-            z-index: 5;
-        }
+        .admin-nav-container { position: relative; display: flex; justify-content: center; background-color: #1f2937; border-radius: 9999px; padding: 0.5rem; box-shadow: inset 0 2px 4px 0 rgba(0,0,0,0.2); }
+        .admin-nav-btn { background-color: transparent; color: #9ca3af; font-weight: 600; padding: 0.75rem 1.5rem; border-radius: 9999px; transition: all 0.3s ease; z-index: 10; display: flex; align-items: center; gap: 0.5rem; }
+        .admin-nav-btn:hover:not(.active) { color: #e0e0e0; }
+        .admin-nav-btn.active { color: #121212; }
+        .nav-indicator { position: absolute; height: calc(100% - 1rem); top: 0.5rem; left: 0.5rem; background-image: linear-gradient(to right, #f59e0b, #d97706); border-radius: 9999px; transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1); z-index: 5; }
     </style>
 </head>
 <body class="bg-gray-900 text-gray-200 p-4 md:p-8">
@@ -121,8 +72,7 @@
 
             <!-- KONTEN ADMIN JASTIP -->
             <div id="content-jastip">
-                <!-- Konten Admin Jastip tidak diubah -->
-                <section class="mb-8 p-6 bg-black/20 rounded-lg">
+                 <section class="mb-8 p-6 bg-black/20 rounded-lg">
                     <h2 class="text-2xl font-bold mb-4">Kelola Produk Jastip</h2>
                     <form id="jastip-form" class="space-y-4"><input type="hidden" id="jastip-product-id"><div><label for="jastip-product-name" class="block text-sm font-medium mb-1">Nama Produk</label><input type="text" id="jastip-product-name" required class="w-full form-input"></div><div><label for="jastip-product-category" class="block text-sm font-medium mb-1">Kategori</label><select id="jastip-product-category" required class="w-full form-input"><option value="">Memuat kategori...</option></select></div><div id="jastip-coffee-fields" class="hidden"><div id="jastip-sub-category-container"><label for="jastip-product-sub-category" class="block text-sm font-medium mb-1">Sub-Kategori Kopi</label><select id="jastip-product-sub-category" class="w-full form-input"><option value="Arabika">Arabika</option><option value="Robusta">Robusta</option></select></div><div id="jastip-options-container" class="space-y-2 mt-4"></div><button type="button" id="jastip-add-option-btn" class="mt-2 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-sm">Tambah Varian</button></div><div id="jastip-non-coffee-fields" class="hidden"><div><label for="jastip-product-price" class="block text-sm font-medium mb-1">Harga</label><input type="number" id="jastip-product-price" class="w-full form-input"></div><div><label for="jastip-product-shopee-link" class="block text-sm font-medium mb-1">Link Shopee (Opsional)</label><input type="url" id="jastip-product-shopee-link" class="w-full form-input"></div></div><div class="pt-2"><label for="jastip-product-is-best-seller" class="flex items-center space-x-2"><input type="checkbox" id="jastip-product-is-best-seller" class="form-checkbox h-5 w-5 rounded bg-gray-700 border-gray-600 text-amber-600"><span class="text-sm font-medium">Jadikan Produk Terlaris</span></label></div><div class="flex space-x-4 pt-2"><button type="submit" class="flex-1 py-3 bg-amber-600 hover:bg-amber-700 rounded-lg font-bold">Simpan Produk Jastip</button><button type="button" id="jastip-cancel-edit-btn" class="hidden flex-1 py-3 bg-gray-600 hover:bg-gray-500 rounded-lg font-bold">Batal</button></div></form>
                 </section>
@@ -176,7 +126,7 @@
                  </div>
             </div>
 
-            <!-- KONTEN ADMIN LIST (BARU) -->
+            <!-- KONTEN ADMIN LIST -->
             <div id="content-list" class="hidden">
                 <nav class="flex justify-center mb-6 space-x-2">
                     <button id="navActiveJastip" class="list-nav-btn bg-black text-gray-400 font-semibold py-2 px-4 rounded-full transition-all duration-300 border border-gray-700 hover:bg-gray-900 active">Jastip Aktif</button>
@@ -249,7 +199,6 @@
 
         // --- KONFIGURASI ---
         const firebaseConfig = { apiKey: "AIzaSyAdYbsk_p1mIvf7NXd2cLaQAFBP2mrxtuI", authDomain: "jastip-arunika.firebaseapp.com", projectId: "jastip-arunika", storageBucket: "jastip-arunika.appspot.com", messagingSenderId: "272195022487", appId: "1:272195022487:web:f9b3cfe42170c5bd6983d2" };
-        // UID Admin disesuaikan dengan input Anda
         const ADMIN_UID = 'nx8LoIzVIYWqeOOVh5hQlY8vP9r1';
         const CLOUDINARY_CLOUD_NAME = "dtvmbvwtx";
         const CLOUDINARY_UPLOAD_PRESET = "ml_default";
@@ -267,11 +216,10 @@
                 [logoutBtn, adminContent].forEach(e => e.classList.remove('hidden')); 
                 [loadingContainer, loginContainer].forEach(e => e.classList.add('hidden')); 
                 userIdDisplay.textContent = `UID: ${user.uid}`; 
-                // Inisialisasi semua data setelah login berhasil
                 initJastipAdmin();
                 initViaOnlineAdmin();
-                initListApp(); // Inisialisasi aplikasi list
-                setupNavIndicator(); // Setup a new navigation indicator
+                initListApp();
+                setupNavIndicator();
             } else { 
                 [logoutBtn, adminContent].forEach(e => e.classList.add('hidden')); 
                 loadingContainer.classList.add('hidden'); 
@@ -334,7 +282,6 @@
         // =========== KODE UNTUK ADMIN JASTIP & VIA ONLINE (START) ========
         // =================================================================
         
-        // --- DOM Elements Jastip & Online ---
         const jastipForm=document.getElementById('jastip-form'),jastipProductIdInput=document.getElementById('jastip-product-id'),jastipProductNameInput=document.getElementById('jastip-product-name'),jastipCategorySelect=document.getElementById('jastip-product-category'),jastipCoffeeFields=document.getElementById('jastip-coffee-fields'),jastipNonCoffeeFields=document.getElementById('jastip-non-coffee-fields'),jastipSubCategorySelect=document.getElementById('jastip-product-sub-category'),jastipOptionsContainer=document.getElementById('jastip-options-container'),jastipAddOptionBtn=document.getElementById('jastip-add-option-btn'),jastipPriceInput=document.getElementById('jastip-product-price'),jastipShopeeLinkInput=document.getElementById('jastip-product-shopee-link'),jastipBestSellerCheckbox=document.getElementById('jastip-product-is-best-seller'),jastipProductListTable=document.getElementById('jastip-product-list'),jastipCancelEditBtn=document.getElementById('jastip-cancel-edit-btn'),jastipSearchInput=document.getElementById('jastip-search-input'),jastipPaginationControls=document.getElementById('jastip-pagination-controls');
         const onlineForm=document.getElementById('online-form'),onlineProductIdInput=document.getElementById('online-product-id'),onlineProductNameInput=document.getElementById('online-product-name'),onlineProductCategoryInput=document.getElementById('online-product-category'),onlineProductAffiliateLinkInput=document.getElementById('online-product-affiliate-link'),onlineProductPlatformSelect=document.getElementById('online-product-platform'),onlineProductListTable=document.getElementById('online-product-list'),onlineCancelEditBtn=document.getElementById('online-cancel-edit-btn'),onlineSearchInput=document.getElementById('online-search-input'),onlinePaginationControls=document.getElementById('online-pagination-controls');
         const newCategoryNameInput=document.getElementById('new-category-name'),newCategoryOrderInput=document.getElementById('new-category-order'),newCategoryHasSubtabsCheckbox=document.getElementById('new-category-hassubtabs'),addCategoryBtn=document.getElementById('add-category-btn'),categoryListDiv=document.getElementById('category-list');
@@ -346,15 +293,8 @@
         let onlineCurrentPage=1, onlineSortColumn='name', onlineSortDirection='asc';
         const rowsPerPage=10;
 
-        function initJastipAdmin() {
-            listenForJastipCategories(); 
-            listenForJastipProducts(); 
-            listenForTestimonials();
-        }
-
-        function initViaOnlineAdmin() {
-            listenForOnlineProducts();
-        }
+        function initJastipAdmin() { listenForJastipCategories(); listenForJastipProducts(); listenForTestimonials(); }
+        function initViaOnlineAdmin() { listenForOnlineProducts(); }
 
         function listenForJastipCategories() { const q = query(collection(db, 'jastip_categories'), orderBy('order')); onSnapshot(q, (snapshot) => { jastipCategories = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })); categoryListDiv.innerHTML = ''; jastipCategories.forEach(cat => { const div = document.createElement('div'); div.className = 'flex items-center justify-between bg-gray-700 p-3 rounded-lg'; div.innerHTML = `<div class="flex items-center gap-4"><span class="font-bold text-gray-400">#${cat.order}</span><span class="font-semibold">${cat.name}</span>${cat.hasSubtabs ? '<span class="text-xs bg-blue-500 text-white px-2 py-0.5 rounded-full">Dengan Sub-Tab</span>' : ''}</div><button data-id="${cat.id}" class="action-btn btn-delete">${deleteIcon}</button>`; categoryListDiv.appendChild(div); }); const currentSelection = jastipCategorySelect.value; jastipCategorySelect.innerHTML = '<option value="">-- Pilih Kategori --</option>'; jastipCategories.forEach(cat => { const option = document.createElement('option'); option.value = cat.name; option.textContent = cat.name; jastipCategorySelect.appendChild(option); }); jastipCategorySelect.value = currentSelection; }); }
         addCategoryBtn.addEventListener('click', async () => { const name = newCategoryNameInput.value.trim(); const order = parseInt(newCategoryOrderInput.value); const hasSubtabs = newCategoryHasSubtabsCheckbox.checked; if (!name || isNaN(order)) return showModal('Error', 'Nama kategori dan urutan harus diisi.'); await addDoc(collection(db, 'jastip_categories'), { name, order, hasSubtabs }); newCategoryNameInput.value = ''; newCategoryOrderInput.value = ''; newCategoryHasSubtabsCheckbox.checked = false; showModal('Sukses', `Kategori "${name}" berhasil ditambahkan.`); });
@@ -378,7 +318,48 @@
         function listenForOnlineProducts(){onSnapshot(query(collection(db,'affiliate_products')),s=>{onlineProductsData=s.docs.map(d=>({id:d.id,...d.data()}));updateOnlineUI();});}
         document.querySelectorAll('#content-via-online .sortable-header').forEach(h=>{h.addEventListener('click',()=>{const c=h.dataset.sortColumn;if(onlineSortColumn===c){onlineSortDirection=onlineSortDirection==='asc'?'desc':'asc';}else{onlineSortColumn=c;onlineSortDirection='asc';}onlineCurrentPage=1;updateOnlineUI();});});
         onlineSearchInput.addEventListener('input',()=>{onlineCurrentPage=1;updateOnlineUI();});
-        onlineForm.addEventListener('submit',async e=>{ e.preventDefault(); const submitButton = onlineForm.querySelector('button[type="submit"]'); submitButton.disabled = true; submitButton.textContent = 'Menyimpan...'; let imageUrl = hiddenImageUrlInput.value; const file = imageFileInput.files[0]; try { if (file) { uploadProgressContainer.classList.remove('hidden'); uploadProgressBar.style.width = '0%'; imageUrl = await uploadToCloudinary(file); uploadProgressContainer.classList.add('hidden'); } if (!imageUrl) { throw new Error("Gambar produk wajib diunggah."); } const data = { name: onlineProductNameInput.value, category: onlineProductCategoryInput.value, imageUrl: imageUrl, affiliateLink: onlineProductAffiliateLinkInput.value, platform: onlineProductPlatformSelect.value }; const id = onlineProductIdInput.value; if (id) { await setDoc(doc(db, 'affiliate_products', id), data); } else { await addDoc(collection(db, 'affiliate_products'), data); } showModal('Sukses', 'Produk Online disimpan!'); onlineForm.reset(); imagePreview.src = ''; onlineProductIdInput.value = ''; hiddenImageUrlInput.value = ''; onlineCancelEditBtn.classList.add('hidden'); } catch (err) { showModal('Error', err.message || 'Gagal menyimpan produk.'); } finally { submitButton.disabled = false; submitButton.textContent = 'Simpan Produk Online'; } });
+        onlineForm.addEventListener('submit',async e=>{ 
+            e.preventDefault(); 
+            const submitButton = onlineForm.querySelector('button[type="submit"]');
+            submitButton.disabled = true;
+            submitButton.textContent = 'Menyimpan...';
+            let imageUrl = hiddenImageUrlInput.value;
+            const file = imageFileInput.files[0];
+            try {
+                if (file) {
+                    uploadProgressContainer.classList.remove('hidden');
+                    uploadProgressBar.style.width = '0%';
+                    imageUrl = await uploadToCloudinary(file);
+                    uploadProgressContainer.classList.add('hidden');
+                }
+                if (!imageUrl) { throw new Error("Gambar produk wajib diunggah."); }
+                const data = { 
+                    name: onlineProductNameInput.value, 
+                    category: onlineProductCategoryInput.value, 
+                    imageUrl: imageUrl, 
+                    affiliateLink: onlineProductAffiliateLinkInput.value, 
+                    platform: onlineProductPlatformSelect.value,
+                    timestamp: serverTimestamp() // <-- PENAMBAHAN PENTING
+                };
+                const id = onlineProductIdInput.value;
+                if (id) {
+                    await setDoc(doc(db, 'affiliate_products', id), data, { merge: true });
+                } else {
+                    await addDoc(collection(db, 'affiliate_products'), data);
+                }
+                showModal('Sukses', 'Produk Online disimpan!');
+                onlineForm.reset();
+                imagePreview.src = '';
+                onlineProductIdInput.value = '';
+                hiddenImageUrlInput.value = '';
+                onlineCancelEditBtn.classList.add('hidden');
+            } catch (err) {
+                showModal('Error', err.message || 'Gagal menyimpan produk.');
+            } finally {
+                submitButton.disabled = false;
+                submitButton.textContent = 'Simpan Produk Online';
+            }
+        });
         onlineProductListTable.addEventListener('click',e=>{const id=e.target.closest('button')?.dataset.id;if(!id)return;if(e.target.closest('.btn-edit')){const p=onlineProductsData.find(p=>p.id===id);onlineProductIdInput.value=id;onlineProductNameInput.value=p.name;onlineProductCategoryInput.value=p.category;hiddenImageUrlInput.value=p.imageUrl;imagePreview.src=p.imageUrl;onlineProductAffiliateLinkInput.value=p.affiliateLink;onlineProductPlatformSelect.value=p.platform;onlineCancelEditBtn.classList.remove('hidden');contentViaOnline.scrollIntoView({behavior:'smooth'});}if(e.target.closest('.btn-delete')&&confirm('Yakin hapus?')){deleteDoc(doc(db,'affiliate_products',id));showModal('Sukses','Produk Online dihapus.');}});
         onlineCancelEditBtn.addEventListener('click',()=>{ onlineForm.reset(); onlineProductIdInput.value = ''; hiddenImageUrlInput.value = ''; imagePreview.src = ''; onlineCancelEditBtn.classList.add('hidden'); });
         function listenForTestimonials(){onSnapshot(collection(db,'testimonials'),snap=>{testimonialListDiv.innerHTML='';snap.docs.forEach(d=>{const t={id:d.id,...d.data()};const div=document.createElement('div');div.className='relative group rounded-lg overflow-hidden';div.innerHTML=`<img src="${t.url}" class="w-full h-auto object-cover aspect-square"><div class="absolute inset-0 bg-black bg-opacity-60 flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity"><button data-id="${t.id}" data-url="${t.url}" class="action-btn btn-edit">${editIcon}</button><button data-id="${t.id}" class="action-btn btn-delete">${deleteIcon}</button></div>`;testimonialListDiv.appendChild(div);});});}
@@ -395,7 +376,6 @@
         // =========== KODE UNTUK ADMIN LIST (START) =======================
         // =================================================================
         
-        // --- DOM Elements untuk Admin List ---
         const customerNameInput = document.getElementById('customerNameInput');
         const orderInput = document.getElementById('orderInput');
         const addOrderBtn = document.getElementById('addOrderBtn');
@@ -496,10 +476,8 @@
 
         function parseOrder(text, manualName) {
             try {
-                // DIUBAH: Menyesuaikan dengan format dari index.html (menggunakan "=")
                 const itemsMatch = text.matchAll(/(\d+)x (.*?) = Rp([\d,.]+)/g);
                 const jastipFeeMatch = text.match(/Biaya Jasa Titip: Rp([\d,.]+)/);
-                // DIUBAH: Hanya mencari "Total:", bukan "Total Pembayaran:"
                 const totalPaymentMatch = text.match(/Total: Rp([\d,.]+)/);
                 
                 if (!itemsMatch || !jastipFeeMatch || !totalPaymentMatch) return null;
@@ -635,7 +613,6 @@
 
         function saveJastipData() {
             const dataToSave = { sessions: jastipSessions, current: currentJastip };
-            // Simpan ke Firestore di bawah user admin
             const user = auth.currentUser;
             if (user) {
                 const listDataRef = doc(db, 'admin_data', user.uid);
@@ -653,12 +630,10 @@
                         jastipSessions = storedData.sessions || [];
                         currentJastip = storedData.current || { id: null, date: null, orders: [] };
                     } else {
-                        // Jika tidak ada data, mulai sesi baru
                         startNewJastip();
                     }
-                    // Render ulang halaman aktif setelah data dimuat
                     showListPage(listCurrentPage);
-                }, (error) => { // <-- PERBAIKAN: Menambahkan penanganan error
+                }, (error) => {
                     console.error("Kesalahan izin Firestore pada 'admin_data':", error);
                     showListMessage("Gagal memuat data list. Pastikan rules Firestore Anda sudah benar.", "bg-red-600 text-white");
                 });
