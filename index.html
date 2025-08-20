@@ -132,21 +132,32 @@
             bottom: 20px;
         }
 
-        /* Gaya untuk dropdown urutkan */
-        .sort-select {
+        /* Gaya baru untuk tombol urutkan */
+        #sort-open-btn {
             background-color: #2a2a2a;
             border: 1px solid #4b5563;
-            border-radius: 0.75rem;
-            padding: 0.75rem 1rem;
             color: #e0e0e0;
-            -webkit-appearance: none;
-            -moz-appearance: none;
-            appearance: none;
-            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
-            background-position: right 0.5rem center;
-            background-repeat: no-repeat;
-            background-size: 1.5em 1.5em;
-            padding-right: 2.5rem;
+            transition: all 0.2s ease;
+        }
+        #sort-open-btn:hover {
+            border-color: #FFD700;
+            color: #FFD700;
+        }
+        .sort-modal-item {
+            background-color: #2a2a2a;
+            border: 1px solid #4b5563;
+            color: #e0e0e0;
+            transition: all 0.2s ease;
+        }
+        .sort-modal-item:hover {
+            border-color: #FFD700;
+            color: #FFD700;
+        }
+        .sort-modal-item.active {
+            background-image: linear-gradient(to right, #B8860B, #FFD700);
+            color: #1a1a1a;
+            border-color: #FFD700;
+            font-weight: bold;
         }
     </style>
 </head>
@@ -177,18 +188,18 @@
                 </div>
             </section>
 
-            <section id="product-filters" class="grid md:grid-cols-2 gap-4 mb-6">
-                <button id="category-selector-btn">
-                    <span id="category-selector-text" class="font-bold text-amber-400">Memuat kategori...</span>
-                    <svg class="w-5 h-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
-                </button>
-                <div>
-                    <select id="sort-select" class="w-full sort-select">
-                        <option value="default">Urutan Rekomendasi</option>
-                        <option value="name-asc">Nama (A-Z)</option>
-                        <option value="price-asc">Harga Terendah</option>
-                        <option value="price-desc">Harga Tertinggi</option>
-                    </select>
+            <section id="product-filters" class="flex gap-4 mb-6 items-center">
+                <div class="flex-grow">
+                    <button id="category-selector-btn">
+                        <span id="category-selector-text" class="font-bold text-amber-400">Memuat kategori...</span>
+                        <svg class="w-5 h-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                    </button>
+                </div>
+                <div class="flex-shrink-0">
+                    <button id="sort-open-btn" class="h-full px-4 py-2 rounded-lg flex items-center justify-center gap-2">
+                        <svg id="sort-icon-display" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="10" x2="10" y1="18" y2="4"/><line x1="4" x2="10" y1="4" y2="4"/><path d="M4 11h4"/><path d="M4 18h4"/><path d="m14 4 3 3 3-3"/><path d="M17 20v-9"/></svg>
+                        <span id="sort-text-display" class="hidden md:inline">Nama</span>
+                    </button>
                 </div>
             </section>
 
@@ -220,6 +231,17 @@
     </div>
     
     <!-- --- Modals --- -->
+    <div id="sort-modal" class="modal-overlay">
+        <div class="modal-container">
+            <div class="flex justify-between items-center mb-6"><h3 class="text-xl font-bold text-amber-400">Urutkan Produk</h3><button class="close-modal text-gray-500 text-2xl hover:text-white">&times;</button></div>
+            <div id="sort-modal-list" class="space-y-2">
+                <button data-sort="name-asc" class="sort-modal-item w-full text-left p-3 rounded-lg">Nama (A-Z)</button>
+                <button data-sort="price-asc" class="sort-modal-item w-full text-left p-3 rounded-lg">Harga Terendah</button>
+                <button data-sort="price-desc" class="sort-modal-item w-full text-left p-3 rounded-lg">Harga Tertinggi</button>
+            </div>
+        </div>
+    </div>
+
     <div id="how-to-order-modal" class="modal-overlay">
         <div class="modal-container">
             <div class="flex justify-between items-center mb-6"><h3 class="text-xl font-bold text-amber-400">Cara Pesan</h3><button class="close-modal text-gray-500 text-2xl hover:text-white">&times;</button></div>
@@ -258,7 +280,6 @@
         </div>
     </div>
 
-    <!-- PENAMBAHAN: Modal baru untuk konfirmasi tambah barang -->
     <div id="confirmation-modal" class="modal-overlay">
         <div class="modal-container text-center">
             <h3 class="text-xl font-bold text-amber-400 mb-4">Konfirmasi</h3>
@@ -286,15 +307,26 @@
         const howToOrderModal=document.getElementById('how-to-order-modal'),bestSellerInfoModal=document.getElementById('best-seller-info-modal'),imageModal=document.getElementById('image-modal');
         const categorySelectorBtn = document.getElementById('category-selector-btn'), categorySelectorText = document.getElementById('category-selector-text'), categoryModal = document.getElementById('category-modal'), categoryModalList = document.getElementById('category-modal-list');
         const toastNotification = document.getElementById('toast-notification'), toastMessage = document.getElementById('toast-message');
-        const sortSelect = document.getElementById('sort-select');
+        
+        const sortOpenBtn = document.getElementById('sort-open-btn');
+        const sortModal = document.getElementById('sort-modal');
+        const sortModalList = document.getElementById('sort-modal-list');
+        const sortIconDisplay = document.getElementById('sort-icon-display');
+        const sortTextDisplay = document.getElementById('sort-text-display');
         
         const confirmationModal = document.getElementById('confirmation-modal');
         const confirmationMessage = document.getElementById('confirmation-message');
         const confirmAddBtn = document.getElementById('confirm-add-btn');
         const cancelAddBtn = document.getElementById('cancel-add-btn');
 
-        let allProducts = [], allCategories = [], cart = {}, itemToConfirm = null, currentSort = 'default';
+        let allProducts = [], allCategories = [], cart = {}, itemToConfirm = null, currentSort = 'name-asc';
         const titipFee = 25000, whatsappNumber = '6285640312607';
+
+        const sortIcons = {
+            'name-asc': `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="10" x2="10" y1="18" y2="4"/><line x1="4" x2="10" y1="4" y2="4"/><path d="M4 11h4"/><path d="M4 18h4"/><path d="m14 4 3 3 3-3"/><path d="M17 20v-9"/></svg>`,
+            'price-asc': `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" x2="12" y1="19" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>`,
+            'price-desc': `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" x2="12" y1="5" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>`
+        };
 
         let toastTimeout;
         function showToast(message) {
@@ -318,23 +350,16 @@
             document.getElementById(targetId)?.classList.remove('hidden');
         }
         
-        // Fungsi untuk mendapatkan harga representatif dari produk untuk sorting
         function getProductPrice(product) {
-            if (product.price) {
-                return product.price;
-            }
-            if (product.options && product.options.length > 0) {
-                // Menggunakan harga terendah dari varian sebagai acuan
-                return Math.min(...product.options.map(o => o.price));
-            }
-            return 0; // Produk tanpa harga akan ditaruh di awal
+            if (product.price) return product.price;
+            if (product.options && product.options.length > 0) return Math.min(...product.options.map(o => o.price));
+            return 0;
         }
 
         function renderUI(categories, products) {
             tabContentContainer.innerHTML = '';
             categoryModalList.innerHTML = '';
 
-            // Lakukan sorting produk sebelum dirender
             let sortedProducts = [...products];
             switch (currentSort) {
                 case 'name-asc':
@@ -346,7 +371,6 @@
                 case 'price-desc':
                     sortedProducts.sort((a, b) => getProductPrice(b) - getProductPrice(a));
                     break;
-                // 'default' tidak melakukan apa-apa, menggunakan urutan dari Firestore
             }
 
             categories.forEach(cat => {
@@ -482,11 +506,30 @@
             showModal(confirmationModal);
         }
 
-        // --- Event Listeners ---
+        function updateSortDisplay() {
+            sortIconDisplay.innerHTML = sortIcons[currentSort];
+            const activeSortButton = sortModalList.querySelector(`.sort-modal-item[data-sort="${currentSort}"]`);
+            if (activeSortButton) {
+                sortTextDisplay.textContent = activeSortButton.textContent.split('(')[0].trim();
+            }
+            document.querySelectorAll('.sort-modal-item').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.sort === currentSort);
+            });
+        }
 
-        sortSelect.addEventListener('change', (e) => {
-            currentSort = e.target.value;
+        // --- Event Listeners ---
+        sortOpenBtn.addEventListener('click', () => {
+            showModal(sortModal);
+        });
+
+        sortModalList.addEventListener('click', (e) => {
+            const sortBtn = e.target.closest('.sort-modal-item');
+            if (!sortBtn) return;
+
+            currentSort = sortBtn.dataset.sort;
+            updateSortDisplay();
             renderUI(allCategories, allProducts);
+            hideModal(sortModal);
         });
 
         tabContentContainer.addEventListener('click', e => {
@@ -551,9 +594,9 @@
 
         onSnapshot(query(collection(db, 'jastip_categories'), orderBy('order')), (catSnap) => {
             allCategories = catSnap.docs.map(doc => doc.data());
-            // Menggunakan query dengan orderBy nama sebagai default
-            onSnapshot(query(collection(db, 'products'), orderBy('name')), (prodSnap) => {
+            onSnapshot(query(collection(db, 'products')), (prodSnap) => {
                 allProducts = prodSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                updateSortDisplay();
                 renderUI(allCategories, allProducts);
             });
         });
