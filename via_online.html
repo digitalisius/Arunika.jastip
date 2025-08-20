@@ -35,6 +35,33 @@
         .pagination-btn { padding: 0.5rem 1rem; border-radius: 0.5rem; background-color: #374151; transition: background-color 0.2s; }
         .pagination-btn:hover:not(:disabled) { background-color: #4b5563; }
         .pagination-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        
+        /* Gaya Baru untuk Produk Terbaru */
+        #newest-product-list {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+        #newest-product-list::-webkit-scrollbar {
+            display: none; /* Chrome, Safari, and Opera */
+        }
+        .new-product-card {
+            width: 160px; /* Lebar tetap untuk scrolling horizontal */
+            flex-shrink: 0;
+        }
+        .new-badge {
+            position: absolute;
+            top: 0.5rem;
+            left: 0.5rem;
+            background-color: #f59e0b;
+            color: #121212;
+            font-size: 0.65rem;
+            font-weight: bold;
+            padding: 0.125rem 0.5rem;
+            border-radius: 9999px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        @keyframes pulse { 50% { opacity: .5; } }
+        .skeleton { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
     </style>
 </head>
 <body class="bg-gray-900 text-gray-200 p-4 md:p-8">
@@ -51,7 +78,22 @@
         </nav>
 
         <div>
-            <h2 class="text-2xl font-bold mb-4 text-center">Rekomendasi Produk Online</h2>
+            <!-- BAGIAN PRODUK TERBARU -->
+            <section id="newest-products-section" class="mb-12">
+                <h2 class="text-2xl font-bold mb-4 text-amber-400 flex items-center gap-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-4.44a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8.38"/><path d="M16 2l5 5"/><path d="M14.5 10.5h-5"/><path d="M14.5 6.5h-5"/><path d="M9.5 14.5h5"/></svg>
+                    Produk Terbaru
+                </h2>
+                <div id="newest-product-list" class="flex gap-4 overflow-x-auto pb-4">
+                    <!-- Skeleton loaders -->
+                    <div class="skeleton w-40 h-56 bg-gray-700 rounded-xl flex-shrink-0"></div>
+                    <div class="skeleton w-40 h-56 bg-gray-700 rounded-xl flex-shrink-0 hidden sm:block"></div>
+                    <div class="skeleton w-40 h-56 bg-gray-700 rounded-xl flex-shrink-0 hidden md:block"></div>
+                    <div class="skeleton w-40 h-56 bg-gray-700 rounded-xl flex-shrink-0 hidden lg:block"></div>
+                </div>
+            </section>
+            
+            <h2 class="text-2xl font-bold mb-4 text-center">Semua Rekomendasi</h2>
              <div class="relative mb-4">
                 <input type="text" id="search-input" placeholder="Cari produk rekomendasi..." class="w-full bg-gray-700 text-gray-200 border border-gray-600 rounded-lg p-3 pl-10 focus:outline-none focus:ring-2 focus:ring-amber-500">
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-search text-gray-400"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg></div>
@@ -85,13 +127,14 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getFirestore, collection, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, onSnapshot, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         const firebaseConfig = { apiKey: "AIzaSyAdYbsk_p1mIvf7NXd2cLaQAFBP2mrxtuI", authDomain: "jastip-arunika.firebaseapp.com", projectId: "jastip-arunika", storageBucket: "jastip-arunika.appspot.com", messagingSenderId: "272195022487", appId: "1:272195022487:web:f9b3cfe42170c5bd6983d2" };
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
         const productListDiv = document.getElementById('affiliate-product-list');
+        const newestProductListDiv = document.getElementById('newest-product-list');
         const loadingMessage = document.getElementById('loading-message');
         const noResultsMessage = document.getElementById('no-results-message');
         const searchInput = document.getElementById('search-input');
@@ -107,12 +150,17 @@
         let currentPage = 1;
         const rowsPerPage = 8;
 
-        function createProductCard(product) {
+        function createProductCard(product, isNew = false) {
             const productElement = document.createElement('div');
-            productElement.className = 'product-card bg-gray-700 rounded-xl shadow-md border border-gray-600 flex flex-col p-4';
+            const cardClass = isNew ? 'new-product-card' : 'product-card';
+            productElement.className = `${cardClass} bg-gray-700 rounded-xl shadow-md border border-gray-600 flex flex-col p-4 relative`;
+            
             const platformLower = product.platform ? product.platform.toLowerCase() : 'lainnya';
             const platformClass = `platform-btn-${platformLower}`;
+            const newBadge = isNew ? `<div class="new-badge">BARU</div>` : '';
+
             productElement.innerHTML = `
+                ${newBadge}
                 <img src="${product.imageUrl}" alt="${product.name}" class="w-full h-32 md:h-40 object-cover rounded-lg mb-4">
                 <div class="w-full text-center mb-4 flex-grow">
                     <h3 class="font-semibold text-sm md:text-base text-gray-200">${product.name}</h3>
@@ -127,9 +175,17 @@
         function renderProducts(productsToRender) {
             productListDiv.innerHTML = '';
             loadingMessage.classList.add('hidden');
-            // PERBAIKAN: Logika diubah agar pesan hanya muncul jika tidak ada produk
             noResultsMessage.classList.toggle('hidden', productsToRender.length > 0);
-            productsToRender.forEach(product => productListDiv.appendChild(createProductCard(product)));
+            productsToRender.forEach(product => productListDiv.appendChild(createProductCard(product, false)));
+        }
+
+        function renderNewestProducts(productsToRender) {
+            newestProductListDiv.innerHTML = '';
+            if (productsToRender.length === 0) {
+                newestProductListDiv.innerHTML = `<p class="text-gray-500 italic">Belum ada produk baru.</p>`;
+            } else {
+                productsToRender.forEach(product => newestProductListDiv.appendChild(createProductCard(product, true)));
+            }
         }
 
         function renderPagination(totalItems) {
@@ -224,12 +280,24 @@
         categoryModal.addEventListener('click', (e) => { if (e.target === categoryModal) { hideModal(categoryModal); } });
 
         const productsCollectionRef = collection(db, 'affiliate_products');
+        
+        // Listener untuk semua produk (untuk filter & paginasi)
         onSnapshot(query(productsCollectionRef, orderBy("name")), (snapshot) => {
             allProducts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             populateCategoryFilters(allProducts);
+            applyFiltersAndRender(); // Panggil ini untuk render awal
         }, (error) => {
-            console.error("Error fetching affiliate products:", error);
+            console.error("Error fetching all affiliate products:", error);
             loadingMessage.textContent = 'Gagal memuat produk.';
+        });
+
+        // Listener HANYA untuk 5 produk terbaru
+        onSnapshot(query(productsCollectionRef, orderBy("timestamp", "desc"), limit(5)), (snapshot) => {
+            const newestProducts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            renderNewestProducts(newestProducts);
+        }, (error) => {
+            console.error("Error fetching newest affiliate products:", error);
+            newestProductListDiv.innerHTML = `<p class="text-red-500">Gagal memuat produk terbaru.</p>`;
         });
     </script>
 </body>
