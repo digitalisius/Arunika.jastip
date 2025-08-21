@@ -10,9 +10,55 @@
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&display=swap');
         body { font-family: 'Inter', sans-serif; background-color: #121212; color: #e0e0e0; }
         #main-title { font-family: 'Cinzel', serif; font-size: 3rem; color: #FFD700; }
-        .product-card { transition: transform 0.2s ease, box-shadow 0.2s ease; padding: 1rem; position: relative; }
-        .product-card:hover { transform: translateY(-5px); box-shadow: 0 10px 15px -3px rgba(255,215,0,0.1); }
-        .product-name-best-seller { display: inline-block; background-image: linear-gradient(to right, #FFD700, #B8860B); background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: bold; padding: 0.25rem 0.5rem; border: 1px solid #FFD700; border-radius: 9999px; font-size: 0.75rem; }
+        
+        /* --- Desain Kartu Produk Baru --- */
+        .product-card {
+            background: linear-gradient(145deg, #2a2a2a, #1e1e1e);
+            border: 1px solid #3a3a3a;
+            border-radius: 1rem;
+            padding: 1.25rem;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            text-align: center;
+        }
+        .product-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 25px -5px rgba(255, 215, 0, 0.1), 0 10px 10px -5px rgba(255, 215, 0, 0.08);
+            border-color: #FFD700;
+        }
+        .product-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -150%;
+            width: 70%;
+            height: 100%;
+            background: linear-gradient(to right, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0) 100%);
+            transform: skewX(-25deg);
+            transition: left 0.8s ease-in-out;
+        }
+        .product-card:hover::before {
+            left: 150%;
+        }
+        .product-info { flex-grow: 1; }
+
+        /* --- Animasi Staggered --- */
+        .product-list .product-card {
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.5s ease-out forwards;
+        }
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .product-name-best-seller { display: inline-block; background-image: linear-gradient(to right, #FFD700, #B8860B); background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: bold; }
         .main-nav-btn, .sub-tab-btn { background-color: #2a2a2a; color: #FFD700; transition: all 0.2s ease; }
         .main-nav-btn.active, .sub-tab-btn.active, .main-nav-btn:hover, .sub-tab-btn:hover { background-image: linear-gradient(to right, #B8860B, #FFD700); box-shadow: 0 4px 6px -1px rgba(255,215,0,0.1); color: #1a1a1a; }
         .golden-btn { background-color: #1a1a1a; color: #FFD700; border: 1px solid #FFD700; }
@@ -24,141 +70,32 @@
         .skeleton { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
 
         /* --- Gaya Modal --- */
-        .modal-overlay {
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background-color: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(4px);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 50;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s ease-in-out;
-        }
-        .modal-overlay.visible {
-            opacity: 1;
-            pointer-events: auto;
-        }
-        .modal-container {
-            background-color: #1f2937;
-            padding: 1.5rem;
-            border-radius: 1rem;
-            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
-            width: 90%;
-            max-width: 500px;
-            transform: scale(0.95);
-            transition: transform 0.3s ease-in-out;
-        }
-        .modal-overlay.visible .modal-container {
-            transform: scale(1);
-        }
+        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0, 0, 0, 0.7); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; z-index: 50; opacity: 0; pointer-events: none; transition: opacity 0.3s ease-in-out; }
+        .modal-overlay.visible { opacity: 1; pointer-events: auto; }
+        .modal-container { background-color: #1f2937; padding: 1.5rem; border-radius: 1rem; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); width: 90%; max-width: 500px; transform: scale(0.95); transition: transform 0.3s ease-in-out; }
+        .modal-overlay.visible .modal-container { transform: scale(1); }
 
         /* --- Gaya Panel Info --- */
-        .info-panel-btn {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-            padding: 0.75rem;
-            border-radius: 0.75rem;
-            color: #d1d5db;
-            transition: background-color 0.2s, color 0.2s;
-            background-color: #1f2937;
-        }
-        .info-panel-btn:hover {
-            background-color: #374151;
-            color: #f59e0b;
-        }
-        .info-panel-btn svg {
-            width: 1.75rem;
-            height: 1.75rem;
-        }
-        .info-panel-btn span {
-            font-size: 0.75rem;
-            font-weight: 500;
-        }
+        .info-panel-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.5rem; padding: 0.75rem; border-radius: 0.75rem; color: #d1d5db; transition: background-color 0.2s, color 0.2s; background-color: #1f2937; }
+        .info-panel-btn:hover { background-color: #374151; color: #f59e0b; }
+        .info-panel-btn svg { width: 1.75rem; height: 1.75rem; }
+        .info-panel-btn span { font-size: 0.75rem; font-weight: 500; }
         
-        #category-selector-btn {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            width: 100%;
-            padding: 0.75rem 1rem;
-            background-color: #2a2a2a;
-            border: 1px solid #4b5563;
-            border-radius: 0.75rem;
-            transition: all 0.2s ease;
-        }
-        #category-selector-btn:hover {
-            border-color: #FFD700;
-        }
-        .category-modal-item {
-            text-align: left;
-            width: 100%;
-            padding: 0.75rem 1rem;
-            border-radius: 0.5rem;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-        .category-modal-item.active {
-            background-color: #4b5563;
-            font-weight: bold;
-            color: #FFD700;
-        }
-        .category-modal-item:not(.active):hover {
-            background-color: #374151;
-        }
+        #category-selector-btn { display: flex; align-items: center; justify-content: space-between; width: 100%; padding: 0.75rem 1rem; background-color: #2a2a2a; border: 1px solid #4b5563; border-radius: 0.75rem; transition: all 0.2s ease; }
+        #category-selector-btn:hover { border-color: #FFD700; }
+        .category-modal-item { text-align: left; width: 100%; padding: 0.75rem 1rem; border-radius: 0.5rem; display: flex; align-items: center; justify-content: space-between; }
+        .category-modal-item.active { background-color: #4b5563; font-weight: bold; color: #FFD700; }
+        .category-modal-item:not(.active):hover { background-color: #374151; }
 
-        #toast-notification {
-            position: fixed;
-            bottom: -100px;
-            left: 50%;
-            transform: translateX(-50%);
-            background-color: #2a2a2a;
-            color: #FFD700;
-            padding: 1rem 1.5rem;
-            border-radius: 0.75rem;
-            border: 1px solid #FFD700;
-            box-shadow: 0 4px 6px -1px rgba(255,215,0,0.1);
-            z-index: 100;
-            transition: bottom 0.5s ease-in-out;
-            font-weight: 600;
-        }
-        #toast-notification.show {
-            bottom: 20px;
-        }
+        #toast-notification { position: fixed; bottom: -100px; left: 50%; transform: translateX(-50%); background-color: #2a2a2a; color: #FFD700; padding: 1rem 1.5rem; border-radius: 0.75rem; border: 1px solid #FFD700; box-shadow: 0 4px 6px -1px rgba(255,215,0,0.1); z-index: 100; transition: bottom 0.5s ease-in-out; font-weight: 600; }
+        #toast-notification.show { bottom: 20px; }
 
         /* Gaya baru untuk tombol urutkan */
-        #sort-open-btn {
-            background-color: #2a2a2a;
-            border: 1px solid #4b5563;
-            color: #e0e0e0;
-            transition: all 0.2s ease;
-        }
-        #sort-open-btn:hover {
-            border-color: #FFD700;
-            color: #FFD700;
-        }
-        .sort-modal-item {
-            background-color: #2a2a2a;
-            border: 1px solid #4b5563;
-            color: #e0e0e0;
-            transition: all 0.2s ease;
-        }
-        .sort-modal-item:hover {
-            border-color: #FFD700;
-            color: #FFD700;
-        }
-        .sort-modal-item.active {
-            background-image: linear-gradient(to right, #B8860B, #FFD700);
-            color: #1a1a1a;
-            border-color: #FFD700;
-            font-weight: bold;
-        }
+        #sort-open-btn { background-color: #2a2a2a; border: 1px solid #4b5563; color: #e0e0e0; transition: all 0.2s ease; }
+        #sort-open-btn:hover { border-color: #FFD700; color: #FFD700; }
+        .sort-modal-item { background-color: #2a2a2a; border: 1px solid #4b5563; color: #e0e0e0; transition: all 0.2s ease; }
+        .sort-modal-item:hover { border-color: #FFD700; color: #FFD700; }
+        .sort-modal-item.active { background-image: linear-gradient(to right, #B8860B, #FFD700); color: #1a1a1a; border-color: #FFD700; font-weight: bold; }
     </style>
 </head>
 <body class="bg-gray-900 text-gray-200 p-4 md:p-8">
@@ -345,9 +282,7 @@
                 item.classList.toggle('active', item.dataset.category === categoryName);
                 if (checkIcon) checkIcon.classList.toggle('hidden', item.dataset.category !== categoryName);
             });
-            document.querySelectorAll('.tab-pane').forEach(pane => pane.classList.add('hidden'));
-            const targetId = `content-${categoryName.toLowerCase().replace(/\s/g, '-')}`;
-            document.getElementById(targetId)?.classList.remove('hidden');
+            renderUI(allCategories, allProducts); // Re-render to apply filter
         }
         
         function getProductPrice(product) {
@@ -357,81 +292,89 @@
         }
 
         function renderUI(categories, products) {
+            const activeCategoryName = categorySelectorText.textContent;
             tabContentContainer.innerHTML = '';
-            categoryModalList.innerHTML = '';
 
             let sortedProducts = [...products];
             switch (currentSort) {
-                case 'name-asc':
-                    sortedProducts.sort((a, b) => a.name.localeCompare(b.name));
-                    break;
-                case 'price-asc':
-                    sortedProducts.sort((a, b) => getProductPrice(a) - getProductPrice(b));
-                    break;
-                case 'price-desc':
-                    sortedProducts.sort((a, b) => getProductPrice(b) - getProductPrice(a));
-                    break;
+                case 'name-asc': sortedProducts.sort((a, b) => a.name.localeCompare(b.name)); break;
+                case 'price-asc': sortedProducts.sort((a, b) => getProductPrice(a) - getProductPrice(b)); break;
+                case 'price-desc': sortedProducts.sort((a, b) => getProductPrice(b) - getProductPrice(a)); break;
             }
 
             categories.forEach(cat => {
                 const catId = cat.name.toLowerCase().replace(/\s/g, '-');
                 const pane = document.createElement('div');
                 pane.id = `content-${catId}`;
-                pane.className = 'tab-pane hidden';
+                pane.className = `tab-pane ${cat.name === activeCategoryName ? '' : 'hidden'}`;
                 const productsForCat = sortedProducts.filter(p => p.category === cat.name);
                 
                 if (cat.hasSubtabs) {
                     const arabikaProducts = productsForCat.filter(p => p.subCategory === "Arabika");
                     const robustaProducts = productsForCat.filter(p => p.subCategory === "Robusta");
-                    pane.innerHTML = `<div class="flex space-x-2 mb-4 p-1 bg-gray-900 rounded-xl"><button class="sub-tab-btn active w-full py-2 rounded-lg" data-subcat="arabika">Arabika</button><button class="sub-tab-btn w-full py-2 rounded-lg" data-subcat="robusta">Robusta</button></div><div><section id="content-${catId}-arabika"><h2 class="text-2xl font-bold mb-4">Arabika</h2><div id="${catId}-arabika-list" class="product-list grid grid-cols-2 lg:grid-cols-3 gap-4"></div></section><section id="content-${catId}-robusta" class="hidden"><h2 class="text-2xl font-bold mb-4">Robusta</h2><div id="${catId}-robusta-list" class="product-list grid grid-cols-2 lg:grid-cols-3 gap-4"></div></section></div>`;
+                    pane.innerHTML = `<div class="flex space-x-2 mb-4 p-1 bg-gray-900 rounded-xl"><button class="sub-tab-btn active w-full py-2 rounded-lg" data-subcat="arabika">Arabika</button><button class="sub-tab-btn w-full py-2 rounded-lg" data-subcat="robusta">Robusta</button></div><div><section id="content-${catId}-arabika"><h2 class="text-2xl font-bold mb-4 sr-only">Arabika</h2><div id="${catId}-arabika-list" class="product-list grid grid-cols-2 lg:grid-cols-3 gap-4"></div></section><section id="content-${catId}-robusta" class="hidden"><h2 class="text-2xl font-bold mb-4 sr-only">Robusta</h2><div id="${catId}-robusta-list" class="product-list grid grid-cols-2 lg:grid-cols-3 gap-4"></div></section></div>`;
                     tabContentContainer.appendChild(pane);
                     renderProducts(arabikaProducts, document.getElementById(`${catId}-arabika-list`));
                     renderProducts(robustaProducts, document.getElementById(`${catId}-robusta-list`));
                 } else {
-                    pane.innerHTML = `<section><h2 class="text-2xl font-bold mb-4">${cat.name}</h2><div id="${catId}-list" class="product-list grid grid-cols-2 lg:grid-cols-3 gap-4"></div></section>`;
+                    pane.innerHTML = `<section><h2 class="text-2xl font-bold mb-4 sr-only">${cat.name}</h2><div id="${catId}-list" class="product-list grid grid-cols-2 lg:grid-cols-3 gap-4"></div></section>`;
                     tabContentContainer.appendChild(pane);
                     renderProducts(productsForCat, document.getElementById(`${catId}-list`));
                 }
             });
             
-            categories.forEach(cat => {
-                const item = document.createElement('button');
-                item.className = 'category-modal-item';
-                item.dataset.category = cat.name;
-                item.innerHTML = `<span>${cat.name}</span> <svg class="w-5 h-5 hidden" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" /></svg>`;
-                item.addEventListener('click', () => {
-                    activateCategory(cat.name);
-                    hideModal(categoryModal);
+            if (categoryModalList.innerHTML === '') {
+                categories.forEach(cat => {
+                    const item = document.createElement('button');
+                    item.className = 'category-modal-item';
+                    item.dataset.category = cat.name;
+                    item.innerHTML = `<span>${cat.name}</span> <svg class="w-5 h-5 hidden" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" /></svg>`;
+                    item.addEventListener('click', () => {
+                        activateCategory(cat.name);
+                        hideModal(categoryModal);
+                    });
+                    categoryModalList.appendChild(item);
                 });
-                categoryModalList.appendChild(item);
-            });
+            }
 
-            if (categories.length > 0) {
+            if (categories.length > 0 && activeCategoryName === 'Memuat kategori...') {
                 activateCategory(categories[0].name);
-            } else {
+            } else if (categories.length === 0) {
                 categorySelectorText.textContent = "Belum ada kategori";
             }
+            
             addTabEventListeners();
         }
 
         function renderProducts(products, container) {
             if (!container) return;
             container.innerHTML = '';
-            products.forEach(p => container.appendChild(createProductCard(p)));
+            products.forEach((p, index) => {
+                const card = createProductCard(p);
+                card.style.animationDelay = `${index * 80}ms`; // Stagger delay
+                container.appendChild(card);
+            });
         }
 
         function createProductCard(product) {
-            const el = document.createElement('div'); el.className = 'product-card bg-gray-700 rounded-xl shadow-md border border-gray-600';
+            const el = document.createElement('div'); el.className = 'product-card';
             const isBestSellerClass = product.isBestSeller ? 'product-name-best-seller' : ''; let actionsHtml = '';
             if (product.options && product.options.length > 0) {
                 const options = product.options.map(o => `<option value="${product.id}-${o.id}">${o.name} - Rp${o.price.toLocaleString('id-ID')}</option>`).join('');
-                actionsHtml = `<div class="product-actions-container"><select id="select-${product.id}" class="w-full text-sm bg-gray-600 rounded-lg p-2">${options}</select><button data-id="${product.id}" class="add-to-cart-btn-multi bg-amber-600 hover:bg-amber-700 text-white font-bold py-2 px-4 text-sm rounded-full mt-2 w-full">+ Tambah</button></div>`;
+                actionsHtml = `<div class="mt-4"><select id="select-${product.id}" class="w-full text-sm bg-gray-600 rounded-lg p-2 mb-2">${options}</select><button data-id="${product.id}" class="add-to-cart-btn-multi bg-amber-600 hover:bg-amber-700 text-white font-bold py-2 px-4 text-sm rounded-full w-full">+ Tambah</button></div>`;
             } else {
-                const price = product.price ? `<p class="text-amber-500 font-bold text-sm">Rp${product.price.toLocaleString('id-ID')}</p>` : '';
+                const price = product.price ? `<p class="text-amber-500 font-bold text-sm mt-2">Rp${product.price.toLocaleString('id-ID')}</p>` : '';
                 const shopee = product.shopeeLink ? `<a href="${product.shopeeLink}" target="_blank" class="shopee-btn">Beli di Shopee</a>` : '';
-                actionsHtml = `<div class="product-actions-container">${price}<button data-id="${product.id}" class="add-to-cart-btn-single bg-amber-600 hover:bg-amber-700 text-white font-bold py-2 px-4 text-sm rounded-full mt-2 w-full">+ Tambah</button>${shopee}</div>`;
+                actionsHtml = `<div class="mt-4">${price}<button data-id="${product.id}" class="add-to-cart-btn-single bg-amber-600 hover:bg-amber-700 text-white font-bold py-2 px-4 text-sm rounded-full mt-2 w-full">+ Tambah</button>${shopee}</div>`;
             }
-            el.innerHTML = `<div class="relative w-full flex flex-col items-center"><div class="icon-container mb-2 text-2xl text-amber-500">🛍️</div><div class="product-info flex-1 w-full truncate mb-2 text-center"><h3 class="font-semibold text-base text-gray-200 truncate ${isBestSellerClass}">${product.name}</h3></div></div><div class="product-actions-wrapper w-full">${actionsHtml}</div>`;
+            el.innerHTML = `
+                <div class="icon-container mb-2 text-amber-400">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="mx-auto"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                </div>
+                <div class="product-info w-full mb-2">
+                    <h3 class="font-semibold text-base text-gray-200 ${isBestSellerClass}">${product.name}</h3>
+                </div>
+                <div class="w-full">${actionsHtml}</div>`;
             return el;
         }
 
@@ -482,7 +425,7 @@
         }
         
         function addTabEventListeners() {
-            tabContentContainer.addEventListener('click', e => { if (e.target.matches('.sub-tab-btn')) { const p = e.target.closest('.flex'); p.querySelectorAll('.sub-tab-btn').forEach(b => b.classList.remove('active')); e.target.classList.add('active'); const pane = e.target.closest('.tab-pane'); const baseId = `content-${pane.id.split('-')[1]}`; pane.querySelectorAll('section').forEach(s => s.classList.add('hidden')); document.getElementById(`${baseId}-${e.target.dataset.subcat}`)?.classList.remove('hidden'); } });
+            tabContentContainer.addEventListener('click', e => { if (e.target.matches('.sub-tab-btn')) { const p = e.target.closest('.flex'); p.querySelectorAll('.sub-tab-btn').forEach(b => b.classList.remove('active')); e.target.classList.add('active'); const pane = e.target.closest('.tab-pane'); const baseId = pane.id.replace('content-',''); pane.querySelectorAll('section').forEach(s => s.classList.add('hidden')); document.getElementById(`${baseId}-${e.target.dataset.subcat}`)?.classList.remove('hidden'); } });
         }
         
         function handleAddToCartClick(e) {
