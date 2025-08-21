@@ -46,7 +46,7 @@
         .product-info { flex-grow: 1; }
 
         /* --- Animasi Staggered --- */
-        .product-list .product-card {
+        .product-list .product-card, .testimonial-grid .testimonial-card {
             opacity: 0;
             transform: translateY(20px);
             animation: fadeInUp 0.5s ease-out forwards;
@@ -61,10 +61,7 @@
         .product-name-best-seller { display: inline-block; background-image: linear-gradient(to right, #FFD700, #B8860B); background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: bold; }
         .main-nav-btn, .sub-tab-btn { background-color: #2a2a2a; color: #FFD700; transition: all 0.2s ease; }
         .main-nav-btn.active, .sub-tab-btn.active, .main-nav-btn:hover, .sub-tab-btn:hover { background-image: linear-gradient(to right, #B8860B, #FFD700); box-shadow: 0 4px 6px -1px rgba(255,215,0,0.1); color: #1a1a1a; }
-        .golden-btn { background-color: #1a1a1a; color: #FFD700; border: 1px solid #FFD700; }
-        .golden-btn:hover { background-image: linear-gradient(to right, #B8860B, #FFD700); color: #1a1a1a; }
-        .testimonial-img { cursor: pointer; width: 100%; height: 120px; object-fit: cover; border-radius: 0.5rem; transition: transform 0.2s ease; }
-        .testimonial-img:hover { transform: scale(1.05); }
+        
         .shopee-btn { background-color: #FF5722; color: white; padding: .5rem 1rem; font-size: .75rem; border-radius: 9999px; }
         @keyframes pulse { 50% { opacity: .5; } }
         .skeleton { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
@@ -158,6 +155,74 @@
             transform: translateY(-3px);
             box-shadow: 0 7px 20px rgba(34, 197, 94, 0.3);
         }
+
+        /* --- Gaya Testimoni Baru --- */
+        .testimonial-card {
+            position: relative;
+            cursor: pointer;
+            border-radius: 0.75rem;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            background-color: #2a2a2a;
+        }
+        .testimonial-card:hover {
+            transform: translateY(-5px) scale(1.03);
+            box-shadow: 0 15px 25px rgba(0,0,0,0.3);
+        }
+        .testimonial-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            aspect-ratio: 1 / 1;
+            transition: transform 0.3s ease;
+        }
+        .testimonial-card:hover .testimonial-img {
+            transform: scale(1.1);
+        }
+        .testimonial-overlay {
+            position: absolute;
+            inset: 0;
+            background-color: rgba(0,0,0,0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .testimonial-card:hover .testimonial-overlay {
+            opacity: 1;
+        }
+
+        /* --- Gaya Saran Barang Baru --- */
+        #suggestion-form-section {
+            background: linear-gradient(160deg, #2a2a2a, #1a1a1a);
+            border-radius: 1.5rem;
+            padding: 1.5rem 2rem;
+            border: 1px solid #3a3a3a;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .suggestion-input {
+            background-color: rgba(17, 17, 17, 0.5);
+            border: 1px solid #4a4a4a;
+            border-radius: 0.5rem;
+            padding: 0.75rem 1rem;
+            transition: all 0.2s ease;
+        }
+        .suggestion-input:focus {
+            outline: none;
+            border-color: #FFD700;
+            box-shadow: 0 0 0 2px rgba(255, 215, 0, 0.2);
+        }
+        #send-suggestion-btn {
+            background-image: linear-gradient(to right, #B8860B, #FFD700);
+            color: #1a1a1a;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.2);
+        }
+        #send-suggestion-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 7px 20px rgba(255, 215, 0, 0.3);
+        }
     </style>
 </head>
 <body class="bg-gray-900 text-gray-200 p-4 md:p-8">
@@ -220,15 +285,30 @@
             <button id="checkout-button" class="w-full mt-6 py-3 px-6 text-white font-bold text-lg rounded-xl hidden">Pesan Sekarang via WhatsApp</button>
         </section>
         <hr class="my-10 border-t border-gray-700">
-        <section id="suggestion-form-section" class="mb-8 p-6 bg-gray-900 rounded-lg">
-            <h2 class="text-2xl font-bold text-gray-200 mb-4">Saran Barang & Estimasi Harga</h2>
-            <p class="text-sm text-gray-400 mb-4">Anda bisa juga memesan barang yang tidak ada di list produk dan mengkonfirmasinya lewat WhatsApp.</p>
-            <div class="flex flex-col space-y-4"><input type="text" id="suggestion-item-name" placeholder="Nama Barang" class="bg-gray-700 rounded-lg p-3"><input type="number" id="suggestion-item-price" placeholder="Harga perkiraan" class="bg-gray-700 rounded-lg p-3"><button id="send-suggestion-btn" class="golden-btn w-full py-3 font-bold rounded-lg">Kirim Saran via WhatsApp</button></div>
+        <section id="suggestion-form-section">
+            <div class="flex items-center gap-3 mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-amber-400"><path d="M21.64 16.35c.22 2.33-1.32 3.39-3.35 3.39H5.71c-2.03 0-3.57-1.06-3.35-3.39l.83-8.64c.14-1.44.86-2.33 2.52-2.33h12.64c1.66 0 2.38.89 2.52 2.33l.83 8.64Z"/><path d="M8 12h8"/><path d="M12 8v8"/><path d="M18 5a2.8 2.8 0 0 0-2-2h-8a2.8 2.8 0 0 0-2 2"/></svg>
+                <h2 class="text-2xl font-bold text-amber-400">Saran & Estimasi Harga</h2>
+            </div>
+            <p class="text-sm text-gray-400 mb-6">Anda bisa juga memesan barang yang tidak ada dilist produk dan mengkonfirmasinya lewat whatsapp kami.</p>
+            <div class="space-y-4">
+                <div>
+                    <label for="suggestion-item-name" class="block text-sm font-medium text-gray-400 mb-1">Nama Barang</label>
+                    <input type="text" id="suggestion-item-name" placeholder="cth: Tas Gunung Eiger 60L" class="suggestion-input w-full">
+                </div>
+                <div>
+                    <label for="suggestion-item-price" class="block text-sm font-medium text-gray-400 mb-1">Harga Perkiraan (Opsional)</label>
+                    <input type="number" id="suggestion-item-price" placeholder="cth: 1500000" class="suggestion-input w-full">
+                </div>
+                <button id="send-suggestion-btn" class="w-full py-3 font-bold rounded-lg">
+                    Kirim Saran via WhatsApp
+                </button>
+            </div>
         </section>
         <hr class="my-10 border-t border-gray-700">
         <section id="testimonial-section" class="mb-8 scroll-mt-20">
-            <h2 class="text-2xl font-bold text-gray-200 mb-4">Testimoni</h2>
-            <div id="testimonial-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 p-4 bg-gray-900 rounded-lg"></div>
+            <h2 class="text-2xl font-bold text-gray-200 mb-4 text-center">Testimoni Pelanggan</h2>
+            <div id="testimonial-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4"></div>
             <p id="testimonial-loading-message" class="text-center text-gray-500 mt-4">Memuat testimoni...</p>
         </section>
         <footer class="mt-8 text-center text-gray-500 text-sm"><p>Copyright &copy; by Arunika Shop 2025</p></footer>
@@ -510,17 +590,22 @@
         function renderTestimonials(container) {
             onSnapshot(query(collection(db, 'testimonials')), (snap) => {
                 container.innerHTML = ''; 
-                snap.docs.forEach(doc => {
+                snap.docs.forEach((doc, index) => {
                     const t = { id: doc.id, ...doc.data() };
-                    const img = document.createElement('img');
-                    img.className = 'testimonial-img w-full h-auto object-cover aspect-square rounded-md';
-                    img.src = t.url;
-                    img.alt = `Testimoni`;
-                    img.addEventListener('click', () => {
+                    const card = document.createElement('div');
+                    card.className = 'testimonial-card';
+                    card.style.animationDelay = `${index * 80}ms`;
+                    card.innerHTML = `
+                        <img src="${t.url}" alt="Testimoni" class="testimonial-img">
+                        <div class="testimonial-overlay">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-white"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/><path d="M11 8v6"/><path d="M8 11h6"/></svg>
+                        </div>
+                    `;
+                    card.addEventListener('click', () => {
                         document.getElementById('full-image').src = t.url;
                         showModal(imageModal);
                     });
-                    container.appendChild(img);
+                    container.appendChild(card);
                 });
                 testimonialLoadingMessage.classList.add('hidden');
             });
@@ -619,7 +704,26 @@
             window.open(`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(orderDetails)}`,'_blank'); 
         });
 
-        sendSuggestionBtn.addEventListener('click', () => { const name = document.getElementById('suggestion-item-name').value; const price = document.getElementById('suggestion-item-price').value; if(!name && !price) return; let message = `Halo, saya punya saran barang:\nNama: ${name}\nEstimasi Harga: Rp${price}`; window.open(`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`, '_blank'); });
+        sendSuggestionBtn.addEventListener('click', () => {
+            const nameInput = document.getElementById('suggestion-item-name');
+            const priceInput = document.getElementById('suggestion-item-price');
+            const name = nameInput.value.trim();
+            const price = priceInput.value.trim();
+
+            if (!name) {
+                showToast('Nama barang wajib diisi.');
+                nameInput.focus();
+                nameInput.style.borderColor = '#ef4444';
+                setTimeout(() => { nameInput.style.borderColor = '' }, 2000);
+                return;
+            }
+
+            let message = `Halo, saya punya saran barang:\nNama: ${name}`;
+            if (price) {
+                message += `\nEstimasi Harga: Rp${price}`;
+            }
+            window.open(`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`, '_blank');
+        });
         
         function showModal(modal) { modal.classList.add('visible'); }
         function hideModal(modal) { modal.classList.remove('visible'); }
