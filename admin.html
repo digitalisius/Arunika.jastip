@@ -7,16 +7,76 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
         @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&display=swap');
-        body { font-family: 'Inter', sans-serif; background-color: #121212; color: #e0e0e0; }
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 2000; backdrop-filter: blur(4px); }
-        .modal-container { background-color: #1f1f1f; padding: 2rem; border-radius: 1.5rem; max-width: 90%; width: 24rem; text-align: center; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); }
-        .input-group { display: flex; align-items: center; gap: 0.5rem; }
-        .table-container { overflow-x: auto; }
-        .form-input { background-color: #374151; border: 1px solid #4B5563; border-radius: 0.5rem; padding: 0.75rem 1rem; transition: all 0.2s; }
-        .form-input:focus { outline: none; border-color: #F59E0B; box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.5); }
+        
+        /* --- Base & Layout --- */
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: #0a0a0a; 
+            color: #e0e0e0;
+            background-image: radial-gradient(circle at top right, rgba(245, 158, 11, 0.05), transparent 50%);
+            background-attachment: fixed;
+        }
+        .main-container {
+            background-color: rgba(20, 20, 20, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .form-section {
+            background: linear-gradient(145deg, #1f2937, #111827);
+            border: 1px solid #374151;
+            border-radius: 1.5rem;
+            padding: 2rem;
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2), 0 10px 10px -5px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+
+        /* --- Navigasi --- */
+        .admin-nav-container { position: relative; display: flex; justify-content: center; background-color: #1f2937; border-radius: 9999px; padding: 0.5rem; box-shadow: inset 0 2px 4px 0 rgba(0,0,0,0.2); }
+        .admin-nav-btn { background-color: transparent; color: #9ca3af; font-weight: 600; padding: 0.75rem 1.5rem; border-radius: 9999px; transition: all 0.3s ease; z-index: 10; display: flex; align-items: center; gap: 0.5rem; }
+        .admin-nav-btn:hover:not(.active) { color: #e0e0e0; }
+        .admin-nav-btn.active { color: #121212; }
+        .nav-indicator { position: absolute; height: calc(100% - 1rem); top: 0.5rem; left: 0.5rem; background-image: linear-gradient(to right, #f59e0b, #d97706); border-radius: 9999px; transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1); z-index: 5; }
+        #logout-btn { background-color: #374151; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; border: 1px solid transparent; }
+        #logout-btn:hover { background-color: #DC2626; border-color: #F87171; transform: rotate(90deg); }
+        #logout-btn svg { color: #e0e0e0; }
+
+        /* --- Form Elements --- */
+        .form-label { display: block; text-sm font-medium mb-2 text-gray-400; }
+        .form-input { 
+            background-color: #111827; 
+            border: 1px solid #4B5563; 
+            border-radius: 0.75rem; 
+            padding: 0.75rem 1rem; 
+            transition: all 0.3s ease;
+            color: #e0e0e0;
+            width: 100%;
+        }
+        .form-input:focus { 
+            outline: none; 
+            border-color: #F59E0B; 
+            box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.3), inset 0 1px 2px rgba(0,0,0,0.5);
+        }
+        .form-input::placeholder { color: #6b7280; }
+        .form-checkbox { height: 1.25rem; width: 1.25rem; rounded; background-color: #374151; border-color: #4B5563; color: #F59E0B; }
+        .form-checkbox:focus { ring-color: #F59E0B; }
+
+        /* --- Buttons --- */
+        .btn { padding: 0.75rem 1.5rem; font-weight: 700; border-radius: 0.75rem; transition: all 0.3s ease; border: none; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; }
+        .btn:hover { transform: translateY(-3px); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.2); }
+        .btn-primary { background-image: linear-gradient(to right, #f59e0b, #d97706); color: #111827; box-shadow: 0 4px 6px -1px rgba(245, 158, 11, 0.2); }
+        .btn-primary:hover { box-shadow: 0 10px 15px -3px rgba(245, 158, 11, 0.3); }
+        .btn-secondary { background-color: #374151; color: #e0e0e0; }
+        .btn-secondary:hover { background-color: #4b5563; }
+        .btn-danger { background-color: #DC2626; color: white; }
+        .btn-danger:hover { background-color: #B91C1C; }
         .action-btn { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.25rem 0.75rem; border-radius: 0.375rem; font-size: 0.75rem; font-weight: 600; color: white; transition: background-color 0.2s; }
         .btn-edit { background-color: #D97706; } .btn-edit:hover { background-color: #B45309; }
         .btn-delete { background-color: #DC2626; } .btn-delete:hover { background-color: #B91C1C; }
+
+        /* --- Other Components --- */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 2000; backdrop-filter: blur(4px); }
+        .modal-container { background-color: #1f1f1f; padding: 2rem; border-radius: 1.5rem; max-width: 90%; width: 24rem; text-align: center; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); }
+        .table-container { overflow-x: auto; }
         .sortable-header { cursor: pointer; user-select: none; }
         .sortable-header .flex:hover { color: #F59E0B; }
         .pagination-btn { padding: 0.5rem 1rem; border-radius: 0.5rem; background-color: #374151; transition: background-color 0.2s; }
@@ -31,18 +91,10 @@
         .list-dark-card { background-color: #111; border: 1px solid #333; }
         .list-nav-btn.active { background-color: #222; color: #d4af37; }
         .list-nav-btn:not(.active) { color: #e0e0e0; border-color: #333; }
-        #logout-btn { background-color: #374151; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; border: 1px solid transparent; }
-        #logout-btn:hover { background-color: #DC2626; border-color: #F87171; transform: rotate(90deg); }
-        #logout-btn svg { color: #e0e0e0; }
-        .admin-nav-container { position: relative; display: flex; justify-content: center; background-color: #1f2937; border-radius: 9999px; padding: 0.5rem; box-shadow: inset 0 2px 4px 0 rgba(0,0,0,0.2); }
-        .admin-nav-btn { background-color: transparent; color: #9ca3af; font-weight: 600; padding: 0.75rem 1.5rem; border-radius: 9999px; transition: all 0.3s ease; z-index: 10; display: flex; align-items: center; gap: 0.5rem; }
-        .admin-nav-btn:hover:not(.active) { color: #e0e0e0; }
-        .admin-nav-btn.active { color: #121212; }
-        .nav-indicator { position: absolute; height: calc(100% - 1rem); top: 0.5rem; left: 0.5rem; background-image: linear-gradient(to right, #f59e0b, #d97706); border-radius: 9999px; transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1); z-index: 5; }
     </style>
 </head>
-<body class="bg-gray-900 text-gray-200 p-4 md:p-8">
-    <div class="max-w-6xl mx-auto bg-gray-800 p-6 md:p-10 rounded-3xl shadow-2xl">
+<body class="p-4 md:p-8">
+    <div class="max-w-6xl mx-auto main-container p-6 md:p-10 rounded-3xl shadow-2xl">
         <header class="text-center mb-6 relative">
             <h1 class="text-3xl font-bold text-amber-500">Panel Admin Arunika</h1>
             <p class="text-md text-gray-400">Kelola Toko Anda</p>
@@ -51,7 +103,14 @@
         </header>
 
         <div id="loading-container" class="text-center p-8"><div class="animate-spin rounded-full h-12 w-12 border-4 border-amber-500 border-t-transparent mx-auto"></div><p class="mt-4">Memuat data...</p></div>
-        <div id="login-container" class="hidden"><h2 class="text-2xl font-bold text-center mb-4">Login Admin</h2><form id="login-form" class="space-y-4 p-6 bg-gray-900 rounded-lg max-w-sm mx-auto"><div><label for="login-email" class="block text-sm font-medium mb-1">Email</label><input type="email" id="login-email" required class="w-full form-input"></div><div><label for="login-password" class="block text-sm font-medium mb-1">Kata Sandi</label><input type="password" id="login-password" required class="w-full form-input"></div><button type="submit" class="w-full py-3 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-lg">Masuk</button></form></div>
+        <div id="login-container" class="hidden">
+            <h2 class="text-2xl font-bold text-center mb-4">Login Admin</h2>
+            <form id="login-form" class="space-y-4 p-8 bg-gray-900 rounded-2xl max-w-sm mx-auto">
+                <div><label for="login-email" class="form-label">Email</label><input type="email" id="login-email" required class="form-input"></div>
+                <div><label for="login-password" class="form-label">Kata Sandi</label><input type="password" id="login-password" required class="form-input"></div>
+                <button type="submit" class="w-full btn btn-primary">Masuk</button>
+            </form>
+        </div>
 
         <div id="admin-content" class="hidden">
             <nav class="admin-nav-container mb-8">
@@ -72,55 +131,59 @@
 
             <!-- KONTEN ADMIN JASTIP -->
             <div id="content-jastip">
-                 <section class="mb-8 p-6 bg-black/20 rounded-lg">
-                    <h2 class="text-2xl font-bold mb-4">Kelola Produk Jastip</h2>
-                    <form id="jastip-form" class="space-y-4"><input type="hidden" id="jastip-product-id"><div><label for="jastip-product-name" class="block text-sm font-medium mb-1">Nama Produk</label><input type="text" id="jastip-product-name" required class="w-full form-input"></div><div><label for="jastip-product-category" class="block text-sm font-medium mb-1">Kategori</label><select id="jastip-product-category" required class="w-full form-input"><option value="">Memuat kategori...</option></select></div><div id="jastip-coffee-fields" class="hidden"><div id="jastip-sub-category-container"><label for="jastip-product-sub-category" class="block text-sm font-medium mb-1">Sub-Kategori Kopi</label><select id="jastip-product-sub-category" class="w-full form-input"><option value="Arabika">Arabika</option><option value="Robusta">Robusta</option></select></div><div id="jastip-options-container" class="space-y-2 mt-4"></div><button type="button" id="jastip-add-option-btn" class="mt-2 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-sm">Tambah Varian</button></div><div id="jastip-non-coffee-fields" class="hidden"><div><label for="jastip-product-price" class="block text-sm font-medium mb-1">Harga</label><input type="number" id="jastip-product-price" class="w-full form-input"></div><div><label for="jastip-product-shopee-link" class="block text-sm font-medium mb-1">Link Shopee (Opsional)</label><input type="url" id="jastip-product-shopee-link" class="w-full form-input"></div></div><div class="pt-2"><label for="jastip-product-is-best-seller" class="flex items-center space-x-2"><input type="checkbox" id="jastip-product-is-best-seller" class="form-checkbox h-5 w-5 rounded bg-gray-700 border-gray-600 text-amber-600"><span class="text-sm font-medium">Jadikan Produk Terlaris</span></label></div><div class="flex space-x-4 pt-2"><button type="submit" class="flex-1 py-3 bg-amber-600 hover:bg-amber-700 rounded-lg font-bold">Simpan Produk Jastip</button><button type="button" id="jastip-cancel-edit-btn" class="hidden flex-1 py-3 bg-gray-600 hover:bg-gray-500 rounded-lg font-bold">Batal</button></div></form>
+                 <section class="form-section mb-8">
+                    <h2 class="text-2xl font-bold mb-4 text-amber-400">Kelola Produk Jastip</h2>
+                    <form id="jastip-form" class="space-y-4"><input type="hidden" id="jastip-product-id"><div><label for="jastip-product-name" class="form-label">Nama Produk</label><input type="text" id="jastip-product-name" required class="form-input"></div><div><label for="jastip-product-category" class="form-label">Kategori</label><select id="jastip-product-category" required class="form-input"><option value="">Memuat kategori...</option></select></div><div id="jastip-coffee-fields" class="hidden"><div id="jastip-sub-category-container"><label for="jastip-product-sub-category" class="form-label">Sub-Kategori Kopi</label><select id="jastip-product-sub-category" class="form-input"><option value="Arabika">Arabika</option><option value="Robusta">Robusta</option></select></div><div id="jastip-options-container" class="space-y-2 mt-4"></div><button type="button" id="jastip-add-option-btn" class="mt-2 text-sm text-amber-500 hover:text-amber-400 font-semibold">Tambah Varian +</button></div><div id="jastip-non-coffee-fields" class="hidden"><div><label for="jastip-product-price" class="form-label">Harga</label><input type="number" id="jastip-product-price" class="form-input"></div><div><label for="jastip-product-shopee-link" class="form-label">Link Shopee (Opsional)</label><input type="url" id="jastip-product-shopee-link" class="form-input"></div></div><div class="pt-2"><label for="jastip-product-is-best-seller" class="flex items-center space-x-2"><input type="checkbox" id="jastip-product-is-best-seller" class="form-checkbox"><span class="text-sm font-medium">Jadikan Produk Terlaris</span></label></div><div class="flex space-x-4 pt-2"><button type="submit" class="btn btn-primary flex-1">Simpan Produk Jastip</button><button type="button" id="jastip-cancel-edit-btn" class="hidden btn btn-secondary flex-1">Batal</button></div></form>
                 </section>
                 <hr class="my-10 border-t border-gray-700">
-                <section class="p-6 bg-black/20 rounded-lg">
-                    <h2 class="text-2xl font-bold mb-4">Kelola Kategori Jastip</h2>
-                    <div class="space-y-4 md:space-y-0 md:flex md:gap-4 md:items-end mb-6 bg-gray-900/50 p-4 rounded-lg">
-                        <div class="flex-grow"><label for="new-category-name" class="block text-sm font-medium mb-1">Nama Kategori Baru</label><input type="text" id="new-category-name" placeholder="cth: Aksesoris" class="w-full form-input"></div>
-                        <div class="w-full md:w-32"><label for="new-category-order" class="block text-sm font-medium mb-1">Urutan</label><input type="number" id="new-category-order" placeholder="cth: 1" class="w-full form-input"></div>
-                        <div class="flex items-center pb-2.5"><label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" id="new-category-hassubtabs" class="form-checkbox h-5 w-5 rounded bg-gray-700 border-gray-600 text-amber-600"><span>Punya Sub-Tab Kopi?</span></label></div>
-                        <button id="add-category-btn" class="w-full md:w-auto py-2.5 px-6 bg-green-600 hover:bg-green-700 rounded-lg font-bold">Tambah</button>
+                <section class="form-section mb-8">
+                    <h2 class="text-2xl font-bold mb-4 text-amber-400">Kelola Kategori Jastip</h2>
+                    <div class="space-y-4 md:space-y-0 md:flex md:gap-4 md:items-end mb-6 bg-black/20 p-4 rounded-lg">
+                        <div class="flex-grow"><label for="new-category-name" class="form-label">Nama Kategori Baru</label><input type="text" id="new-category-name" placeholder="cth: Aksesoris" class="form-input"></div>
+                        <div class="w-full md:w-32"><label for="new-category-order" class="form-label">Urutan</label><input type="number" id="new-category-order" placeholder="cth: 1" class="form-input"></div>
+                        <div class="flex items-center pb-2.5"><label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" id="new-category-hassubtabs" class="form-checkbox"><span>Punya Sub-Tab Kopi?</span></label></div>
+                        <button id="add-category-btn" class="w-full md:w-auto btn btn-primary bg-green-600 hover:bg-green-700">Tambah</button>
                     </div>
                     <div id="category-list" class="space-y-2"></div>
                 </section>
                 <hr class="my-10 border-t border-gray-700">
-                <div class="p-6 bg-black/20 rounded-lg"><h3 class="text-lg font-bold mb-4">Daftar Produk Jastip</h3><div class="relative mb-4"><input type="text" id="jastip-search-input" placeholder="Cari produk jastip..." class="w-full form-input"></div><div class="table-container"><table class="w-full text-left table-auto"><thead><tr class="bg-gray-900/50 text-gray-300 uppercase text-xs tracking-wider"><th class="p-3 sortable-header" data-sort-column="name"><div class="flex items-center gap-1">Nama<span id="jastip-name-sort-indicator"></span></div></th><th class="p-3">Kategori</th><th class="p-3 sortable-header" data-sort-column="timestamp"><div class="flex items-center gap-1">Tanggal<span id="jastip-timestamp-sort-indicator"></span></div></th><th class="p-3 text-center">Aksi</th></tr></thead><tbody id="jastip-product-list" class="text-sm"></tbody></table></div><div id="jastip-pagination-controls" class="mt-4 flex justify-between items-center text-sm text-gray-400"></div></div>
-                <hr class="my-10 border-t border-gray-700"><section class="p-6 bg-black/20 rounded-lg"><h2 class="text-2xl font-bold mb-4">Kelola Testimoni</h2><form id="testimonial-form" class="space-y-4"><input type="hidden" id="testimonial-id"><div><label for="testimonial-url" class="block text-sm font-medium mb-1">URL Gambar Testimoni</label><input type="url" id="testimonial-url" required class="w-full form-input"></div><div class="flex space-x-4"><button type="submit" class="flex-1 py-3 bg-green-600 hover:bg-green-700 rounded-lg font-bold">Simpan Testimoni</button><button type="button" id="cancel-testimonial-edit-btn" class="hidden flex-1 py-3 bg-gray-600 hover:bg-gray-500 rounded-lg font-bold">Batal</button></div></form><div class="mt-8"><h3 class="text-lg font-bold mb-2">Daftar Testimoni</h3><div id="testimonial-list" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4"></div></div></section>
+                <div class="form-section mb-8"><h3 class="text-lg font-bold mb-4">Daftar Produk Jastip</h3><div class="relative mb-4"><input type="text" id="jastip-search-input" placeholder="Cari produk jastip..." class="form-input"></div><div class="table-container"><table class="w-full text-left table-auto"><thead><tr class="bg-gray-900/50 text-gray-300 uppercase text-xs tracking-wider"><th class="p-3 sortable-header" data-sort-column="name"><div class="flex items-center gap-1">Nama<span id="jastip-name-sort-indicator"></span></div></th><th class="p-3">Kategori</th><th class="p-3 sortable-header" data-sort-column="timestamp"><div class="flex items-center gap-1">Tanggal<span id="jastip-timestamp-sort-indicator"></span></div></th><th class="p-3 text-center">Aksi</th></tr></thead><tbody id="jastip-product-list" class="text-sm"></tbody></table></div><div id="jastip-pagination-controls" class="mt-4 flex justify-between items-center text-sm text-gray-400"></div></div>
+                <hr class="my-10 border-t border-gray-700">
+                <section class="form-section">
+                    <h2 class="text-2xl font-bold mb-4 text-amber-400">Kelola Testimoni</h2>
+                    <form id="testimonial-form" class="space-y-4"><input type="hidden" id="testimonial-id"><div><label for="testimonial-url" class="form-label">URL Gambar Testimoni</label><input type="url" id="testimonial-url" required class="form-input"></div><div class="flex space-x-4"><button type="submit" class="btn btn-primary flex-1 bg-green-600 hover:bg-green-700">Simpan Testimoni</button><button type="button" id="cancel-testimonial-edit-btn" class="hidden btn btn-secondary flex-1">Batal</button></div></form><div class="mt-8"><h3 class="text-lg font-bold mb-2">Daftar Testimoni</h3><div id="testimonial-list" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4"></div></div>
+                </section>
             </div>
 
             <!-- KONTEN ADMIN VIA ONLINE -->
             <div id="content-via-online" class="hidden">
-                 <section class="p-6 bg-black/20 rounded-lg">
-                    <h2 class="text-2xl font-bold mb-4">Kelola Produk Via Online</h2>
+                 <section class="form-section mb-8">
+                    <h2 class="text-2xl font-bold mb-4 text-amber-400">Kelola Produk Via Online</h2>
                     <form id="online-form" class="space-y-4">
                         <input type="hidden" id="online-product-id">
                         <input type="hidden" id="online-product-image-url-hidden">
-                        <div><label for="online-product-name" class="block text-sm font-medium mb-1">Nama Produk</label><input type="text" id="online-product-name" required class="w-full form-input"></div>
-                        <div><label for="online-product-category" class="block text-sm font-medium mb-1">Kategori</label><input type="text" id="online-product-category" required class="w-full form-input"></div>
+                        <div><label for="online-product-name" class="form-label">Nama Produk</label><input type="text" id="online-product-name" required class="form-input"></div>
+                        <div><label for="online-product-category" class="form-label">Kategori</label><input type="text" id="online-product-category" required class="form-input"></div>
                         
                         <div>
-                            <label class="block text-sm font-medium mb-1">Gambar Produk</label>
+                            <label class="form-label">Gambar Produk</label>
                             <div class="flex items-center gap-4">
                                 <div id="image-preview-container"><img id="image-preview" src="" alt="Preview"></div>
-                                <input type="file" id="online-product-image-file" accept="image/*" class="w-full form-input file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-amber-50 file:text-amber-700 hover:file:bg-amber-100">
+                                <input type="file" id="online-product-image-file" accept="image/*" class="form-input file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-amber-50 file:text-amber-700 hover:file:bg-amber-100">
                             </div>
                             <div id="upload-progress-container" class="w-full bg-gray-700 rounded-full h-2.5 mt-2 hidden">
                                 <div id="upload-progress-bar" class="bg-amber-600 h-2.5 rounded-full"></div>
                             </div>
                         </div>
 
-                        <div><label for="online-product-affiliate-link" class="block text-sm font-medium mb-1">Link Affiliate</label><input type="url" id="online-product-affiliate-link" required class="w-full form-input"></div>
-                        <div><label for="online-product-platform" class="block text-sm font-medium mb-1">Platform</label><select id="online-product-platform" required class="w-full form-input"><option>Shopee</option><option>Tokopedia</option><option>Lazada</option><option>Lainnya</option></select></div>
-                        <div class="flex space-x-4 pt-2"><button type="submit" class="flex-1 py-3 bg-amber-600 hover:bg-amber-700 rounded-lg font-bold">Simpan Produk Online</button><button type="button" id="online-cancel-edit-btn" class="hidden flex-1 py-3 bg-gray-600 hover:bg-gray-500 rounded-lg font-bold">Batal</button></div>
+                        <div><label for="online-product-affiliate-link" class="form-label">Link Affiliate</label><input type="url" id="online-product-affiliate-link" required class="form-input"></div>
+                        <div><label for="online-product-platform" class="form-label">Platform</label><select id="online-product-platform" required class="form-input"><option>Shopee</option><option>Tokopedia</option><option>Lazada</option><option>Lainnya</option></select></div>
+                        <div class="flex space-x-4 pt-2"><button type="submit" class="btn btn-primary flex-1">Simpan Produk Online</button><button type="button" id="online-cancel-edit-btn" class="hidden btn btn-secondary flex-1">Batal</button></div>
                     </form>
                  </section>
-                 <div class="mt-8 p-6 bg-black/20 rounded-lg">
+                 <div class="form-section">
                     <h3 class="text-lg font-bold mb-4">Daftar Produk Via Online</h3>
-                    <div class="relative mb-4"><input type="text" id="online-search-input" placeholder="Cari produk online..." class="w-full form-input"></div>
+                    <div class="relative mb-4"><input type="text" id="online-search-input" placeholder="Cari produk online..." class="form-input"></div>
                     <div class="table-container"><table class="w-full text-left table-auto"><thead><tr class="bg-gray-900/50 text-gray-300 uppercase text-xs tracking-wider"><th class="p-3 sortable-header" data-sort-column="name"><div class="flex items-center gap-1">Nama<span id="online-name-sort-indicator"></span></div></th><th class="p-3 sortable-header" data-sort-column="category"><div class="flex items-center gap-1">Kategori<span id="online-category-sort-indicator"></span></div></th><th class="p-3 sortable-header" data-sort-column="platform"><div class="flex items-center gap-1">Platform<span id="online-platform-sort-indicator"></span></div></th><th class="p-3 text-center">Aksi</th></tr></thead><tbody id="online-product-list" class="text-sm"></tbody></table></div>
                     <div id="online-pagination-controls" class="mt-4 flex justify-between items-center text-sm text-gray-400"></div>
                  </div>
@@ -190,7 +253,7 @@
 
         </div>
     </div>
-    <div id="modal" class="hidden modal-overlay"><div class="modal-container"><h3 id="modal-title" class="text-xl font-bold mb-4 text-amber-400"></h3><p id="modal-message" class="text-gray-300 mb-6"></p><button id="modal-close-btn" class="bg-amber-600 hover:bg-amber-700 text-white px-6 py-2 rounded-lg">OK</button></div></div>
+    <div id="modal" class="hidden modal-overlay"><div class="modal-container"><h3 id="modal-title" class="text-xl font-bold mb-4 text-amber-400"></h3><p id="modal-message" class="text-gray-300 mb-6"></p><button id="modal-close-btn" class="btn btn-primary">OK</button></div></div>
     
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
@@ -306,7 +369,7 @@
         document.querySelectorAll('#content-jastip .sortable-header').forEach(h => { h.addEventListener('click', () => { const c = h.dataset.sortColumn; if (jastipSortColumn === c) { jastipSortDirection = jastipSortDirection === 'asc' ? 'desc' : 'asc'; } else { jastipSortColumn = c; jastipSortDirection = 'asc'; } jastipCurrentPage = 1; updateJastipUI(); }); });
         jastipSearchInput.addEventListener('input', () => { jastipCurrentPage = 1; updateJastipUI(); });
         jastipCategorySelect.addEventListener('change', e => { const catHasSubtabs = jastipCategories.find(c => c.name === e.target.value)?.hasSubtabs; jastipCoffeeFields.classList.toggle('hidden', !catHasSubtabs); jastipNonCoffeeFields.classList.toggle('hidden', catHasSubtabs); });
-        jastipAddOptionBtn.addEventListener('click', () => createJastipOptionInput()); function createJastipOptionInput(opt = { name: '', price: '' }) { const g = document.createElement('div'); g.className = 'input-group'; g.innerHTML = `<input value="${opt.name}" placeholder="Varian" class="w-full form-input"><input type="number" value="${opt.price}" placeholder="Harga" class="w-full form-input"><button type="button" class="text-red-500 p-2">&times;</button>`; jastipOptionsContainer.appendChild(g); g.querySelector('button').addEventListener('click', () => g.remove()); }
+        jastipAddOptionBtn.addEventListener('click', () => createJastipOptionInput()); function createJastipOptionInput(opt = { name: '', price: '' }) { const g = document.createElement('div'); g.className = 'input-group flex items-center gap-2'; g.innerHTML = `<input value="${opt.name}" placeholder="Varian" class="form-input"><input type="number" value="${opt.price}" placeholder="Harga" class="form-input"><button type="button" class="text-red-500 p-2 hover:bg-red-500/10 rounded-full">&times;</button>`; jastipOptionsContainer.appendChild(g); g.querySelector('button').addEventListener('click', () => g.remove()); }
         jastipForm.addEventListener('submit', async e => { e.preventDefault(); const catName = jastipCategorySelect.value; const cat = jastipCategories.find(c => c.name === catName); if (!cat) return showModal('Error', 'Kategori tidak valid.'); let data; if (cat.hasSubtabs) { const opts = Array.from(jastipOptionsContainer.querySelectorAll('.input-group')).map(el => ({ name: el.children[0].value, price: parseInt(el.children[1].value), id: el.children[0].value.replace(/\s/g, '').toLowerCase() })); if (opts.some(o => !o.name || isNaN(o.price))) return showModal('Error', 'Varian kopi harus diisi lengkap.'); data = { options: opts, subCategory: jastipSubCategorySelect.value }; } else { data = { price: parseInt(jastipPriceInput.value), shopeeLink: jastipShopeeLinkInput.value }; } Object.assign(data, { name: jastipProductNameInput.value, category: catName, isBestSeller: jastipBestSellerCheckbox.checked, timestamp: serverTimestamp() }); try { if (jastipProductIdInput.value) await setDoc(doc(db, 'products', jastipProductIdInput.value), data); else await addDoc(collection(db, 'products'), data); showModal('Sukses', 'Produk Jastip disimpan!'); jastipForm.reset(); jastipCancelEditBtn.classList.add('hidden'); jastipOptionsContainer.innerHTML = ''; } catch (err) { showModal('Error', 'Gagal menyimpan.'); } });
         jastipProductListTable.addEventListener('click', e => { const id = e.target.closest('button')?.dataset.id; if (!id) return; if (e.target.closest('.btn-edit')) { const p = jastipProductsData.find(p => p.id === id); const cat = jastipCategories.find(c => c.name === p.category); jastipProductIdInput.value = id; jastipProductNameInput.value = p.name; jastipCategorySelect.value = p.category; jastipCoffeeFields.classList.toggle('hidden', !cat?.hasSubtabs); jastipNonCoffeeFields.classList.toggle('hidden', cat?.hasSubtabs); if (cat?.hasSubtabs) { jastipSubCategorySelect.value = p.subCategory; jastipOptionsContainer.innerHTML = ''; p.options.forEach(createJastipOptionInput); } else { jastipPriceInput.value = p.price; jastipShopeeLinkInput.value = p.shopeeLink || ''; } jastipBestSellerCheckbox.checked = p.isBestSeller; jastipCancelEditBtn.classList.remove('hidden'); contentJastip.scrollIntoView({ behavior: 'smooth' }); } if (e.target.closest('.btn-delete') && confirm('Yakin hapus?')) { deleteDoc(doc(db, 'products', id)); showModal('Sukses', 'Produk Jastip dihapus.'); } });
         jastipCancelEditBtn.addEventListener('click', () => { jastipForm.reset(); jastipOptionsContainer.innerHTML = ''; jastipCancelEditBtn.classList.add('hidden'); });
@@ -646,4 +709,4 @@
 
     </script>
 </body>
-</html>
+</ht
