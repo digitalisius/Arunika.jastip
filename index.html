@@ -425,7 +425,20 @@
         }
         
         function addTabEventListeners() {
-            tabContentContainer.addEventListener('click', e => { if (e.target.matches('.sub-tab-btn')) { const p = e.target.closest('.flex'); p.querySelectorAll('.sub-tab-btn').forEach(b => b.classList.remove('active')); e.target.classList.add('active'); const pane = e.target.closest('.tab-pane'); const baseId = pane.id.replace('content-',''); pane.querySelectorAll('section').forEach(s => s.classList.add('hidden')); document.getElementById(`${baseId}-${e.target.dataset.subcat}`)?.classList.remove('hidden'); } });
+            tabContentContainer.addEventListener('click', e => {
+                if (e.target.matches('.sub-tab-btn')) {
+                    const buttonContainer = e.target.closest('.flex');
+                    buttonContainer.querySelectorAll('.sub-tab-btn').forEach(b => b.classList.remove('active'));
+                    e.target.classList.add('active');
+                    
+                    const pane = e.target.closest('.tab-pane');
+                    pane.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
+                    
+                    const catId = pane.id.replace('content-', '');
+                    const targetSectionId = `content-${catId}-${e.target.dataset.subcat}`;
+                    document.getElementById(targetSectionId)?.classList.remove('hidden');
+                }
+            });
         }
         
         function handleAddToCartClick(e) {
