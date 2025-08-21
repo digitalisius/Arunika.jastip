@@ -96,6 +96,68 @@
         .sort-modal-item { background-color: #2a2a2a; border: 1px solid #4b5563; color: #e0e0e0; transition: all 0.2s ease; }
         .sort-modal-item:hover { border-color: #FFD700; color: #FFD700; }
         .sort-modal-item.active { background-image: linear-gradient(to right, #B8860B, #FFD700); color: #1a1a1a; border-color: #FFD700; font-weight: bold; }
+
+        /* --- Gaya Keranjang Baru --- */
+        #cart-section {
+            background: linear-gradient(160deg, #2a2a2a, #1a1a1a);
+            border-radius: 1.5rem;
+            padding: 1.5rem 2rem;
+            border: 1px solid #3a3a3a;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background-color: rgba(17, 17, 17, 0.5);
+            border-radius: 0.75rem;
+            border: 1px solid #4a4a4a;
+            transition: all 0.3s ease;
+            animation: slideIn 0.5s ease-out forwards;
+        }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        .cart-item:hover {
+            border-color: #FFD700;
+            transform: scale(1.02);
+        }
+        .remove-from-cart-btn {
+            background-color: #4b5563;
+            color: #e0e0e0;
+            width: 1.75rem;
+            height: 1.75rem;
+            border-radius: 9999px;
+            transition: background-color 0.2s, transform 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            border: none;
+        }
+        .remove-from-cart-btn:hover {
+            background-color: #ef4444;
+            transform: scale(1.1);
+        }
+        #cart-summary {
+            border-top: 1px solid #4a4a4a;
+            padding-top: 1rem;
+            margin-top: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        #checkout-button {
+            background-image: linear-gradient(to right, #16a34a, #22c55e);
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(34, 197, 94, 0.2);
+        }
+        #checkout-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 7px 20px rgba(34, 197, 94, 0.3);
+        }
     </style>
 </head>
 <body class="bg-gray-900 text-gray-200 p-4 md:p-8">
@@ -146,11 +208,16 @@
         </main>
         
         <hr class="my-10 border-t border-gray-700">
-        <section>
-            <h2 class="text-2xl font-bold text-gray-200 mb-4">Keranjang Anda</h2>
-            <div id="cart-items" class="space-y-4 mb-4"><p id="empty-cart-message" class="text-gray-500 italic text-center p-4">Keranjang masih kosong.</p></div>
-            <div class="flex justify-between items-center font-bold text-xl text-gray-200 border-t border-gray-700 pt-4"><span>Total:</span><span id="cart-total">Rp0</span></div>
-            <button id="checkout-button" class="w-full mt-6 py-4 px-6 bg-green-600 hover:bg-green-700 text-white font-bold text-lg rounded-xl hidden">Pesan Sekarang via WhatsApp</button>
+        <section id="cart-section">
+            <h2 class="text-2xl font-bold text-amber-400 mb-4">Keranjang Anda</h2>
+            <div id="cart-items" class="space-y-3 mb-4">
+                <div id="empty-cart-message" class="text-center py-8">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="mx-auto text-gray-600 mb-2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+                    <p class="text-gray-500">Keranjang masih kosong.</p>
+                </div>
+            </div>
+            <div id="cart-summary"></div>
+            <button id="checkout-button" class="w-full mt-6 py-3 px-6 text-white font-bold text-lg rounded-xl hidden">Pesan Sekarang via WhatsApp</button>
         </section>
         <hr class="my-10 border-t border-gray-700">
         <section id="suggestion-form-section" class="mb-8 p-6 bg-gray-900 rounded-lg">
@@ -240,7 +307,7 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         
-        const tabContentContainer = document.getElementById('tab-content'), cartItemsDiv = document.getElementById('cart-items'), cartTotalSpan = document.getElementById('cart-total'), emptyCartMessage = document.getElementById('empty-cart-message'), checkoutButton = document.getElementById('checkout-button'), testimonialGrid = document.getElementById('testimonial-grid'), testimonialLoadingMessage = document.getElementById('testimonial-loading-message'), sendSuggestionBtn = document.getElementById('send-suggestion-btn'), howToOrderBtn = document.getElementById('how-to-order-btn'), bestSellerInfoBtn = document.getElementById('best-seller-info-btn'), testimonialBtn = document.getElementById('testimonial-btn');
+        const tabContentContainer = document.getElementById('tab-content'), cartItemsDiv = document.getElementById('cart-items'), cartSummaryDiv = document.getElementById('cart-summary'), emptyCartMessage = document.getElementById('empty-cart-message'), checkoutButton = document.getElementById('checkout-button'), testimonialGrid = document.getElementById('testimonial-grid'), testimonialLoadingMessage = document.getElementById('testimonial-loading-message'), sendSuggestionBtn = document.getElementById('send-suggestion-btn'), howToOrderBtn = document.getElementById('how-to-order-btn'), bestSellerInfoBtn = document.getElementById('best-seller-info-btn'), testimonialBtn = document.getElementById('testimonial-btn');
         const howToOrderModal=document.getElementById('how-to-order-modal'),bestSellerInfoModal=document.getElementById('best-seller-info-modal'),imageModal=document.getElementById('image-modal');
         const categorySelectorBtn = document.getElementById('category-selector-btn'), categorySelectorText = document.getElementById('category-selector-text'), categoryModal = document.getElementById('category-modal'), categoryModalList = document.getElementById('category-modal-list');
         const toastNotification = document.getElementById('toast-notification'), toastMessage = document.getElementById('toast-message');
@@ -379,12 +446,47 @@
         }
 
         function renderCart() {
-            cartItemsDiv.innerHTML = ''; let total = 0; let hasItems = Object.keys(cart).length > 0;
-            for (const id in cart) { const item = cart[id]; total += item.price * item.quantity; const el = document.createElement('div'); el.className = 'flex justify-between items-center p-3 bg-gray-700 rounded-lg'; el.innerHTML = `<div class="flex items-center space-x-3"><button data-id="${id}" class="remove-from-cart-btn bg-red-500 w-6 h-6 rounded-full">-</button><span>${item.quantity}x ${item.name}</span></div><span class="font-semibold text-amber-500">Rp${(item.price*item.quantity).toLocaleString('id-ID')}</span>`; cartItemsDiv.appendChild(el); }
-            if(hasItems){ total+=titipFee; const feeEl=document.createElement('div'); feeEl.className='flex justify-between items-center p-3 bg-gray-700 rounded-lg font-bold'; feeEl.innerHTML=`<span>Jasa Titip:</span><span class="text-amber-500">Rp${titipFee.toLocaleString('id-ID')}</span>`; cartItemsDiv.appendChild(feeEl); }
-            emptyCartMessage.style.display = hasItems ? 'none' : 'block';
+            cartItemsDiv.innerHTML = '';
+            cartSummaryDiv.innerHTML = '';
+            let total = 0;
+            const hasItems = Object.keys(cart).length > 0;
+
+            if (hasItems) {
+                emptyCartMessage.style.display = 'none';
+                for (const id in cart) {
+                    const item = cart[id];
+                    total += item.price * item.quantity;
+                    const el = document.createElement('div');
+                    el.className = 'cart-item';
+                    el.innerHTML = `
+                        <div class="flex-grow">
+                            <p class="font-semibold text-gray-200">${item.name}</p>
+                            <p class="text-sm text-gray-400">${item.quantity} x Rp${item.price.toLocaleString('id-ID')}</p>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <p class="font-semibold text-amber-400">Rp${(item.price * item.quantity).toLocaleString('id-ID')}</p>
+                            <button data-id="${id}" class="remove-from-cart-btn">-</button>
+                        </div>`;
+                    cartItemsDiv.appendChild(el);
+                }
+                
+                total += titipFee;
+
+                cartSummaryDiv.innerHTML = `
+                    <div class="flex justify-between text-gray-400">
+                        <span>Jasa Titip:</span>
+                        <span class="font-medium text-gray-200">Rp${titipFee.toLocaleString('id-ID')}</span>
+                    </div>
+                    <div class="flex justify-between text-lg font-bold text-amber-400">
+                        <span>Total:</span>
+                        <span>Rp${total.toLocaleString('id-ID')}</span>
+                    </div>
+                `;
+            } else {
+                emptyCartMessage.style.display = 'block';
+            }
+            
             checkoutButton.style.display = hasItems ? 'block' : 'none';
-            cartTotalSpan.textContent = `Rp${total.toLocaleString('id-ID')}`;
         }
 
         function addItemToCart(itemInfo) {
