@@ -3,7 +3,7 @@
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Arunika Shop - Via Online</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn-tailwindcss.vercel.app/"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&display=swap');
@@ -11,8 +11,52 @@
         #main-title { font-family: 'Cinzel', serif; font-size: 3rem; color: #FFD700; }
         .main-nav-btn { background-color: #2a2a2a; color: #FFD700; transition: all 0.2s ease-in-out; }
         .main-nav-btn.active, .main-nav-btn:hover { background-image: linear-gradient(to right, #B8860B, #FFD700); box-shadow: 0 4px 6px -1px rgba(255, 215, 0, 0.1); color: #1a1a1a; }
-        .product-card { transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out; }
-        .product-card:hover { transform: translateY(-5px); box-shadow: 0 10px 15px -3px rgba(255, 215, 0, 0.1); }
+        
+        /* --- Desain Kartu Produk Baru --- */
+        .product-card, .new-product-card {
+            background: linear-gradient(145deg, #2a2a2a, #1e1e1e);
+            border: 1px solid #3a3a3a;
+            border-radius: 1rem;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+        .product-card:hover, .new-product-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 25px -5px rgba(255, 215, 0, 0.1), 0 10px 10px -5px rgba(255, 215, 0, 0.08);
+            border-color: #FFD700;
+        }
+        .product-card::before, .new-product-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -150%;
+            width: 70%;
+            height: 100%;
+            background: linear-gradient(to right, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0) 100%);
+            transform: skewX(-25deg);
+            transition: left 0.8s ease-in-out;
+        }
+        .product-card:hover::before, .new-product-card:hover::before {
+            left: 150%;
+        }
+        .product-info { flex-grow: 1; }
+
+        /* --- Animasi Staggered --- */
+        #affiliate-product-list .product-card {
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.5s ease-out forwards;
+        }
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
         .platform-btn-shopee { background-color: #FF5722; color: white; } .platform-btn-shopee:hover { background-color: #E64A19; }
         .platform-btn-tokopedia { background-color: #03AC0E; color: white; } .platform-btn-tokopedia:hover { background-color: #028A0B; }
         .platform-btn-lazada { background-color: #0F79F1; color: white; } .platform-btn-lazada:hover { background-color: #0D69D0; }
@@ -37,29 +81,10 @@
         .pagination-btn:disabled { opacity: 0.5; cursor: not-allowed; }
         
         /* Gaya Baru untuk Produk Terbaru */
-        #newest-product-list {
-            -ms-overflow-style: none;  /* IE and Edge */
-            scrollbar-width: none;  /* Firefox */
-        }
-        #newest-product-list::-webkit-scrollbar {
-            display: none; /* Chrome, Safari, and Opera */
-        }
-        .new-product-card {
-            width: 160px; /* Lebar tetap untuk scrolling horizontal */
-            flex-shrink: 0;
-        }
-        .new-badge {
-            position: absolute;
-            top: 0.5rem;
-            left: 0.5rem;
-            background-color: #f59e0b;
-            color: #121212;
-            font-size: 0.65rem;
-            font-weight: bold;
-            padding: 0.125rem 0.5rem;
-            border-radius: 9999px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-        }
+        #newest-product-list { -ms-overflow-style: none; scrollbar-width: none; }
+        #newest-product-list::-webkit-scrollbar { display: none; }
+        .new-product-card { width: 160px; flex-shrink: 0; }
+        .new-badge { position: absolute; top: 0.5rem; left: 0.5rem; background-color: #f59e0b; color: #121212; font-size: 0.65rem; font-weight: bold; padding: 0.125rem 0.5rem; border-radius: 9999px; box-shadow: 0 2px 4px rgba(0,0,0,0.2); z-index: 10; }
         @keyframes pulse { 50% { opacity: .5; } }
         .skeleton { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
     </style>
@@ -153,7 +178,7 @@
         function createProductCard(product, isNew = false) {
             const productElement = document.createElement('div');
             const cardClass = isNew ? 'new-product-card' : 'product-card';
-            productElement.className = `${cardClass} bg-gray-700 rounded-xl shadow-md border border-gray-600 flex flex-col p-4 relative`;
+            productElement.className = `${cardClass} p-4`;
             
             const platformLower = product.platform ? product.platform.toLowerCase() : 'lainnya';
             const platformClass = `platform-btn-${platformLower}`;
@@ -162,11 +187,11 @@
             productElement.innerHTML = `
                 ${newBadge}
                 <img src="${product.imageUrl}" alt="${product.name}" class="w-full h-32 md:h-40 object-cover rounded-lg mb-4">
-                <div class="w-full text-center mb-4 flex-grow">
+                <div class="w-full text-center mb-4 flex-grow product-info">
                     <h3 class="font-semibold text-sm md:text-base text-gray-200">${product.name}</h3>
                     <p class="text-xs md:text-sm text-gray-400 mt-1">${product.category}</p>
                 </div>
-                <a href="${product.affiliateLink}" target="_blank" class="w-full text-center py-2 px-4 ${platformClass} font-bold rounded-lg transition-colors text-sm">
+                <a href="${product.affiliateLink}" target="_blank" class="w-full text-center py-2 px-4 ${platformClass} font-bold rounded-lg transition-colors text-sm mt-auto">
                     Beli di ${product.platform}
                 </a>`;
             return productElement;
@@ -176,7 +201,11 @@
             productListDiv.innerHTML = '';
             loadingMessage.classList.add('hidden');
             noResultsMessage.classList.toggle('hidden', productsToRender.length > 0);
-            productsToRender.forEach(product => productListDiv.appendChild(createProductCard(product, false)));
+            productsToRender.forEach((product, index) => {
+                const card = createProductCard(product, false);
+                card.style.animationDelay = `${index * 80}ms`; // Stagger delay
+                productListDiv.appendChild(card);
+            });
         }
 
         function renderNewestProducts(productsToRender) {
