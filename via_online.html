@@ -81,10 +81,26 @@
         .pagination-btn:disabled { opacity: 0.5; cursor: not-allowed; }
         
         /* Gaya Baru untuk Produk Terbaru */
-        #newest-product-list { -ms-overflow-style: none; scrollbar-width: none; }
+        #newest-product-list { -ms-overflow-style: none; scrollbar-width: none; scroll-behavior: smooth; }
         #newest-product-list::-webkit-scrollbar { display: none; }
         .new-product-card { width: 160px; flex-shrink: 0; }
         .new-badge { position: absolute; top: 0.5rem; left: 0.5rem; background-color: #f59e0b; color: #121212; font-size: 0.65rem; font-weight: bold; padding: 0.125rem 0.5rem; border-radius: 9999px; box-shadow: 0 2px 4px rgba(0,0,0,0.2); z-index: 10; }
+        .slider-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: rgba(0,0,0,0.5);
+            color: white;
+            border-radius: 50%;
+            width: 2.5rem;
+            height: 2.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            z-index: 20;
+        }
+        .slider-btn:hover { background-color: rgba(245, 158, 11, 0.8); }
         @keyframes pulse { 50% { opacity: .5; } }
         .skeleton { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
     </style>
@@ -104,17 +120,25 @@
 
         <div>
             <!-- BAGIAN PRODUK TERBARU -->
-            <section id="newest-products-section" class="mb-12">
+            <section id="newest-products-section" class="mb-12 relative">
                 <h2 class="text-2xl font-bold mb-4 text-amber-400 flex items-center gap-3">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-4.44a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8.38"/><path d="M16 2l5 5"/><path d="M14.5 10.5h-5"/><path d="M14.5 6.5h-5"/><path d="M9.5 14.5h5"/></svg>
                     Produk Terbaru
                 </h2>
-                <div id="newest-product-list" class="flex gap-4 overflow-x-auto pb-4">
-                    <!-- Skeleton loaders -->
-                    <div class="skeleton w-40 h-56 bg-gray-700 rounded-xl flex-shrink-0"></div>
-                    <div class="skeleton w-40 h-56 bg-gray-700 rounded-xl flex-shrink-0 hidden sm:block"></div>
-                    <div class="skeleton w-40 h-56 bg-gray-700 rounded-xl flex-shrink-0 hidden md:block"></div>
-                    <div class="skeleton w-40 h-56 bg-gray-700 rounded-xl flex-shrink-0 hidden lg:block"></div>
+                <div class="relative group">
+                    <div id="newest-product-list" class="flex gap-4 overflow-x-auto pb-4">
+                        <!-- Skeleton loaders -->
+                        <div class="skeleton w-40 h-56 bg-gray-700 rounded-xl flex-shrink-0"></div>
+                        <div class="skeleton w-40 h-56 bg-gray-700 rounded-xl flex-shrink-0 hidden sm:block"></div>
+                        <div class="skeleton w-40 h-56 bg-gray-700 rounded-xl flex-shrink-0 hidden md:block"></div>
+                        <div class="skeleton w-40 h-56 bg-gray-700 rounded-xl flex-shrink-0 hidden lg:block"></div>
+                    </div>
+                    <button id="prev-btn" class="slider-btn left-2 hidden md:group-hover:flex">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+                    </button>
+                    <button id="next-btn" class="slider-btn right-2 hidden md:group-hover:flex">
+                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                    </button>
                 </div>
             </section>
             
@@ -168,12 +192,15 @@
         const categoryModal = document.getElementById('category-modal');
         const categoryModalList = document.getElementById('category-modal-list');
         const paginationControls = document.getElementById('pagination-controls');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
         
         let allProducts = [];
         let activeCategory = 'Semua';
         let searchTerm = '';
         let currentPage = 1;
         const rowsPerPage = 8;
+        let autoSlideInterval;
 
         function createProductCard(product, isNew = false) {
             const productElement = document.createElement('div');
@@ -295,6 +322,44 @@
             }
         }
 
+        // --- Slider Logic ---
+        function stopAutoSlide() {
+            clearInterval(autoSlideInterval);
+        }
+
+        function startAutoSlide() {
+            stopAutoSlide(); // Hentikan interval sebelumnya untuk menghindari duplikasi
+            if (window.innerWidth < 768) return; // Hanya aktif di desktop
+
+            autoSlideInterval = setInterval(() => {
+                const container = newestProductListDiv;
+                const scrollAmount = container.clientWidth * 0.8; // Gulir sejauh 80% lebar kontainer
+                
+                // Jika sudah di akhir, kembali ke awal
+                if (container.scrollLeft + container.clientWidth >= container.scrollWidth - 10) {
+                    container.scrollTo({ left: 0, behavior: 'smooth' });
+                } else {
+                    container.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+                }
+            }, 3000); // Ganti slide setiap 3 detik
+        }
+
+        prevBtn.addEventListener('click', () => {
+            newestProductListDiv.scrollBy({ left: -300, behavior: 'smooth' });
+        });
+        nextBtn.addEventListener('click', () => {
+            newestProductListDiv.scrollBy({ left: 300, behavior: 'smooth' });
+        });
+        
+        const newestProductSection = document.getElementById('newest-products-section');
+        newestProductSection.addEventListener('mouseenter', stopAutoSlide);
+        newestProductSection.addEventListener('mouseleave', startAutoSlide);
+        window.addEventListener('resize', () => {
+            stopAutoSlide();
+            startAutoSlide();
+        });
+
+
         searchInput.addEventListener('input', (e) => {
             searchTerm = e.target.value.trim();
             currentPage = 1;
@@ -324,6 +389,7 @@
         onSnapshot(query(productsCollectionRef, orderBy("timestamp", "desc"), limit(5)), (snapshot) => {
             const newestProducts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             renderNewestProducts(newestProducts);
+            startAutoSlide(); // Mulai auto-slide setelah produk dimuat
         }, (error) => {
             console.error("Error fetching newest affiliate products:", error);
             newestProductListDiv.innerHTML = `<p class="text-red-500">Gagal memuat produk terbaru.</p>`;
